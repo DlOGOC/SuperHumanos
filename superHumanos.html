@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Super-Humanos</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR (único) -->
+  <div id="sidebar">
+    <h3 id="sidebar-name">Jogador</h3>
+
+    <div class="status-section">
+      <p>Data: <span id="game-date">01/01/2025</span></p>
+      <p>Hora: <span id="game-time">08:00</span></p>
+      <p>Dia da Semana: <span id="game-weekday">Segunda-feira</span></p>
+
+      <label>HP</label>
+      <div class="bar"><div id="bar-hp" class="fill red"></div></div>
+
+      <label>Mana</label>
+      <div class="bar"><div id="bar-mana" class="fill blue"></div></div>
+
+      <label>Fome</label>
+      <div class="bar"><div id="bar-hunger" class="fill orange"></div></div>
+
+      <label>Sono</label>
+      <div class="bar"><div id="bar-sleep" class="fill purple"></div></div>
+    </div>
+
+    <div class="sidebar-section">
+      <p>Força: <span id="attr-strength">10</span></p>
+      <p>Inteligência: <span id="attr-int">10</span></p>
+      <p>Habilidade: <span id="attr-skill">10</span></p>
+      <p>Defesa: <span id="attr-defense">10</span></p>
+      <p>Vigor: <span id="attr-vigor">8</span></p>
+      <p>Energia: <span id="attr-energy">100</span></p>
+      <p id="talent-line" style="display:none;">Talento: <span id="attr-talent">???</span></p>
+      <button id="friends-btn" class="sidebar-btn">Relações</button>
+        <div id="friends-panel" class="hidden"><h2>Relações</h2>
+          <div id="friends-list"></div>
+          <button id="close-friends" class="sidebar-btn">Fechar</button>
+          </div>
+        </div>
+    </div>
+
+  <!-- toggle (deve ser irmão imediato do #sidebar para alguns seletores CSS funcionarem) -->
+  <button id="toggle-sidebar">></button>
+
+  <!-- ÁREA PRINCIPAL -->
+  <div id="game">
+    <!-- TELA INICIAL -->
+    <div id="intro-screen">
+      <h1 id="title">Super-Humanos</h1>
+      <input id="playerNameInput" type="text" placeholder="Digite seu nome" />
+      <button id="startBtn">Começar</button>
+    </div>
+
+    <!-- DESCOBERTA DO PODER -->
+    <div id="power-screen" style="display:none;">
+      <div id="powerText"></div>
+      <div id="powerChoices"></div>
+    </div>
+
+    <!-- HISTÓRIA -->
+    <div id="story-screen" style="display:none;">
+      <div id="storyText"></div>
+      <div id="choices"></div>
+    </div>
+
+    <!-- COMBATE -->
+    <div id="battle-screen" style="display:none;">
+      <!--<h2 id="enemy-name">Inimigo</h2>-->
+
+      <div class="battle-area">
+        <div class="player-status">
+          <strong id="playerName">Nome</strong>
+          <span id="player-status"></span>
+          <div class="bar"><div id="player-hp-fill" class="fill"></div></div>
+          <div class="bar"><div id="player-mana-fill" class="fill mana"></div></div>
+        </div>
+
+        <div class="enemy-status">
+          <strong id="enemy-name">Inimigo</strong>
+          <span id="enemy-status"></span>
+          <div class="bar"><div id="enemy-hp-fill" class="fill enemy"></div></div>
+        </div>
+      </div>
+
+      <div id="battle-log" class="battle-log-box"></div>
+      <div id="skill-buttons" class="battle-buttons"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

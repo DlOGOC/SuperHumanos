@@ -1,0 +1,353 @@
+/* Reset e base */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #0b0b0b;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ====== ENTRADA DE NOME ====== */
+#playerNameInput {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 200px;
+  text-align: center;
+  background: #1a1a1a;
+  color: #eee;
+  outline: none;
+}
+#playerNameInput::placeholder {
+  color: #777;
+}
+
+/* Status emoji + tooltip */
+.status-icon {
+  display: inline-block;
+  margin-left: 5px;
+  position: relative;
+  cursor: pointer;
+}
+.status-icon:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 1;
+}
+
+/* Log visual */
+.log-box {
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+  text-align: left;
+  font-size: 14px;
+}
+.log-box p { margin: 6px 0; }
+.log-death { color: #ff5555; }
+.log-fire { color: #ff9933; }
+.log-ice { color: #99ddff; }
+.log-tele { color: #77ccff; }
+.log-eletric {color: #e6e600; }
+.log-crit { color: #ffcc00; }
+.log-defense { color: #66ff99; }
+.log-miss { color: #bbb; }
+.log-bleed { color: #ff4444; }
+
+/* SIDEBAR */
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100vh;
+  background: rgba(12,12,12,0.98);
+  border-right: 1px solid rgba(255,255,255,0.04);
+  padding: 18px;
+  transition: left 0.35s ease;
+  z-index: 1000;
+  overflow-y: hidden; /* sem scroll quando recolhida */
+}
+
+/* Quando expandida, ativa o scroll interno */
+#sidebar.expanded {
+  left: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #666 #111;
+}
+
+#sidebar.expanded { left: 0; }
+
+#toggle-sidebar {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  z-index: 1001;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 12px;
+  font-size: 18px;
+  cursor: pointer;
+}
+#sidebar.expanded + #toggle-sidebar { left: 250px; }
+
+/* BARRAS DO SIDEBAR */
+.status-section { margin-bottom: 14px; }
+.status-section label { display:block; margin-bottom:6px; color:#cfe; font-size:13px; }
+.bar {
+  width:100%;
+  height:14px;
+  background:#222;
+  border-radius:8px;
+  overflow:hidden;
+  margin-bottom:6px;
+}
+.fill { height:100%; width:0%; transition: width 0.3s ease; background: #ff5a5a; }
+.fill.blue, .fill.mana { background: linear-gradient(90deg,#6fe1ff,#2a8cff); }
+.fill.orange { background: linear-gradient(90deg,#ffb86b,#ff7a2b); }
+.fill.purple { background: linear-gradient(90deg,#b48aff,#7b3bff); }
+.fill.enemy { background: linear-gradient(90deg,#8b1c1c,#3a0000); }
+
+/* RELAÇÕES */
+#friends-panel{
+  position: fixed;
+  text-align: center;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 80%;
+  max-width: 400px;
+  display: none;
+  z-index: 1000;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+#friends-panel.show{
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+#friends-list p{
+  margin: 8px 0;
+}
+#sidebar-button{
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: white;
+  cursor: pointer;
+}
+/* ÁREA PRINCIPAL */
+#game {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+  text-align: center;
+}
+
+/* TITULO */
+#title {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  margin-top: 18vh;
+  color: #9df;
+}
+
+/* TELAS */
+#intro-screen, #power-screen, #story-screen, #battle-screen {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* TEXTOS */
+#powerText p, #storyText p, .battle-log {
+  max-width: 760px;
+  text-align: justify;
+  line-height: 1.6;
+}
+#powerText p, #storyText p {
+  text-indent: 1.8em;
+  margin-bottom: 1.1em;
+}
+
+/* BOTÕES */
+button {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  padding: 8px 14px;
+  margin: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+button:hover { background: rgba(255,255,255,0.12); }
+
+/* BATALHA */
+.battle-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin: 18px 0;
+}
+.player-status, .enemy-status { width: 45%; text-align: left; }
+
+/* LOG DE COMBATE */
+.battle-log {
+  min-height: 40px;
+  margin: 12px 0;
+  font-style: italic;
+}
+
+/* BOTÕES DE SKILL */
+.battle-buttons { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+/* === EFEITO DE SHAKE NAS BARRAS === */
+@keyframes hpShake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-12px); }
+  40% { transform: translateX(12px); }
+  60% { transform: translateX(-8px); }
+  80% { transform: translateX(8px); }
+  100% { transform: translateX(0); }
+}
+.hp-shake { animation: hpShake 0.32s cubic-bezier(.36,.07,.19,.97); }
+
+/* === EFEITO DE TREMER NO TEXT LOG (pequeno) === */
+@keyframes textShake {
+  0% { transform: translate(0,0); }
+  20% { transform: translate(-4px,1px); }
+  40% { transform: translate(4px,-1px); }
+  60% { transform: translate(-3px,1px); }
+  80% { transform: translate(3px,-1px); }
+  100% { transform: translate(0,0); }
+}
+.shake { display:inline-block; animation: textShake 0.4s ease-in-out; }
+
+@media (max-width: 700px) {
+  #sidebar { width: 200px; left: -200px; }
+  #sidebar.expanded + #toggle-sidebar { left: 200px; }
+  .battle-area { flex-direction: column; gap: 12px; }
+}
+
+.battle-log-box {
+  background: rgba(0, 0, 0, 0.65);
+  border: 2px solid #333;
+  border-radius: 10px;
+  padding: 10px;
+  height: 220px;
+  overflow-y: auto;
+  font-family: 'Consolas', monospace;
+  font-size: 14px;
+  color: #ddd;
+  line-height: 1.4;
+  scroll-behavior: smooth;
+}
+
+.battle-log-box p {
+  margin: 3px 0;
+  padding-left: 6px;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+/* ==== Cores para diferentes tipos de log ==== */
+.log-normal {
+  color: #ddd;
+}
+
+.log-fire {
+  color: #ff8c42;
+  border-left-color: #ff8c42;
+}
+
+.log-ice {
+  color: #67d5ff;
+  border-left-color: #67d5ff;
+}
+
+.log-tele {
+  color: #b388ff;
+  border-left-color: #b388ff;
+}
+
+.log-blood {
+  color: #e74c3c;
+  border-left-color: #e74c3c;
+}
+
+.log-crit {
+  color: #ffd700;
+  font-weight: bold;
+  border-left-color: #ffd700;
+}
+
+.log-defense {
+  color: #6fdc6f;
+  border-left-color: #6fdc6f;
+}
+
+.log-miss {
+  color: #ff5555;
+  border-left-color: #ff5555;
+}
+
+.log-death {
+  color: #b30000;
+  font-weight: bold;
+  border-left-color: #b30000;
+}
+
+.log-bleed {
+  color: #ff4d4d;
+  border-left-color: #ff4d4d;
+}
+
+/* ==== Barra de rolagem estilizada ==== */
+.battle-log-box::-webkit-scrollbar {
+  width: 6px;
+}
+.battle-log-box::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 5px;
+}
+.battle-log-box::-webkit-scrollbar-track {
+  background-color: #222;
+}
+/* ==== Scrollbar da barra lateral ==== */
+#sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+#sidebar::-webkit-scrollbar-thumb {
+  background-color: #666;
+  border-radius: 6px;
+}
+#sidebar::-webkit-scrollbar-track {
+  background-color: #111;
+}
