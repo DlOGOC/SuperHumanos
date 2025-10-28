@@ -12,6 +12,15 @@ let player = {
   status: {} // e.g. { burning: {turns:3, value:3}, frozen: {turns:2} }
 };
 
+/* ===== CLASSES DO JOGADOR =====*/
+
+let guild = {
+  warrior,
+  mage,
+  thief,
+  cleric
+};
+
 /* ===== RELAÇÕES DO JOGADOR ===== */
 
 let friendships = {
@@ -523,382 +532,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ========== HISTÓRIA ========== */
 function discoverPower() {
-  const powers = ["Pirocinese", "Criogenese", "Telecinese", "Eletrocinese"];
-  player.powerType = powers[Math.floor(Math.random() * powers.length)];
 
-  const story = `Tudo começou quando você ainda era criança. 
-
-Seus pais sempre contavam como sentiam que você era especial. 
-Tudo aconteceu bem na sua infância — você era uma criança normal e feliz. 
-
-As coisas começaram a mudar quando as dores de cabeça começaram. 
-Seus pais mudaram do dia para a noite; você já não podia mais sair de casa. 
-Fazia exercícios físicos todos os dias e começou a se sentir preso em sua própria casa. 
-
-Mas você, era uma criança obediente e que amava seus pais, então sempre obedecia. 
-Com o passar dos anos, começou a adquirir músculos mais definidos e, quando raramente saía, 
-não conseguia mais se entrosar com pessoas facilmente. Foi como um baque. 
-
-"Eu não sou normal" — era o que se passava na sua cabeça sempre que saía. 
-Você via crianças sorrindo e aproveitando suas infâncias, algo que você, por algum motivo que nunca soube, 
-perdeu do dia para a noite. Mas isso ainda não foi o suficiente para te abalar. 
-Afinal, seus pais te amam e cuidam de você, e isso era tudo o que você precisava.`;
+  const story = `Quando eu era criança, via meus pais trabalhando duro para nos sustentar, não eramos uma família grande, apenas eu, ele e minha mãe, apesar da pobreza, eramos felizes.
+  
+  Com os anos se passando, meus pais foram ficando velhos e o mundo começou a se complicar, guerras de mais. O império do rei Vagh queria dominar tudo, e realmente estava conseguindo, seu guerreiros mágicos eram imparáveis, ainda são na verdade.
+  
+  Meu pai foi convocado para o exército para proteger nosso país, ele já era um militar de cargo alto, então não iria para as linhas de frente, mas guerras são imprevisíveis, eu não sei o que aconteceu lá, pois o único sobrevivente - meu pai - nunca falou sobre, mas todo o seu batalhão de 3 mil homens foram completamente dominados no campo de batalha, e como um soldado honrado que ele era, não fugiu sem lutar, quando chegou em casa, ele estava apenas uma carcaça do que já fora um dia, seu corpo antes grande e musculoso, não era maior que o de uma criança, sua mente deteriorada pelos acontecimentos, nunca funcionou como antes.
+  
+  Para ajudar a cuidar de meu pai, comecei a trabalhar cedo, algumas obras ali, alguns atendimentos em bares aqui, mas seus remédios eram caros, e a cada mercador atacado no caminho da capital, os preços aumentavam, nós não conseguimos ajudá-lo por muito tempo e ele sabia disso, assim como sabia que nunca desistiríamos dele, por isso ele fugiu, mesmo não conseguindo mais andar, ele sumiu e nunca mais achamos seu corpo. 
+  
+  Tanto eu quanto minha mãe ficamos arrasados, mas era perceptível a mudança financeira, o que fazia com que nossos corações doessem sempre que pensavámos que agora conseguiríamos uma vida melhor.`;
 
   changeScene(story, () =>{
     criarBotaoHistoria("Continuar", continueBackStory);
   })
 }
 
-function continueBackStory() {
-  const story = `Com os anos se passando, você crescia e seus pais envelheciam.
-
-Quando você fez 18 anos, seu presente de aniversário não foi algo que você gosta de lembrar.
-
-Mas mesmo assim, você lembra, de cada detalhe.
-
-O dia estava claro e ensolarado, não combinava nem um pouco com o que você estava prestes a ver 
-quando abrisse a porta do quarto de seus pais.
-
-Seus corpos frios e sem cor foram o primeiro sinal que você teve. 
-Quando se aproximou, pôde sentir que eles já não mais estavam neste mundo. 
-Eles te ensinaram a medir o pulso, e você fez isso — o que só confirmou suas suspeitas.
-
-Eles estavam mortos.`;
+function continueBackStory(){
+  const story = `Mas a vida não é algo que deixa você aproveitar por muito tempo, alguns anos depois, uma onda de praga se alastrou por Armenzian, eu e minha mãe nos afastamos de nossos empregos, nossa vida com alguns luxos básicos em troca da nossa vida como um todo, achamos que era uma troca justa. 
+  
+  Conseguimos sobreviver a praga sem problemas, mas demoramos a conseguir emprego novamente, a fome já não deixava mais com que pudéssemos escolher muito. Então qualquer coisa que achassemos, seria o trabalho perfeito. 
+  
+  Nunca me arrependi tanto na minha vida, eu consegui emprego primeiro, trabalhava fazendo patrulhas a noite, algo perigoso, mas que recentemente abriu vaga pois um criminoso assassinou o meu antecessor, mas isso não me importava, pois até que o salário era bom. Minha mãe conseguiu emprego algumas semanas depois, ela seria assistente do alfaiate da nossa vila, conseguimos nos virar, mas como sempre, quando nos acostumamos com a vida boa, algo ruim aconteceu.`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", backStory2);
+    criarBotaoHistoria("Continuar", continueBackStory2);
   })
 }
 
-function backStory2(){
+function continueBackStory2(){
+  const story = `Minha mãe adoeceu. Sua idade avançada começou a cobrar o preço, a expectativa de vida em Armenzian é de 24 anos, minha mãe chegou aos 30, seu pulmão estava com problema, ela não conseguia respirar, e novamente me vi na mesma situação de anos atrás, mas dessa vez, as coisas não iriam se repetir. Procurei um médico confiável para tratar dela em casa, seu tratamento é caro, mas eu não deixei que aquilo aconteça novamente.
   
-  let story = "";
-
-  switch (player.powerType) {
-    case "Pirocinese":
-      story = `A sala começou a ficar mais quente, tudo parecia estar queimando, a raiva, a confusão, destruindo sua mente.
-      
-      Você se lembra dos momentos que passou com seus pais, os momentos felizes, os momentos tristes, tudo, um mar de memórias inunda sua mente e a percepção de que nada disso vai voltar faz com que você sinta que está morto por dentro.
-      
-      Seu corpo esquenta, está muito quente, "por que está tão quente?" você se pergunta até sentir lágrimas cairem e queimar seu rosto, evaporando antes mesmo de tocar sua bochecha, você grita de dor, seu rosto queimando, a dor não para, cada lágrima é uma dor diferente.
-      
-      Você tenta se acalmar, fecha os olhos e respira fundo, pensando no abraço de sua mãe, tentando enganar a sua mente de que tudo está bem.
-      
-      Você consegue se acalmar aos poucos, então abre os olhos, e novamente, mais uma cena de terror.
-      
-      O quarto está carbonizado, suas roupas em frangalhos, você sente dentro de você...
-      
-      A sua habilidade, é Pirocinese.`
-      
-      break;
-    case "Criogenese":
-      story = `A sala começa a esfriar, tudo começa a ficar frio, você sente seu próprio corpo ficando frio, sua respiração o unico vapor quente na sala.
-      
-      A princípio você acha que isso é apenas dor do luto. Mas quando você começa a chorar, escuta um barulho no chão, ao olhar, suas lágrimas ao caírem se quebram, congeladas.
-      
-      Você se assuta com essa visão, tocando por estinto em seu rosto e sentindo o quão frio está.
-      
-      Caindo sentado em uma pilha de cacos de gelo quebrado, sua respiração fica irregular, seu coração apertado, tentando retomar o controle você ouve um barulho ensurdecedor e deixa um grito irromper da sua garganta.
-      
-      Quando se dá conta, todo o quarto está congelado, gelo saindo por toda parte.
-      
-      Apesar do medo, algo dentro de você se alegra ao ver o lugar, quase como a sensação de ver um trabalho que concluiu, você sente dentro de você...
-      
-      A sua habilidade é Criogenese.`;
-
-      break;
-
-      case "Telecinese":
-        story = `Um barulho ensurdecedor que faz seu cérebro chacolahar e então você está no chão, gritando de agonia.
-        
-        Lágrimas escorrendo dos seus olhos, seu corpo se contorcendo até o barulho começar a ficar mais nítido... Vozes. Milhares de vozes, sua cabeça parece que vai explodir.
-        
-        Você coloca as mãos nos ouvidos inutilmente tentando abafar o som, mas é impossível, a dor é tanto que sua mente entorpece.
-        
-        Por um segundo as vozes passam, e esse tempo é suficente para você perceber o seu arredor...
-        
-        Tudo está flutuando, inclusive você, a cômoda, o guarda-roupas, a cama em que seus pais estavam deitados antes, que agora flutuam por cima.
-        
-        Seus olhos se arregalam, confusão sendo agora a única coisa que passa por sua mente.
-        
-        Você respira e fecha os olhos, tentando se concentrar e lentamente, começa a sentir que está descendo até o chão.
-        
-        Quando abre os olhos de novo, tudo está de volta no lugar, e você sente, no fundo do seu âmago:
-        
-        A sua habilidade é Telecinese.`;
-
-        break;
-      
-      case "Eletrocinese":
-        story = `O som de um zumbido preenche seus ouvidos, tão alto que parece vir de dentro da sua cabeça.
-
-          Você sente algo percorrendo seu corpo — rápido, imprevisível, como se suas veias estivessem vivas. 
-          Ao olhar para suas mãos, percebe pequenas faíscas estalando entre os dedos.
-
-          Um lampejo de medo te domina. O ar ao redor vibra, e o cheiro de queimado invade o quarto. 
-          As lâmpadas explodem uma a uma, e as faíscas se transformam em descargas que percorrem as paredes.
-
-          Com o coração acelerado, você respira fundo, tentando controlar a corrente elétrica que agora corre dentro de você. 
-          A sensação é viciante e aterrorizante ao mesmo tempo.
-
-          Você entende, no fundo, que algo mudou para sempre.
-
-          Sua habilidade é Eletrocinese.`;
-
-      break;
-    default:
-      break;
-  }
-  // Revela o talento na interface
-const talentLine = document.getElementById("talent-line");
-if (talentLine) talentLine.style.display = "block";
-updateSidebar();
-
-    changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", backStory3);
-  })
-}
- 
-function backStory3() {
-  advanceTime(30, 15, 3);
-  meetCharacter("João José");
-  const story = `Alguns dias se passaram e você está no velório de seus pais, foi um dia triste, mas necessário, você pode se despedir adquadamente, surpeendentemente, a dor do seu luto diminui, e isso faz você se sentir estranho.
-  
-  O dia se passa e vários familiares aparecem, afinal seus pais eram muito amados pela família, mas todos sabiam que você era quem sofria mais, então todos te abraçavam e ofereciam ajuda, que você educadamente recusava, afinal, você já tinha um objetivo em mente: descobrir o que matou seus pais.
-  
-  Afinal, a autopsia não revelou nada, e isso não saia da sua cabeça.
-  
-  Seus pensamentos são interrompidos quando um homem que você nunca viu aparece, ele aparenta estar procurando alguém e quando ele olha para você, parece que ele encontrou.
-  
-  O homem caminha em sua direção lentamente, com uma expressão resoluta. Seu terno preto, junto com seu fedora também preto, seus cabelos dourados se destacavam por ser a única coisa além de sua pele branca que não eram pretos.
-  
-  Quando chega em você, o homem tira seu chapéu e faz uma mensura.
-  
-  "Meu nome é João José, meus pêsames por sua perda, senhor ${player.name}. Sinto muito ter que dar mais uma notícia ruim para você, mas..." — dimnuindo a voz, quase um cochicho ele continuou "você foi descoberto. Na verdade, não ainda. Mas o governo sabe que nasceu um super. Eu dei um jeito de que as coisas ainda não apontem para você, mas nada que fosse definitivo. Sei que é estranho e sua cabeça deve estar a mil agora, mas preciso que venha comigo. Posso te deixar seguro."`;
-
-    changeScene(story, () =>{
-    criarBotaoHistoria("Aceitar ir com o desconhecido", strangeMan);
-    criarBotaoHistoria("Recusar ir com o desconhecido", backStory4);
-  })
-  }
-
-  function backStory4(){
-    changeFriendship("João José", -5)
-    const story = `Você nega, não importa quem esse homem é, tudo isso parece ser uma armadilha "como ele sabe meu nome?" e "como ele descobriu o que eu sou?" são algumas das perguntas que passam por sua mente, você não pode confiar nele.
-    
-    Algo na entrada do cemitério chama a sua atenção, um carro chega, um carro preto, lentamente entrando e indo até o estacionamento, você nunca viu esse carro antes, e só tem vocês ali, isso é estranho. 
-    
-    A atenção de João José também vai até o carro, e quando ele volta a atenção até você, sua expreção é de medo.
-    
-    "Eles chegaram!" diz ele, pegando do seu braço com uma força que você não imaginava que ele tinha e te puxando com ele.`;
-
-    changeScene(story, () =>{
-    criarBotaoHistoria("Deixar que ele te leve", strangeMan);
-    criarBotaoHistoria("Resistir", recuseStrangeMan);
-  })
-  }
-
-function strangeMan(){
-  const story = `Você deixa o homem te levar até o seu carro, ele abre a porta de trás para você e faz a volta para ir até o banco do motorista "Eu queria te deixar na frente, mas nós precisamos pegar alguém no caminho e... Digamos que ela gosta muito de sentar no banco da frente."`;
-
-  changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", strangeManCar);
+  Preciso conseguir $500 toda semana para que ele trate dela.`;
+  criarBotaoHistoria(story, () =>{
+    criarBotaoHistoria("Continuar", startStory);
   })
 }
 
-function strangeManCar(){
-  advanceTime(20, 1);
-  const story = `Vocês andam um pouco, na janela, você pode ver que está em uma estrada de terra, algumas árvores aparecem periódicamente, o calor é suprimido pelo ar-condicionado do carro, então a viagem é agradavel apesar de tudo. 
-  
-  Depois de alguns minutos, o carro diminui a velocidade e para. 
-  
-  A porta do carona abre rápidamente e uma pessoa coberta por uma capa entra e fecha a porta já dando espaço para o carro andar.
-  
-  "Senhor ${player.name}, te apresento a senhorita Maria, ela também é uma super, como você, também é a lider desta organização. Antes que nós cheguemos, eu gostaria de pedir desculpas pela forma que nos conhecemos, acredite em mim, eu gostaria de ter conseguido te achar antes, mas eu nunca consegui te localizar nem mesmo com outros supers que tinham habilidade para isso. Também queria que tivéssemos tido tempo para te explicar as coisas e não precisarmos de todo esse fuzuê, mas não se preocupe, não existe lugar mais seguro para você do que nossa organização."`;
+function houseUser() {
+  const story = `Você está em casa`;
 
-    changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", strangeManCar2);
-  })
-}
-
-function recuseStrangeMan() {
-  changeFriendship("João José", -5);
-  const story = `Você força e não deixa o homem te levar, o que não agrada nem um pouco ele, que aumenta a força e fala com a voz irritada "Você quer morrer garoto? Eles estão aqui para descobrir quem é o super, se te acharem, sua vida vai acabar. Eu queria poder te dar uma escolha, mas não é assim que o mundo funciona, não vou deixar que você acabe com a sua vida dessa forma"
-  
-  Ele solta seu braço e se prepara para luta.`;
-
-  changeScene(story, (choices) => {
-    const foundBtn = document.createElement("button");
-    foundBtn.innerText = "Em guarda";
-    foundBtn.onclick = () => startBattle("João José");
-    choices.appendChild(foundBtn);
-  }, 300, "powerText", "powerChoices");
-}
-
-function strangeManWins() {
-  dormir(20,1);
-  const story = `Você acorda no banco de trás de um carro em movimento, dirigido por aquele homem de antes.
-  
-  Você levanta rápido e ele logo diz "Você dormiu bem? O que eu usei em você foi só um dardo tranquilizante, afinal, eu não podia deixar você ficar fazendo aquele drama todo e estragar toda a operação".`;
-
-    changeScene(story, () =>{
-    criarBotaoHistoria("Ficar calado", aceptStrangeMan2);
-    criarBotaoHistoria(`"Você me sequestrou"`, recuseStrangeMan2);
-  })
-}
-
-function aceptStrangeMan2(){
-  const story = `Você fica quieto e o homem acena com a cabeça em aprovação. Nós vamos precisar pegar uma pessoa no caminho, e então vamos para a base, te apresentar para os outros.`;
-
-    changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", strangeManCar);
-  })
-}
-function recuseStrangeMan2(){
-    const story = `"Você não me deu escolha, queria que eu fizesse o que? Deixasse que eles nos capturassem?" sua voz fica fria, exalando irritação "Não me faça atirar de novo. Fique quieto que já estamos chegando."`;
-
-    changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", strangeManCar);
-  })
-}
-
-function strangeManCar2(){
-  const story = `"Peço desculpas pelas ações do Senhor João, ${player.name}, ele não é alguém muito gentil, espero que você não tenha tido problemas com ele" ela vira para você e te da um sorriso amigável "Como eu tenho certeza que ele não te explicou nada, por favor, me permita te dizer o que somos nós. Nós somos a associação Super Humanos, protegemos e auxiliamos pessoas como você, tanto a se esconder quanto a dar uma vida normal. Mas isso é você quem decidirá, apenas queremos que mais pessoas como você consigam viver vidas normais da melhor forma possível, afinal, você sabe o que acontece com os super que o governo acha primeiro." um silêncio mórbido se instala no carro, até que a mulher continua "Mas nós não precisamos falar disso, desde a nossa fundação, nunca algo ruim aconteceu com algum super, como líder da compainha, me orgulho em falar que nenhum de nossos protegidos foram pegos, e os que foram, hoje estão vivos e bem na nossa base central."
-  
-  O carro para.
-  
-  "Senhoras e senhores, chegamos!" diz João, retirando o sinto e saindo do carro para abrir a porta do carona para Maria, que por sua vez, abre a porta para você.`;
-
-  changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", baseSuper);
-  })
-}
-function baseSuper(){
-  const story = `Vocês saem do carro e andam pelas instalações, várias pessoas trabalhando, alguns super treinando, e todos que passam por vocês, comprimentam um a um, definitivamente o ambiente é agradável, quando entram dentro de um estabelecimento, Maria começa a guiar o caminho, parando em um quarto, o número 245 estampado do lado da porta: 
-
-  "Este vai ser o seu quarto senhor ${player.name}, você ira dividir o quarto com uma pessoa que também acabou de chegar aqui" ela bate na porta e um homem que aparenta ter a sua idade, cabelos escuros e olhos verdes que constrastam com sua pele clara abre a porta, ele está vestindo o mesmo uniforme branco que todos os outros que estavam lá fora "Este é o senhor Leandro" diz Maria apontando para a pessoa, e depois aponta para você "e este é o senhor ${player.name}, espero que vocês consigam se adaptar, sei que vocês devem estar cansados e que a vinda para cá pode ter sido estressante, mas por favor, durmam e jantem, amanhã vocês terão todas as respostas de que precisam."`;
-
-  changeScene(story, () => {
-    criarBotaoHistoria("Entrar no quarto", quarto1);
-  })
-}
-
-function quarto1(){
-  const story = `Você está no quarto, Leandro está deitado na cama de cima, ele parece tão tímido quanto você.`
-  changeScene(story, () =>{
-    criarBotaoHistoria("Conversar com Leandro", quartoLeando);
-    criarBotaoHistoria("Comer", comerSozinho)
-    criarBotaoHistoria("Dormir", quartoLeandoDormir);
-  })
-}
-
-function comerSozinho(){
-  const story = `Você come sozinho, o pão está delicioso, mas a bebida você não consegue distinguir o gosto, ainda assim está boa.`;
-  player.hunger = 100;
-  updateSidebar();
-  changeScene(story, () =>{
-    criarBotaoHistoria("Conversar com Leandro", quartoLeando);
-    criarBotaoHistoria("Dormir", quartoLeandoDormir);
-  })
-}
-
-function quartoLeando(){
-
-  let skillFalada = ``;
-
-  switch (player.powerType) {
-    case "Pirocinese": skillFalada = `eu consigo criar e controlar o fogo`;
-      break;
-    case "Criogenese": skillFalada = `eu consigo criar e controlar o gelo`;
-      break;
-    case "Telecinese": skillFalada = `eu consigo controlar as coisas com a mente`;
-      break;
-    case "Eletrocinese": skillFalada = `eu consigo criar e controlar a eletricidade`;
-    default:
-      break;
-  }
-
-    let story = `Você chega perto de Leandro e ele se empertiga "Oi!", você acena para ele que responde "Você também tem poderes?"
-  "Sim", você responde "${skillFalada}", e você?
-  "Ehh... Eu só consigo trocar a cor das coisas... É meio inútil, eu sei, mas pelo menos, minhas roupas nunca parecem sujas", ele dá um sorriso, que logo se espelha em seu rosto.
-  "Como você descobriu o seu poder?", pergunta Leandro, meio sem jeito "Claro, se não for muito pessoal"`;
-
-  changeScene(story, () =>{
-    criarBotaoHistoria("Falar", falar1);
-    criarBotaoHistoria("Não falar", ficarCalado1);
-  })
-}
-
-function falar1(){
-  switch (player.powerType) {
-    case "Pirocinese": skillFalada = `o quarto estava queimando, tudo estava muito quente, foi assim que eu pecebi que o meu poder era com o fogo.`;
-      break;
-    case "Criogenese": skillFalada = `o quarto havia congelado, pilares de gelo começaram a brotar do chão... foi aí que eu perecebi que o meu poder era com o gelo.`;
-      break;
-    case "Telecinese": skillFalada = `todas as coisas do quarto começaram a flutuar, até mesmo eu flutuava, e minha cabeça doía, doía muito, quando a dor passou, todas as coisas voltaram para o chão.`;
-    default:
-    case "Eletrocinese": skillFalada = `eu senti uma corrente elétrica passando por mim que me fez tremer, aquilo não era possível, até que tudo que era elétrico começou a explodir e eu sentia como se fosse em mim, mas eu consegui me conter antes de acontecer algo de perigoso.`;
-      break;
-  }
-  let story = `Você respira, a memória do que aconteceu ainda viva na sua mente, depois de alguns segundos, você consegue falar: 
-  
-  "A poucos dias, os meus pais morreram, e o choque foi imenso... quando eu percebi ${skillFalada}"`;
-
-  changeScene(story, () =>{
-    criarBotaoHistoria("continuar", dormirLeandro);
-  })
-}
-
-function ficarCalado1(){
- const story = `Você respira fundo, lembrando das coisas que aconteceram quando você perdeu seus pais, você tenta falar mas as palavras prendem na sua garganta.
-  
-  "Desculpa, é muito difícil falar disso, espero que você entenda que não é nada pessoal."
-  
-  "Tudo bem" diz ele, envergonhado de ter feito uma pergunta muito pessoal "eu entendo, têm muitas coisas difíceis acontecendo com a gente esses dias."`;
-
-  changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", fome);
-  })
-}
-
-function fome(){
-  const story = `Um barulho alto sai do seu estômago, sinalizando que você está com fome, antes que você possa ficar envergonhado, o mesmo som ecoa de Leandro:
-  
-  "Vamos comer? Não sei o que é aquilo, mas parece delicioso" diz leandro, apontando para dois copos contendo um liquido estranho e alguns pães em cima de uma mesa, ele espera você ir para seguir atrás de você.`;
-  changeScene(story, () =>{
-    criarBotaoHistoria("Jantar com Leandro", jantarLeandro);
-  })
-}
-
-function jantarLeandro(){
-  const story = `Vocês começam a comer, o gosto é estranho no início, mas o líquido começa a ficar saboroso, quanto mais você toma, menos sabe o que é. Você olhar para Leandro e parece que esta dúvida se espelha nele, mas vocês eventualmente acabam comendo tudo.`;
-  player.hunger = 100;
-  updateSidebar();
-  changeScene(story, () =>{
-    criarBotaoHistoria("Dormir", dormirLeandro);
-  })
-}
-changeFriendship
-function dormirLeandro(){
-  const story = ``;
-  changeScene(story, () =>{
-    criarBotaoHistoria("...", dormirLeandro);
-  })
-}
-
-function quartoLeandoDormir(){
-  const story = `Você silenciosamente deita na cama de baixo, cansado e ainda confuso, você tenta dormir.`;
-  dormir(0, 9);
-  player.hunger = 100;
-  updateSidebar();
-  changeScene(story, () =>{
-    criarBotaoHistoria("Acordar", quarto1)
-  })
-}
-function startStory() {
-  const story = `Um drone do governo se aproxima. O que você faz?`;
-
-  changeScene(story, (choices) => {
+  /*changeScene(story, (choices) => {
     const fightBtn = document.createElement("button");
     fightBtn.innerText = "Enfrentar o drone";
     fightBtn.onclick = () => startBattle("Drone de Captura");
@@ -909,7 +583,7 @@ function startStory() {
 
     choices.appendChild(fightBtn);
     choices.appendChild(hideBtn);
-  }, 300, "storyText", "choices");
+  }, 300, "storyText", "choices");*/
 }
 
 function hideFromDrone() {
