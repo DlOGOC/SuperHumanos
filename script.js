@@ -21,6 +21,20 @@ let guild = {
   cleric
 };
 
+/* ===== ESTADO DA MÃE ===== */
+let mother = 0;
+function motherStatus(){
+  if(mother === 0){
+    return `Sua mãe parece bem.`;
+  }else if(mother < 0 && mother > 3){
+    return `Sua mãe disfrça bem, mas a falta de tratamento está cobrando o preço.`;
+  }else if(mother < 3 && mother > 5){
+    return `Sua mãe já não consegue mais esconder as tosses, ela não parece ter mais muito tempo se não receber tratamento.`;
+  }else if(mother < 5 && mother >7){
+    return `Sua mãe faleceu.`;
+  }
+  
+}
 /* ===== RELAÇÕES DO JOGADOR ===== */
 
 let friendships = {
