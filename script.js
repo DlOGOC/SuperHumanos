@@ -7,7 +7,8 @@ let player = {
   mana: 50, maxMana: 50,
   hunger: 100, sleep: 100, energy: 100,
   strength: 10, intelligence: 10, skill: 10, defense: 10, vigor: 8,
-  powerType: null,
+  money: 500,
+  guild: null,
   defending: false,
   status: {} // e.g. { burning: {turns:3, value:3}, frozen: {turns:2} }
 };
@@ -33,7 +34,6 @@ function motherStatus(){
   }else if(mother < 5 && mother >7){
     return `Sua mãe faleceu.`;
   }
-  
 }
 /* ===== RELAÇÕES DO JOGADOR ===== */
 
@@ -159,8 +159,8 @@ function updateSidebar() {
 
 // jogo começa numa quinta-feira, 1 de janeiro de 2025
 let gameTime = {
-  minute: 0,
-  hour: 8,
+  minute: 59,
+  hour: 7,
   day: 1,
   month: 1,
   year: 2025,
@@ -384,7 +384,7 @@ function dormir(min = 0, hr = 0) {
 
   // Atualiza UI
   updateSidebar();
-
+  wake(min, hr);
 }
 /* ========== COMER ========== */
 /** 
@@ -578,13 +578,20 @@ function continueBackStory2(){
   const story = `Minha mãe adoeceu. Sua idade avançada começou a cobrar o preço, a expectativa de vida em Armenzian é de 24 anos, minha mãe chegou aos 30, seu pulmão estava com problema, ela não conseguia respirar, e novamente me vi na mesma situação de anos atrás, mas dessa vez, as coisas não iriam se repetir. Procurei um médico confiável para tratar dela em casa, seu tratamento é caro, mas eu não deixei que aquilo aconteça novamente.
   
   Preciso conseguir $500 toda semana para que ele trate dela.`;
-  criarBotaoHistoria(story, () =>{
-    criarBotaoHistoria("Continuar", startStory);
+  changeScene(story, () =>{
+    criarBotaoHistoria("Continuar", houseUser());
   })
 }
 
 function houseUser() {
+  advanceTime(1);
   const story = `Você está em casa`;
+
+  changeScene(story, () =>{
+    criarBotaoHistoria("Seu quarto (00:01)", userRoom());
+    criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom());
+    criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse());
+  })
 
   /*changeScene(story, (choices) => {
     const fightBtn = document.createElement("button");
@@ -600,6 +607,66 @@ function houseUser() {
   }, 300, "storyText", "choices");*/
 }
 
+function userRoom(){
+  advanceTime(1);
+  const story = `Você está no seu quarto, o lugar é vazio e sem graça, sua cama pequena está arrumada e convidativa para dormir`;
+  changeScene(story, () =>{
+    criarBotaoHistoria("Dormir", sleep());
+    criarBotaoHistoria("Sair do quarto (00:01)", houseUser());
+  })
+}
+
+function sleep(){
+  const story = `Quantas horas você quer dormir?`;
+  changeScene(story, () =>{
+    criarBotaoHistoria("8 horas", dormir(8));
+    criarBotaoHistoria("7 horas", dormir(7));
+    criarBotaoHistoria("6 horas", dormir(6));
+    criarBotaoHistoria("5 horas", dormir(5));
+    criarBotaoHistoria("4 horas", dormir(4));
+    criarBotaoHistoria("3 horas", dormir(3));
+    criarBotaoHistoria("2 horas", dormir(2));
+    criarBotaoHistoria("1 hora", dormir(1));
+  })
+}
+
+function wake(min, hr){
+  let sono;
+  if(player.sleep<30){
+    sono = `você está muito cansado.`;
+  }else if(player.sleep>20 && player.sleep<50){
+    sono = `você está cansado ainda.`;
+  }else if(player.sleep>51 && player.sleep<80){
+    sono = `você está alerta.`;
+  }else if(player.sleep>80 && player.sleep<=100){
+    sono = `você está descansado.`;
+  }
+  const story = `Você dormiu por ${hr} horas e ${min} minutos, ${sono}
+  
+  Quer dormir mais?`;
+
+  changeScene(story, () =>{
+    criarBotaoHistoria("Voltar a dormir", sleep());
+    criarBotaoHistoria("Levantar", userRoom());
+  })
+}
+
+function motherRoom(){
+  advanceTime(1);
+  let story = `Você está no quarto de Melody.
+  
+  ${motherStatus}`;
+}
+
+changeScene(story, () =>{
+  advanceTime(1);
+  criarBotaoHistoria("Sair do quarto (00:01)", userRoom());
+})
+
+function leftUserHouse(){
+  advanceTime(1);
+
+}
 function hideFromDrone() {
   const story = `Você se esconde atrás de destroços. 
 O drone passa lentamente, escaneando a área. Por um momento, o silêncio é absoluto... 
