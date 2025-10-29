@@ -160,8 +160,8 @@ function updateSidebar() {
 
 // jogo começa numa quinta-feira, 1 de janeiro de 2025
 let gameTime = {
-  minute: 59,
-  hour: 7,
+  minute: 0,
+  hour: 8,
   day: 1,
   month: 1,
   year: 2025,
@@ -585,6 +585,17 @@ function continueBackStory2(){
 }
 
 function houseUser() {
+  let firstTime = 0;
+  if(firstTime == 0){
+    firstTime += 1;
+    const story = `Você está em casa`;
+
+    changeScene(story, () =>{
+      criarBotaoHistoria("Seu quarto (00:01)", userRoom);
+      criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom);
+      criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse);
+    })
+  }else{
   advanceTime(1);
   const story = `Você está em casa`;
 
@@ -593,6 +604,7 @@ function houseUser() {
     criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom);
     criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse);
   })
+}
 
   /*changeScene(story, (choices) => {
     const fightBtn = document.createElement("button");
@@ -656,10 +668,10 @@ function motherRoom(){
   advanceTime(1);
   const story = `Você está no quarto de Melody.
   
-  ${motherStatus}`;
+  ${motherStatus()}`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Sair do quarto (00:01)", userRoom);
+    criarBotaoHistoria("Sair do quarto (00:01)", houseUser);
   })
 }
 
