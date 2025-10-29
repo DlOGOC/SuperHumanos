@@ -153,6 +153,7 @@ function updateSidebar() {
   setText("attr-vigor", player.vigor);
   setText("attr-energy", Math.round(player.energy));
   setText("attr-talent", player.powerType);
+  setText("money", player.money.toFixed(2));
 }
 
 /* ===== SISTEMA DE TEMPO ===== */
