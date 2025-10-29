@@ -16,10 +16,10 @@ let player = {
 /* ===== CLASSES DO JOGADOR =====*/
 
 let guild = {
-  warrior,
-  mage,
-  thief,
-  cleric
+  warrior: 0,
+  mage: 0,
+  thief: 0,
+  cleric: 0
 };
 
 /* ===== ESTADO DA MÃE ===== */
@@ -641,7 +641,7 @@ function wake(min, hr){
   }else if(player.sleep>80 && player.sleep<=100){
     sono = `você está descansado.`;
   }
-  const story = `Você dormiu por ${hr} horas e ${min} minutos, ${sono}
+  let story = `Você dormiu por ${hr} horas e ${min} minutos, ${sono}
   
   Quer dormir mais?`;
 
@@ -653,15 +653,16 @@ function wake(min, hr){
 
 function motherRoom(){
   advanceTime(1);
-  let story = `Você está no quarto de Melody.
+  const story = `Você está no quarto de Melody.
   
   ${motherStatus}`;
+
+  changeScene(story, () =>{
+    criarBotaoHistoria("Sair do quarto (00:01)", userRoom());
+  })
 }
 
-changeScene(story, () =>{
-  advanceTime(1);
-  criarBotaoHistoria("Sair do quarto (00:01)", userRoom());
-})
+
 
 function leftUserHouse(){
   advanceTime(1);
