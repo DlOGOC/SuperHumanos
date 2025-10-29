@@ -579,7 +579,7 @@ function continueBackStory2(){
   
   Preciso conseguir $500 toda semana para que ele trate dela.`;
   changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", houseUser());
+    criarBotaoHistoria("Continuar", houseUser);
   })
 }
 
@@ -588,9 +588,9 @@ function houseUser() {
   const story = `Você está em casa`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Seu quarto (00:01)", userRoom());
-    criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom());
-    criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse());
+    criarBotaoHistoria("Seu quarto (00:01)", userRoom);
+    criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom);
+    criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse);
   })
 
   /*changeScene(story, (choices) => {
@@ -611,8 +611,8 @@ function userRoom(){
   advanceTime(1);
   const story = `Você está no seu quarto, o lugar é vazio e sem graça, sua cama pequena está arrumada e convidativa para dormir`;
   changeScene(story, () =>{
-    criarBotaoHistoria("Dormir", sleep());
-    criarBotaoHistoria("Sair do quarto (00:01)", houseUser());
+    criarBotaoHistoria("Dormir", sleep);
+    criarBotaoHistoria("Sair do quarto (00:01)", houseUser);
   })
 }
 
@@ -646,8 +646,8 @@ function wake(min, hr){
   Quer dormir mais?`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Voltar a dormir", sleep());
-    criarBotaoHistoria("Levantar", userRoom());
+    criarBotaoHistoria("Voltar a dormir", sleep);
+    criarBotaoHistoria("Levantar", userRoom);
   })
 }
 
@@ -658,7 +658,7 @@ function motherRoom(){
   ${motherStatus}`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Sair do quarto (00:01)", userRoom());
+    criarBotaoHistoria("Sair do quarto (00:01)", userRoom);
   })
 }
 
