@@ -7,11 +7,13 @@ let player = {
   mana: 50, maxMana: 50,
   hunger: 100, sleep: 100, energy: 100,
   strength: 10, intelligence: 10, skill: 10, defense: 10, vigor: 8,
-  money: 500,
+  money: 0,
   guild: null,
   defending: false,
   status: {} // e.g. { burning: {turns:3, value:3}, frozen: {turns:2} }
 };
+
+let timeLocal = 0;
 
 /* ===== CLASSES DO JOGADOR =====*/
 
@@ -278,6 +280,14 @@ function meetCharacter(name){
   friendships[name].know = true;
   updateFriendshipUI();
 }
+
+/**
+ * @param {number} moneyVal - quantidade de dinheiro adicionado
+ */
+function addMoney(moneyVal){
+  player.money += moneyVal;
+  updateSidebar();
+}
 /* ======= GERENCIAMENTO DE NECESSIDADES ======= */
 
 // Define as taxas de mudança a cada hora
@@ -438,7 +448,7 @@ function typeText(elementId, text, speed = 320, callback = null) {
  * @param {string|function} proxima - nome da função (string) ou referência direta à função
  * @param {string} containerId - id do container de botões (padrão: "powerChoices")
  */
-function criarBotaoHistoria(texto, proxima, containerId = "powerChoices") {
+function criarBotaoHistoria(texto, proxima, containerId = "powerChoices", min) {
   const btnDiv = document.getElementById(containerId);
   if (!btnDiv) return;
 
@@ -448,8 +458,10 @@ function criarBotaoHistoria(texto, proxima, containerId = "powerChoices") {
   // aceita tanto string quanto referência direta à função
   if (typeof proxima === "string") {
     btn.onclick = () => {
-      if (typeof window[proxima] === "function") window[proxima]();
-      else console.warn(`Função ${proxima} não encontrada.`);
+      if (typeof window[proxima] === "function"){
+        advanceTime(min);
+        window[proxima]();
+    }else console.warn(`Função ${proxima} não encontrada.`);
     };
   } else if (typeof proxima === "function") {
     btn.onclick = proxima;
@@ -464,8 +476,9 @@ function clearButtons(containerId) {
   Array.from(btnDiv.children).forEach(b => { b.style.transition = "opacity 200ms"; b.style.opacity = "0"; });
   setTimeout(() => { if (btnDiv) btnDiv.innerHTML = ""; }, 220);
 }
-function changeScene(text, buttonSetup, speed = 320, elementId = "powerText", buttonsContainerId = "powerChoices") {
+function changeScene(text, buttonSetup, speed = 320, elementId = "powerText", buttonsContainerId = "powerChoices", min = 0, hr =0) {
   clearButtons(buttonsContainerId);
+  advanceTime(min, hr);
   const textEl = document.getElementById(elementId);
   if (!textEl) {
     const fakeDiv = document.getElementById(buttonsContainerId);
@@ -576,6 +589,7 @@ function continueBackStory(){
 }
 
 function continueBackStory2(){
+  addMoney(500);
   const story = `Minha mãe adoeceu. Sua idade avançada começou a cobrar o preço, a expectativa de vida em Armenzian é de 24 anos, minha mãe chegou aos 30, seu pulmão estava com problema, ela não conseguia respirar, e novamente me vi na mesma situação de anos atrás, mas dessa vez, as coisas não iriam se repetir. Procurei um médico confiável para tratar dela em casa, seu tratamento é caro, mas eu não deixei que aquilo aconteça novamente.
   
   Preciso conseguir $500 toda semana para que ele trate dela.`;
@@ -585,18 +599,9 @@ function continueBackStory2(){
 }
 
 function houseUser() {
-  let firstTime = 0;
-  if(firstTime == 0){
-    firstTime += 1;
-    const story = `Você está em casa`;
 
-    changeScene(story, () =>{
-      criarBotaoHistoria("Seu quarto (00:01)", userRoom);
-      criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom);
-      criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse);
-    })
-  }else{
-  advanceTime(1);
+  advanceTime(timeLocal);
+  timeLocal = 1;
   const story = `Você está em casa`;
 
   changeScene(story, () =>{
@@ -604,7 +609,6 @@ function houseUser() {
     criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom);
     criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse);
   })
-}
 
   /*changeScene(story, (choices) => {
     const fightBtn = document.createElement("button");
@@ -621,7 +625,7 @@ function houseUser() {
 }
 
 function userRoom(){
-  advanceTime(1);
+ advanceTime(1);
   const story = `Você está no seu quarto, o lugar é vazio e sem graça, sua cama pequena está arrumada e convidativa para dormir`;
   changeScene(story, () =>{
     criarBotaoHistoria("Dormir", sleep);
@@ -679,7 +683,28 @@ function motherRoom(){
 
 function leftUserHouse(){
   advanceTime(1);
+  let timeMessage;
+  if(gameTime.hour>0 && gameTime.hour<4){
+    timeMessage = `a madrugada é fria, as ruas estão completamente vazias, é possível ouvir até mesmo a sua própria respiração de tão silencioso.`;
+  }else if(gameTime.hour>5 && gameTime.hour<12){
+    timeMessage = `a manhã parece agitada, várias pessoas saindo para o trablaho ou coisas desse tipo.`;
+  }else if(gameTime.hour>13 && gameTime.hour<17){
+    timeMessage = `a tarde está movimentada, o Sol quente castiga sua pele.`;
+  }else if(gameTime.hour>18 && gameTime.hour<24){
+    timeMessage = `a noite é tranquila, com algumas pessoas voltando para casa, olhando atentamente, é possível ver bêbados escondidos nos becos.`;
+  }
+  let story = `Você está na rua, ${timeMessage}`;
 
+  changeScene(story, () =>{
+    criarBotaoHistoria("Guilda (00:05)", guildHub);
+  })
+}
+
+function guildHub(){
+  const story = ``;
+  changeScene(story, () =>{
+    criarBotaoHistoria("Guilda (00:05)", guildHub);
+  })
 }
 function hideFromDrone() {
   const story = `Você se esconde atrás de destroços. 
