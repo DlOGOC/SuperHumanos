@@ -9,6 +9,7 @@ let player = {
   strength: 10, intelligence: 10, skill: 10, defense: 10, vigor: 8,
   money: 0,
   guild: null,
+  guildMember: false,
   defending: false,
   status: {}, // e.g. { burning: {turns:3, value:3}, frozen: {turns:2} }
   mainWeapons: 0,
@@ -16,7 +17,7 @@ let player = {
 };
 
 let timeLocal = 0;
-
+let trainingDay = 8;
 /* ===== ARMAS DO JOGADOR =====*/
 
 //vantagens e desvantagens nos tipos de arams:
@@ -77,6 +78,8 @@ function motherStatus(){
 let friendships = {
   "Leandro": { know: false, value: 0, description: ""},
   "João José": { know: false, value: 0, description: ""},
+  "Rudo":{ know: false, value: 0, description: "Está esperançoso com seu treinamento."},
+  "Estevan": {know: false, value: 0, description: ""}
   //adicionar mais aqui
 };
 /**
@@ -419,14 +422,13 @@ function dormir(min = 0, hr = 0) {
   const sleepRecovery = hours * 12;    // recupera 12% de sono por hora
   const energyRecovery = hours * 10;   // recupera 10% de energia por hora
 
+    // Dormir gasta fome, e o tempo ainda passa
+    advanceTime(min, hr);
   // Aplica recuperação
   player.hp = Math.min(player.maxHp, player.hp + hpRecovery);
   player.mana = Math.min(player.maxMana, player.mana + manaRecovery);
   player.sleep = Math.min(100, player.sleep + sleepRecovery);
   player.energy = Math.min(100, player.energy + energyRecovery);
-
-  // Dormir não gasta fome, mas o tempo ainda passa
-  advanceTime(min, hr);
 
   // Atualiza UI
   updateSidebar();
@@ -593,6 +595,18 @@ document.addEventListener("DOMContentLoaded", () => {
   updateGameTimeDisplay();
 });
 
+/* =========== MENSAGEM DE TEMPO ================ */
+
+let timeMessage;
+  if(gameTime.hour>0 && gameTime.hour<4){
+    timeMessage = `a madrugada é fria, as ruas estão completamente vazias, é possível ouvir até mesmo a sua própria respiração de tão silencioso.`;
+  }else if(gameTime.hour>5 && gameTime.hour<12){
+    timeMessage = `a manhã parece agitada, várias pessoas saindo para o trablaho ou coisas desse tipo.`;
+  }else if(gameTime.hour>13 && gameTime.hour<17){
+    timeMessage = `a tarde está movimentada, o Sol quente castiga sua pele.`;
+  }else if(gameTime.hour>18 && gameTime.hour<24){
+    timeMessage = `a noite é tranquila, com algumas pessoas voltando para casa, olhando atentamente, é possível ver bêbados escondidos nos becos.`;
+  }
 /* ========== HISTÓRIA ========== */
 function discoverPower() {
 
@@ -718,29 +732,233 @@ function motherRoom(){
 
 function leftUserHouse(){
   advanceTime(1);
-  let timeMessage;
-  if(gameTime.hour>0 && gameTime.hour<4){
-    timeMessage = `a madrugada é fria, as ruas estão completamente vazias, é possível ouvir até mesmo a sua própria respiração de tão silencioso.`;
-  }else if(gameTime.hour>5 && gameTime.hour<12){
-    timeMessage = `a manhã parece agitada, várias pessoas saindo para o trablaho ou coisas desse tipo.`;
-  }else if(gameTime.hour>13 && gameTime.hour<17){
-    timeMessage = `a tarde está movimentada, o Sol quente castiga sua pele.`;
-  }else if(gameTime.hour>18 && gameTime.hour<24){
-    timeMessage = `a noite é tranquila, com algumas pessoas voltando para casa, olhando atentamente, é possível ver bêbados escondidos nos becos.`;
-  }
+  
   let story = `Você está na rua, ${timeMessage}`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Guilda (00:05)", guildHub);
+    criarBotaoHistoria("Avenida da Guilda (00:05)", guildHub);
+  })
+}
+
+function guildStreet(){
+  const story = `Você está na rua da guilda, ${timeMessage}`;
+  changeScene(story, () =>{
+    criarBotaoHistoria("Guilda (00:01)", guildHub);
   })
 }
 
 function guildHub(){
-  const story = ``;
+  let guildMember;
+  if(player.guildMember === false){
+    guildMember = `Você não é um membro da guilda, você ainda precisará se registrar, olhando ao redor, aquele recepcionista está acenando para você, como se te chamasse.`
+  }
+  const story = `Você entra no prédio da guilda, vários aventureiros estão neste local, suas armaduras reluzentes e alguns com roupas normais, o local apesar da grande diversidade de pessoas, é bem organizado, em geral, o ambiente parece bom.
+  
+   Você consegue ver o recepcionista em seu local de trabalho, o mural da guilda - local para aceitar suas missões.
+   
+   ${guildMember}`;
+   changeScene(story, () =>{
+    criarBotaoHistoria("Ir para o recepcionista", recepcionist);
+    criarBotaoHistoria("Mural", questBoard);
+   })
+}
+
+function recepcionist(){
+  let guildMember;
+  if(player.guildMember === false){
+    guildMember = `"Olá jovem, você está planejando entrar na nossa guilda?" - Sem esperar você responder, ele continua - "Que bom! nós estamos sempre precisando de membros novos, afinal, muitos monstros têm aparecido em todos os lugares e não temos contingente para todas as ocorrências. Aliás, meu nome é Estevan, estou aqui para o que precisar"
+    
+    Depois de alguns minutos, o registro da guilda está terminado e o recepcionista volta a falar "Antes que você entre oficialmente em nossa guilda, precisamos que você passa por um treinamento, não se preocupe, ele será apenas para que você consiga se adaptar ao rítimo dos combates que você irá enfrentar. Por favor, venha comigo, vou te levar para a área de treino."`;
+    meetCharacter("Estevan");
+  }
+  let story = `${guildMember}`;
+
+  if(player.guildMember === false){
+    changeScene(story, () =>{
+      criarBotaoHistoria("Começar o treinamento", guildTraining);
+    })
+  }
+}
+
+function questBoard(){
+
+}
+
+function guildTraining(){
+  if(trainingDay == 8){
+    let story = `Estaven te explicou, existem alguns tipos de treinamento e você escolherá que tipo receberá por dia, o total de treino é de uma semana e durará 8 horas, você pode combinar todos os tipos de treino da forma que quiser para montar suas habilidades, no fim do treino, como uma prova final, você combaterá o instrutor, e quando passar, você receberá gratuitamente um conjunto de equipamento inicial.
+    
+      "Olá ${player.name}! Fiquei sabendo de você, eu sou o Rudoufh, mas pode me chamar de Rudo, serei o seu treinador, eu sei de tudo um pouco então espero ser bem útil para você, sou um veterano de guerra e tenho várias expectativas em você! Não me decepcione!" diz ele e logo dá um tapa nas suas costas.`;
+      meetCharacter(Rudo)
+      trainingDay--;
+
+      changeScene(story, () =>{
+        criarBotaoHistoria("Continuar", guildTraining);
+      })
+  }
+   story = `Você possui ${trainingDay} dias de treino.
+   
+   "Olá ${player.name}! Vamos começar? O que vamos treinar hoje?"`;
+    changeScene(story, () =>{
+      criarBotaoHistoria("Luta com espadas", warrior);
+      criarBotaoHistoria("Conceitos da magia", mage);
+      criarBotaoHistoria("Arte da furtividade e ataque a distância", thief);
+      criarBotaoHistoria("Arte sagrada", cleric);
+    })
+}
+
+// =========== TREINO DAS CLASSES ==============
+
+function warrior(){
+  guild.warrior++;
+  trainingDay--;
+  let traingDescription;
+  switch (guild.warrior) {
+    case 1:
+      traingDescription = ``;
+      break;
+    case 2:
+      traingDescription = ``;
+      break;
+    case 3:
+      traingDescription = ``;
+      break;
+    case 4:
+      traingDescription = ``;
+      break;
+    case 5:
+      traingDescription = ``;
+      break;
+    case 6:
+      traingDescription = ``;
+      break;
+    default:
+      traingDescription = `Você começa a treinar com Rudo, seus movimentos comparados aos dele, é quase como se uma formiga estivesse lutando contra um gigante, ele não perde muito tempo com a teoria e vocês logo começam a lutar com espadas de madeira, é exaustivo e doloroso, seu corpo parece que vai se quebrar diversas vezes, mas você aguenta.
+      
+      As horas passam e você continua apenas defendendo os ataques, cada golpe mais forte que o anterior, você sente que está se fortalecendo.`;
+
+      break;
+      }
+
+      const story = `${traingDescription}`;
+      player.strength += 4 -(((Math.max(1, Math.min(7, trainingDay)))/6)*4-1);
+      changeScene(story, () =>{
+        criarBotaoHistoria("Continuar", posTraing);
+      })
+}
+
+function mage(){
+  guild.mage++;
+  trainingDay--;
+  let traingDescription;
+  switch (guild.mage) {
+    case 1:
+      traingDescription = ``;
+      break;
+    case 2:
+      traingDescription = ``;
+      break;
+    case 3:
+      traingDescription = ``;
+      break;
+    case 4:
+      traingDescription = ``;
+      break;
+    case 5:
+      traingDescription = ``;
+      break;
+    case 6:
+      traingDescription = ``;
+      break;
+    default:
+      break;
+      }
+
+      const story = `${traingDescription}`;
+      player.intelligence += 4 -(((Math.max(1, Math.min(7, trainingDay)))/6)*4-1);
+      changeScene(story, () =>{
+        criarBotaoHistoria("Continuar", posTraing);
+      })
+}
+
+function thief(){
+  guild.thief++;
+  trainingDay--;
+  let traingDescription;
+  switch (guild.thief) {
+    case 1:
+      traingDescription = ``;
+      break;
+    case 2:
+      traingDescription = ``;
+      break;
+    case 3:
+      traingDescription = ``;
+      break;
+    case 4:
+      traingDescription = ``;
+      break;
+    case 5:
+      traingDescription = ``;
+      break;
+    case 6:
+      traingDescription = ``;
+      break;
+    default:
+      break;
+      }
+
+      const story = `${traingDescription}`;
+      changeScene(story, () =>{
+        criarBotaoHistoria("Continuar", posTraing);
+      })
+}
+
+function cleric(){
+  guild.cleric++;
+  trainingDay--;
+  let traingDescription;
+  switch (guild.cleric) {
+    case 1:
+      traingDescription = ``;
+      break;
+    case 2:
+      traingDescription = ``;
+      break;
+    case 3:
+      traingDescription = ``;
+      break;
+    case 4:
+      traingDescription = ``;
+      break;
+    case 5:
+      traingDescription = ``;
+      break;
+    case 6:
+      traingDescription = ``;
+      break;
+    default:
+      break;
+      }
+
+      const story = `${traingDescription}`;
+      changeScene(story, () =>{
+        criarBotaoHistoria("Continuar", posTraing);
+      })
+}
+
+function posTraing(){
+  const story = `"Você se saiu bem garoto, continue vindo, estou ansioso para amanhã."
+  
+  Você vai andando da área de treinamento, seu corpo cansado mas ao mesmo tempo, revigorado.
+  
+  Passando pelo hall da guilda, Stevan lhe comprimenta, acenando como forma de dar tchau, você espelha seu gesto e segue seu caminho.`;
+
   changeScene(story, () =>{
-    criarBotaoHistoria("Guilda (00:05)", guildHub);
+    criarBotaoHistoria("Lobby da guilda (00:01)", guildHub);
   })
 }
+
 function hideFromDrone() {
   const story = `Você se esconde atrás de destroços. 
 O drone passa lentamente, escaneando a área. Por um momento, o silêncio é absoluto... 
