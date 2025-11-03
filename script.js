@@ -10,11 +10,46 @@ let player = {
   money: 0,
   guild: null,
   defending: false,
-  status: {} // e.g. { burning: {turns:3, value:3}, frozen: {turns:2} }
+  status: {}, // e.g. { burning: {turns:3, value:3}, frozen: {turns:2} }
+  mainWeapons: 0,
+  subWeapons: 0
 };
 
 let timeLocal = 0;
 
+/* ===== ARMAS DO JOGADOR =====*/
+
+//vantagens e desvantagens nos tipos de arams:
+const vantage = {
+  fisic: {strong: "distance", weak: "magic"},
+  magic: {strong: "fisc", weak: "distance"},
+  distance: {strong: "magic", weak: "fisic"},
+  holly: {strong: "dark", weak: "dark"},
+  dark: {strong: "holly", weak: "holly"}
+}
+
+const weapons = {
+  "Espada de treino":{
+    type: "melee",
+    damage: player.strength+10,
+    skills: [
+      {
+        name: "Corte forte", type: "Físico", power:1.5, critChance:0.15, description:"Uma espada de madeira comum"
+      }
+    ]
+  }
+}
+
+//equipar arma
+function equipWeapon(weaponName){
+  if(!weapons[weaponName]){
+    console.warn(`Arma ${weaponName} não existe.`);
+    return;
+  }
+  player.weapon = { ...weapons[weaponName] };
+  player.type = player.weapon.type;
+  console.warn(`${weaponName} equipado com sucesso.`);
+}
 /* ===== CLASSES DO JOGADOR =====*/
 
 let guild = {
@@ -636,14 +671,14 @@ function userRoom(){
 function sleep(){
   const story = `Quantas horas você quer dormir?`;
   changeScene(story, () =>{
-    criarBotaoHistoria("8 horas", dormir(8));
-    criarBotaoHistoria("7 horas", dormir(7));
-    criarBotaoHistoria("6 horas", dormir(6));
-    criarBotaoHistoria("5 horas", dormir(5));
-    criarBotaoHistoria("4 horas", dormir(4));
-    criarBotaoHistoria("3 horas", dormir(3));
-    criarBotaoHistoria("2 horas", dormir(2));
-    criarBotaoHistoria("1 hora", dormir(1));
+    criarBotaoHistoria("8 horas", () => dormir(0, 8));
+    criarBotaoHistoria("7 horas", () => dormir(0, 7));
+    criarBotaoHistoria("6 horas", () => dormir(0, 6));
+    criarBotaoHistoria("5 horas", () => dormir(0, 5));
+    criarBotaoHistoria("4 horas", () => dormir(0, 4));
+    criarBotaoHistoria("3 horas", () => dormir(0, 3));
+    criarBotaoHistoria("2 horas", () => dormir(0, 2));
+    criarBotaoHistoria("1 hora", () => dormir(0, 1));
   })
 }
 
@@ -996,6 +1031,60 @@ if (enemy.hp <= 0) {
   else setTimeout(enemyAttack, 900);
 }
 
+function calculeteWeaponDamage(attacker, defender, skill){
+  let base = Math.floor(Math.random() * 6) + attacker.weapon.damage;
+  let damage = Math.floor(base*skill.power);
+  let isCrit = Math.random()<skill.critChance;
+
+  //aplica a vantagem/desvantagem
+  const adv = typeAdvantages[skill.type];
+  if(adv){
+    if(adv.strong === defender.type){
+      damage = Math.floor(damage * 1.25);
+      log(`É super eficaz contra ${defender.name}!`);
+    }else if(adv.weak === defender.type){
+      damage = Math.floor(damage * 0.75);
+      log(`Não é nada eficaz contra ${defender.name}.`);
+    }
+  }
+  if(isCrit) damage *= 2;
+  return{damag: damage, isCrit: isCrit};
+}
+
+function weaponSkill(skill){
+  if(!player.weapon){
+    log("Você está desarmado");
+    return;
+  }
+
+  const {damage, isCrit} = calculeteWeaponDamage(player, enemy, skill);
+  enemy.hp = Math.max(0, enemy.hp - damage);
+
+  narrateAttack("player", skill.name, damage, isCrit, false);
+
+  if(isCrit){
+    if(skill.type === "fisico"){
+      applyStatus(enemy, "bleeding", 3, 6);
+    }
+    if(skill.type === "magico"){
+      applyStatus(enemy, "burned", 3,5);
+    }
+    if(skill.type === "distancia"){
+      applyStatus(enemy, "confused", 2, 5);
+    }
+    if(skill.type === "sagrado"){
+      applyStatus(enemy, blinded, 2, 4);
+    }
+  }
+
+  updateBars();
+  if(enemy.hp <= 0){
+    log(`${enemy.name} foi derrotado!`);
+    endBattle(true);
+  }else setTimeout(enemyAttack, 1200);
+    
+}
+
 function defend() {
   if (!processStatuses(player, "player")) { if (enemy.hp>0) setTimeout(enemyAttack,900); return; }
   player.defending = true;
@@ -1003,95 +1092,91 @@ function defend() {
   setTimeout(enemyAttack, 900);
 }
 
-function flee() {
-  log(`${player.name} tentou fugir!`);
-  document.getElementById("battle-screen").style.display = "none";
-  document.getElementById("story-screen").style.display = "block";
-}
-
-function usePower() {
-  if (!processStatuses(player, "player")) { if (enemy.hp > 0) setTimeout(enemyAttack, 900); return; }
-  if (!player.powerType) { log("Você ainda não descobriu seu poder!"); return; }
-
-  const manaCost = 15;
-  if (player.mana < manaCost) { log("Mana insuficiente!"); return; }
-
-  const blindMiss = hasStatus(player, "blinded") ? 0.25 : 0;
-  if (Math.random() < blindMiss) {
-    log(`${player.name} tentou usar o poder, mas estava cego e errou!`);
-    setTimeout(enemyAttack, 900);
-    return;
-  }
-
-  const isCrit = Math.random() < 0.18;
-  player.mana = Math.max(0, player.mana - manaCost);
-  let base = Math.floor(Math.random() * 10) + 8;
-  let damage = isCrit ? base * 2 : base;
-
-  // === EFEITOS POR PODER ===
-  switch (player.powerType) {
-    case "Pirocinese":
-      damage += 4;
-      enemy.hp = Math.max(0, enemy.hp - damage);
-      narrateAttack("player", enemy.name, damage, isCrit, false, "Pirocinese");
-      if (isCrit) applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp * 0.03)));
-      break;
-
-    case "Criogenese":
-      damage += 2;
-      enemy.hp = Math.max(0, enemy.hp - damage);
-      narrateAttack("player", enemy.name, damage, isCrit, false, "Criogenese");
-      if (isCrit) applyStatus(enemy, "frozen", 2);
-      break;
-
-    case "Telecinese":
-      damage += 3;
-      enemy.hp = Math.max(0, enemy.hp - damage);
-      narrateAttack("player", enemy.name, damage, isCrit, false, "Telecinese");
-      if (isCrit) applyStatus(enemy, "confused", 2);
-      break;
-
-    case "Eletrocinese":
-      damage += 4;
-      enemy.hp = Math.max(0, enemy.hp - damage);
-      narrateAttack("player", enemy.name, damage, isCrit, false, "Eletrocinese");
-      if(isCrit) applyStatus(enemy, "paralizado", 1);
-      break;
-  }
-
-  updateBars();
 
 
-  if (enemy.hp <= 0) {
-  if(enemy.name == "João José"){
-    log(`${enemy.name} puxa uma pistola e dispara contra você. "Você me forçou a isso Senhor ${player.name}"`);
-    log("Você desmaia.");
-    const logBox = document.getElementById("battle-log");
-  if (logBox) {
-    const btn = document.createElement("button");
-    btn.innerText = "Continuar";
+// function usePower() {
+//   if (!processStatuses(player, "player")) { if (enemy.hp > 0) setTimeout(enemyAttack, 900); return; }
+//   if (!player.powerType) { log("Você ainda não descobriu seu poder!"); return; }
 
-    // usa o estilo padrão dos botões do jogo
-    btn.onclick = () => {
-      document.getElementById("battle-screen").style.display = "none";
-      document.getElementById("power-screen").style.display = "block";
-      if(enemy.name == "João José"){
-        strangeManWins(); // retorna para a história
-      }
+//   const manaCost = 15;
+//   if (player.mana < manaCost) { log("Mana insuficiente!"); return; }
 
-    };
+//   const blindMiss = hasStatus(player, "blinded") ? 0.25 : 0;
+//   if (Math.random() < blindMiss) {
+//     log(`${player.name} tentou usar o poder, mas estava cego e errou!`);
+//     setTimeout(enemyAttack, 900);
+//     return;
+//   }
 
-    // adiciona o botão diretamente ao log
-    logBox.appendChild(btn);
-    logBox.scrollTop = logBox.scrollHeight;
-  }
+//   const isCrit = Math.random() < 0.18;
+//   player.mana = Math.max(0, player.mana - manaCost);
+//   let base = Math.floor(Math.random() * 10) + 8;
+//   let damage = isCrit ? base * 2 : base;
 
-  }
-  if(enemy.name != "João José"){
-    log(` ${enemy.name} foi derrotado!`, true);
-  }
-  }else setTimeout(enemyAttack, 900);
-}
+//   // === EFEITOS POR PODER ===
+//   switch (player.powerType) {
+//     case "Pirocinese":
+//       damage += 4;
+//       enemy.hp = Math.max(0, enemy.hp - damage);
+//       narrateAttack("player", enemy.name, damage, isCrit, false, "Pirocinese");
+//       if (isCrit) applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp * 0.03)));
+//       break;
+
+//     case "Criogenese":
+//       damage += 2;
+//       enemy.hp = Math.max(0, enemy.hp - damage);
+//       narrateAttack("player", enemy.name, damage, isCrit, false, "Criogenese");
+//       if (isCrit) applyStatus(enemy, "frozen", 2);
+//       break;
+
+//     case "Telecinese":
+//       damage += 3;
+//       enemy.hp = Math.max(0, enemy.hp - damage);
+//       narrateAttack("player", enemy.name, damage, isCrit, false, "Telecinese");
+//       if (isCrit) applyStatus(enemy, "confused", 2);
+//       break;
+
+//     case "Eletrocinese":
+//       damage += 4;
+//       enemy.hp = Math.max(0, enemy.hp - damage);
+//       narrateAttack("player", enemy.name, damage, isCrit, false, "Eletrocinese");
+//       if(isCrit) applyStatus(enemy, "paralizado", 1);
+//       break;
+//   }
+
+//   updateBars();
+
+
+//   if (enemy.hp <= 0) {
+//   if(enemy.name == "João José"){
+//     log(`${enemy.name} puxa uma pistola e dispara contra você. "Você me forçou a isso Senhor ${player.name}"`);
+//     log("Você desmaia.");
+//     const logBox = document.getElementById("battle-log");
+//   if (logBox) {
+//     const btn = document.createElement("button");
+//     btn.innerText = "Continuar";
+
+//     // usa o estilo padrão dos botões do jogo
+//     btn.onclick = () => {
+//       document.getElementById("battle-screen").style.display = "none";
+//       document.getElementById("power-screen").style.display = "block";
+//       if(enemy.name == "João José"){
+//         strangeManWins(); // retorna para a história
+//       }
+
+//     };
+
+//     // adiciona o botão diretamente ao log
+//     logBox.appendChild(btn);
+//     logBox.scrollTop = logBox.scrollHeight;
+//   }
+
+//   }
+//   if(enemy.name != "João José"){
+//     log(` ${enemy.name} foi derrotado!`, true);
+//   }
+//   }else setTimeout(enemyAttack, 900);
+// }
 
 /* ========================= DESCRIÇÕES DE ATAQUES DOS INIMIGOS ========================= */
 function getEnemyAttackDescription(enemyName) {
@@ -1244,7 +1329,6 @@ let playerSkills = [
   { name: "Atacar", action: () => playerTurn(attack) },
   { name: "Usar Poder", action: () => playerTurn(usePower) },
   { name: "Defender", action: () => playerTurn(defend) },
-  { name: "Fugir", action: flee }
 ];
 function updateSkills() {
   const container = document.getElementById("skill-buttons");
