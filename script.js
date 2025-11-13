@@ -18,6 +18,8 @@ function distributeAttributePoints(player){
 /* ===== DADOS DO JOGADOR ===== */
 let player = {
   name: "",
+  level: 0,
+  xp:0,
   hp: 100, maxHp: 100,
   mana: 50, maxMana: 50,
   hunger: 100, sleep: 100, energy: 100,
@@ -204,6 +206,7 @@ function updateSidebar() {
   
   const setText = (id, v) => { const e = document.getElementById(id); if (e) e.innerText = v; };
   setText("sidebar-name", player.name || "Jogador");
+  setText("attr-level", player.level);
   setText("attr-strength", player.strength);
   setText("attr-int", player.intelligence);
   setText("attr-skill", player.skill);
