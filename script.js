@@ -1,5 +1,20 @@
 /* ======= script.js ======= */
+function distributeAttributePoints(player){
+  const attribute = ["strength", "intelligence", "skill", "defense", "faith", "vigor"];
 
+  attribute.forEach(attr => player[attr] = 1);
+
+  let remaingPoints = 30;
+
+  while(remaingPoints >0){
+    const attr = attribute[Math.floor(Math.random() * attribute.length)]
+
+    if(player[attr] <8){
+      player[attr]++;
+      remaingPoints--;
+    }
+  }
+}
 /* ===== DADOS DO JOGADOR ===== */
 let player = {
   name: "",
@@ -16,6 +31,8 @@ let player = {
   mainWeapons: 0,
   subWeapons: 0
 };
+
+
 
 let timeLocal = 0;
 let trainingDay = 8;
@@ -583,7 +600,9 @@ document.addEventListener("DOMContentLoaded", () => {
       player.name = name.trim();
       document.getElementById("intro-screen").style.display = "none";
       document.getElementById("power-screen").style.display = "block";
-      if (typeof discoverPower === "function") discoverPower();
+      if (typeof discoverPower === "function") 
+      distributeAttributePoints(player);
+      discoverPower();
       updateSidebar();
     });
   }
@@ -816,7 +835,7 @@ function classTraining(classe, nivel){
   const ganho = Math.round(ganhoMax - ((nivel - 1)/6) *(ganhoMax-ganhoMin));
 
   switch(classe){
-    case "warrir":
+    case "warrior":
       player.strength += ganho;
       break;
     case "mage":
@@ -826,7 +845,7 @@ function classTraining(classe, nivel){
       player.skill += ganho;
       break;
     case "healer":
-      player.faith;
+      player.faith += ganho;
       break;
   }
 }
