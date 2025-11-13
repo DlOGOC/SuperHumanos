@@ -6,7 +6,8 @@ let player = {
   hp: 100, maxHp: 100,
   mana: 50, maxMana: 50,
   hunger: 100, sleep: 100, energy: 100,
-  strength: 10, intelligence: 10, skill: 10, defense: 10, vigor: 8,
+  strength: 10, intelligence: 10, skill: 10, defense: 10, faith:10, 
+  vigor: 8,
   money: 0,
   guild: null,
   guildMember: false,
@@ -189,6 +190,7 @@ function updateSidebar() {
   setText("attr-strength", player.strength);
   setText("attr-int", player.intelligence);
   setText("attr-skill", player.skill);
+  setText("attr-faith", player.faith);
   setText("attr-defense", player.defense);
   setText("attr-vigor", player.vigor);
   setText("attr-energy", Math.round(player.energy));
@@ -736,7 +738,7 @@ function leftUserHouse(){
   let story = `Você está na rua, ${timeMessage}`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Avenida da Guilda (00:05)", guildHub);
+    criarBotaoHistoria("Avenida da Guilda (00:05)", guildStreet);
   })
 }
 
@@ -785,20 +787,19 @@ function questBoard(){
 }
 
 function guildTraining(){
+  let training = ``;
   if(trainingDay == 8){
-    let story = `Estaven te explicou, existem alguns tipos de treinamento e você escolherá que tipo receberá por dia, o total de treino é de uma semana e durará 8 horas, você pode combinar todos os tipos de treino da forma que quiser para montar suas habilidades, no fim do treino, como uma prova final, você combaterá o instrutor, e quando passar, você receberá gratuitamente um conjunto de equipamento inicial.
+     training = `Estaven te explicou, existem alguns tipos de treinamento e você escolherá que tipo receberá por dia, o total de treino é de uma semana e durará 8 horas, você pode combinar todos os tipos de treino da forma que quiser para montar suas habilidades, no fim do treino, como uma prova final, você combaterá o instrutor, e quando passar, você receberá gratuitamente um conjunto de equipamento inicial.
     
       "Olá ${player.name}! Fiquei sabendo de você, eu sou o Rudoufh, mas pode me chamar de Rudo, serei o seu treinador, eu sei de tudo um pouco então espero ser bem útil para você, sou um veterano de guerra e tenho várias expectativas em você! Não me decepcione!" diz ele e logo dá um tapa nas suas costas.`;
-      meetCharacter(Rudo)
+      meetCharacter("Rudo");
       trainingDay--;
-
-      changeScene(story, () =>{
-        criarBotaoHistoria("Continuar", guildTraining);
-      })
   }
-   story = `Você possui ${trainingDay} dias de treino.
+   let story = `Você possui ${trainingDay} dias de treino.
    
-   "Olá ${player.name}! Vamos começar? O que vamos treinar hoje?"`;
+   ${training} 
+   
+   "Vamos começar? O que vamos treinar hoje?"`;
     changeScene(story, () =>{
       criarBotaoHistoria("Luta com espadas", warrior);
       criarBotaoHistoria("Conceitos da magia", mage);
@@ -807,11 +808,32 @@ function guildTraining(){
     })
 }
 
+// =========== FUNÇÃO DAS CLASSES ===========
+
+function classTraining(classe, nivel){
+  const ganhoMax = 4;
+  const ganhoMin = 1;
+  const ganho = Math.round(ganhoMax - ((nivel - 1)/6) *(ganhoMax-ganhoMin));
+
+  switch(classe){
+    case "warrir":
+      player.strength += ganho;
+      break;
+    case "mage":
+      player.intelligence += ganho;
+      break;
+    case "thief":
+      player.skill += ganho;
+      break;
+    case "healer":
+      player.faith;
+      break;
+  }
+}
 // =========== TREINO DAS CLASSES ==============
 
 function warrior(){
   guild.warrior++;
-  trainingDay--;
   let traingDescription;
   switch (guild.warrior) {
     case 1:
@@ -840,7 +862,7 @@ function warrior(){
       break;
       }
 
-      const story = `${traingDescription}`;
+      let story = `${traingDescription} ...`;
       player.strength += 4 -(((Math.max(1, Math.min(7, trainingDay)))/6)*4-1);
       changeScene(story, () =>{
         criarBotaoHistoria("Continuar", posTraing);
@@ -954,6 +976,7 @@ function posTraing(){
   
   Passando pelo hall da guilda, Stevan lhe comprimenta, acenando como forma de dar tchau, você espelha seu gesto e segue seu caminho.`;
 
+  trainingDay--;
   changeScene(story, () =>{
     criarBotaoHistoria("Lobby da guilda (00:01)", guildHub);
   })
