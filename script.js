@@ -1396,6 +1396,41 @@ function calculateWeaponDamage(attacker, defender, skill, weapon) {
   return { damage, isCrit };
 }
 
+function showWeaponSkills() {
+  const container = document.getElementById("skill-buttons");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const weapon = player.equippedWeapon;
+  if (!weapon || !weapon.skills) {
+    log("Você não tem habilidades disponíveis.");
+    updateSkills();
+    return;
+  }
+
+  weapon.skills.forEach(skillKey => {
+    const skill = skills[skillKey];
+    if (!skill) return;
+
+    const btn = document.createElement("button");
+    btn.innerText = skill.name;
+
+    btn.onclick = () => {
+      playerTurn(() => weaponSkill(skillKey));
+      updateSkills(); // volta para o menu principal
+    };
+
+    container.appendChild(btn);
+  });
+
+  // botão voltar
+  const backBtn = document.createElement("button");
+  backBtn.innerText = "Voltar";
+  backBtn.onclick = updateSkills;
+  container.appendChild(backBtn);
+}
+
 
 function weaponSkill(skillKey) {
   if (!processStatuses(player, "player")) {
@@ -1785,7 +1820,7 @@ function log(msg) {
 /* ========== SKILL BUTTONS ========== */
 let playerSkills = [
   { name: "Atacar", action: () => playerTurn(attack) },
-  { name: "Usar Poder", action: () => playerTurn(usePower) },
+  { name: "Usar Poder", action: () => showWeaponSkills() },
   { name: "Defender", action: () => playerTurn(defend) },
 ];
 function updateSkills() {
