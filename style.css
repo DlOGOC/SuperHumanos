@@ -112,6 +112,91 @@ body {
 }
 #sidebar.expanded + #toggle-sidebar { left: 250px; }
 
+/* IMAGEM DE PERFIL*/
+.img {
+  position: relative;
+  width: 128px;
+  height: 128px;
+}
+
+.img img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 140px;
+  height: 140px;
+}
+ 
+#hair-back     { z-index: 1; }
+#face-base    { z-index: 2; }
+#skin-line    { z-index: 3; }
+#skin-effects { z-index: 4; }
+
+#mouth        { z-index: 5; }
+#eyebrow      { z-index: 6; }
+#olho-base    { z-index: 7; }
+#olho         { z-index: 8; }
+#cor-olho     { z-index: 9; }
+
+#hair-front   { z-index: 10; }
+#cloth-base  { z-index: 11; }
+
+
+.char-creation{
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.option-group{
+  border: #ddd, 1px, solid;
+  border-radius: 5px;
+  padding: 2%;
+}
+.option-group:nth-child(1),
+.option-group:nth-child(2),
+.option-group:nth-child(4),
+.option-group:nth-child(5) {
+  flex-grow: 1;
+}
+
+.option-group:nth-child(3),
+.option-group:nth-child(6){
+  width: 100%;
+}
+.dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  margin: 4px 0;
+}
+
+.dot input {
+  display: none;
+}
+
+.dot span {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #aaa;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+
+.dot input:checked + span::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 /* BARRAS DO SIDEBAR */
 .status-section { margin-bottom: 14px; }
 .status-section label { display:block; margin-bottom:6px; color:#cfe; font-size:13px; }
@@ -173,7 +258,7 @@ body {
 #title {
   font-size: clamp(1.6rem, 4vw, 2.4rem);
   margin-top: 18vh;
-  color: #9df;
+  color: #B90E0A;
 }
 
 /* TELAS */

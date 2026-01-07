@@ -34,7 +34,47 @@ let player = {
   subWeapons: 0
 };
 
+/* ===== IMAGEM DO JOGADOR =====*/
+const playerFace = {
+  skin: "skin_1",
+  skinLine: "skin_line_1",
+  skinEffects: "vitiligo",
+  eyes: "blue",
+  lineEye: "eye_1",
+  sclera: "sclera",
+  hair_front: "hair_front_1",
+  hair_back: "hair_back_1",
+  eyebrow: "eyebrow_1",
+  mouth: "mouth_1",
+  cloth: "cloth_1"
+};
 
+function updateFace() {
+    document.getElementById("hair-back").src =
+    `img/hair/${playerFace.hair_back}.webp`;
+    document.getElementById("face-base").src =
+    `img/faces/${playerFace.skin}.webp`;
+    document.getElementById("skin-line").src =
+    `img/faces/${playerFace.skinLine}.webp`;
+    document.getElementById("skin-effects").src =
+    `img/faces/${playerFace.skinEffects}.webp`;
+    document.getElementById("mouth").src =
+    `img/mouth/${playerFace.mouth}.webp`;
+    document.getElementById("cloth-base").src =
+    `img/cloths/${playerFace.cloth}.webp`;
+    document.getElementById("eyebrow").src =
+    `img/eyebrows/${playerFace.eyebrow}.webp`;
+    document.getElementById("olho-base").src =
+    `img/eyes/${playerFace.sclera}.webp`;
+    document.getElementById("olho").src =
+    `img/eyes/${playerFace.lineEye}.webp`;
+    document.getElementById("cor-olho").src =
+    `img/eyes/${playerFace.eyes}.webp`;
+    document.getElementById("hair-front").src =
+    `img/hair/${playerFace.hair_front}.webp`;
+}
+
+updateFace();
 
 let timeLocal = 0;
 let trainingDay = 8;
