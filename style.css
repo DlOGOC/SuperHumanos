@@ -123,53 +123,54 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 140px;
-  height: 140px;
+  width: 128px;
+  height: 128px;
+  object-fit: contain; /* segurança extra */
 }
+
  
-#hair-back     { z-index: 1; }
-#face-base    { z-index: 2; }
-#skin-line    { z-index: 3; }
-#skin-effects { z-index: 4; }
+#hair-back-color    { z-index: 0;  }
+#hair-back-line     { z-index: 1;  }
+#face-base          { z-index: 2;  }
+#skin-line          { z-index: 3;  }
+#skin-effects       { z-index: 4;  }
 
-#mouth        { z-index: 5; }
-#eyebrow      { z-index: 6; }
-#olho-base    { z-index: 7; }
-#olho         { z-index: 8; }
-#cor-olho     { z-index: 9; }
+#mouth              { z-index: 5;  }
+#eyebrow            { z-index: 6;  }
+#eyebrow            { z-index: 7;  }
+#olho-base          { z-index: 8;  }
+#olho               { z-index: 9;  }
+#cor-olho           { z-index: 10; }
+#hair-front-color   { z-index: 12; }
+#hair-front-line    { z-index: 13; }
+#cloth-base         { z-index: 11; }
 
-#hair-front   { z-index: 10; }
-#cloth-base  { z-index: 11; }
 
-
-.char-creation{
-  display: flex;
+.char-creation {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
-  flex-wrap: wrap;
 }
 
-.option-group{
-  border: #ddd, 1px, solid;
-  border-radius: 5px;
-  padding: 2%;
-}
-.option-group:nth-child(1),
-.option-group:nth-child(2),
-.option-group:nth-child(4),
-.option-group:nth-child(5) {
-  flex-grow: 1;
+/* Card */
+.option-group {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
 }
 
-.option-group:nth-child(3),
-.option-group:nth-child(6){
-  width: 100%;
+/* Ocupa a linha inteira quando necessário */
+.option-group.full {
+  grid-column: 1 / -1;
 }
+
+/* Radios custom */
 .dot {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
-  margin: 4px 0;
+  margin: 6px 0;
 }
 
 .dot input {
@@ -181,7 +182,6 @@ body {
   height: 14px;
   border: 2px solid #aaa;
   border-radius: 50%;
-  display: inline-block;
   position: relative;
 }
 
@@ -196,6 +196,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
 
 /* BARRAS DO SIDEBAR */
 .status-section { margin-bottom: 14px; }

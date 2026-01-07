@@ -44,38 +44,216 @@ const playerFace = {
   lineEye: "eye_1",
   sclera: "sclera",
   hair_front: "hair_front_1",
+  hair_front_color: "black",
   hair_back: "hair_back_1",
+  hair_back_color: "black",
   eyebrow: "eyebrow_1",
+  eyebrowColor: "black",
   mouth: "mouth_1",
   cloth: "cloth_1"
 };
 
-function updateFace() {
-    document.getElementById("hair-back").src =
-    `img/hair/${playerFace.hair_back}.webp`;
-    document.getElementById("face-base").src =
-    `img/faces/${playerFace.skin}.webp`;
-    document.getElementById("skin-line").src =
-    `img/faces/${playerFace.skinLine}.webp`;
-    document.getElementById("skin-effects").src =
-    `img/faces/${playerFace.skinEffects}.webp`;
-    document.getElementById("mouth").src =
-    `img/mouth/${playerFace.mouth}.webp`;
-    document.getElementById("cloth-base").src =
-    `img/cloths/${playerFace.cloth}.webp`;
-    document.getElementById("eyebrow").src =
-    `img/eyebrows/${playerFace.eyebrow}.webp`;
-    document.getElementById("olho-base").src =
-    `img/eyes/${playerFace.sclera}.webp`;
-    document.getElementById("olho").src =
-    `img/eyes/${playerFace.lineEye}.webp`;
-    document.getElementById("cor-olho").src =
-    `img/eyes/${playerFace.eyes}.webp`;
-    document.getElementById("hair-front").src =
+/* ===== ATUALIZAR PERFIL =====*/
+
+function updateEyebrow() {
+  document.getElementById("eyebrow").src =
+    `img/eyebrows/${playerFace.eyebrow}_${playerFace.eyebrowColor}.webp`;
+}
+
+function updateHairFront() {
+  document.getElementById("hair-front-color").src =
+    `img/hair/${playerFace.hair_front}_${playerFace.hair_front_color}.webp`;
+
+  document.getElementById("hair-front-line").src =
     `img/hair/${playerFace.hair_front}.webp`;
 }
 
+function updateHairBack() {
+  document.getElementById("hair-back-color").src =
+    `img/hair/${playerFace.hair_back}_${playerFace.hair_back_color}.webp`;
+
+  document.getElementById("hair-back-line").src =
+    `img/hair/${playerFace.hair_back}.webp`;
+}
+
+function updateSkin() {
+  document.getElementById("face-base").src =
+    `img/faces/${playerFace.skin}.webp`;
+
+  document.getElementById("skin-line").src =
+    `img/faces/${playerFace.skinLine}.webp`;
+
+  document.getElementById("skin-effects").src =
+    `img/faces/${playerFace.skinEffects}.webp`;
+}
+
+function updateEyes() {
+  document.getElementById("olho-base").src =
+    `img/eyes/${playerFace.sclera}.webp`;
+
+  document.getElementById("olho").src =
+    `img/eyes/${playerFace.lineEye}.webp`;
+
+  document.getElementById("cor-olho").src =
+    `img/eyes/${playerFace.eyes}.webp`;
+}
+
+function updateMouth() {
+  document.getElementById("mouth").src =
+    `img/mouth/${playerFace.mouth}.webp`;
+}
+
+function updateCloth() {
+  document.getElementById("cloth-base").src =
+    `img/cloths/${playerFace.cloth}.webp`;
+}
+
+
+
+function updateFace() {
+  updateSkin();
+  updateHairBack();
+  updateHairFront();
+  updateEyebrow();
+  updateEyes();
+  updateMouth();
+  updateCloth();
+}
+
+
 updateFace();
+
+/* ===== CONTROLE DOS RADIOS =====*/
+
+/* ===== CABELOS =====*/
+document
+  .querySelectorAll('input[name="hair-front-shape"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.hair_front = e.target.value;
+      updateHairFront();
+    });
+  });
+
+document
+  .querySelectorAll('input[name="hair-front-color"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.hair_front_color = e.target.value;
+      updateFrontHair(); // ou updateFace()
+    });
+  });
+
+document
+  .querySelectorAll('input[name="hair-back-shape"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.hair_back = e.target.value;
+      updateHairBack();
+    });
+  });
+
+  document
+  .querySelectorAll('input[name="hair-back-color"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.hair_back_color = e.target.value;
+      updateHairBack();
+    });
+  });
+
+
+/* ===== SOMBRANCELHA =====*/
+
+document
+  .querySelectorAll('input[name="eyebrow-color"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.eyebrowColor = e.target.value;
+      updateEyebrow(); // ou updateFace()
+    });
+  });
+
+  document
+  .querySelectorAll('input[name="eyebrow-shape"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.eyebrow = e.target.value;
+      updateEyebrow();
+    });
+  });
+
+/* ===== OLHOS =====*/
+
+document
+  .querySelectorAll('input[name="eye-shape"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.lineEye = e.target.value;
+      updateEyes();
+    });
+  });
+
+document
+  .querySelectorAll('input[name="eye-color"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.eyes = e.target.value;
+      updateEyes();
+    });
+  });
+
+
+document
+  .querySelectorAll('input[name="eye-sclera"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.sclera = e.target.value;
+      updateEyes();
+    });
+  });
+
+/* ===== BOCA =====*/
+
+document
+  .querySelectorAll('input[name="mouth"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.mouth = e.target.value;
+      updateMouth();
+    });
+  });
+
+/* ===== BOCA =====*/
+
+document
+  .querySelectorAll('input[name="skin"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.skin = e.target.value;
+      updateSkin();
+    });
+  });
+
+document
+  .querySelectorAll('input[name="skin-line"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.skinLine = e.target.value;
+      updateSkin();
+    });
+  });
+
+
+document
+  .querySelectorAll('input[name="skin-effects"]')
+  .forEach(radio => {
+    radio.addEventListener("change", e => {
+      playerFace.skinEffects = e.target.value;
+      updateSkin();
+    });
+  });
+
 
 let timeLocal = 0;
 let trainingDay = 8;
