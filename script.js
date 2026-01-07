@@ -31,7 +31,8 @@ let player = {
   defending: false,
   status: {}, // e.g. { burning: {turns:3, value:3}, frozen: {turns:2} }
   mainWeapons: 0,
-  subWeapons: 0
+  subWeapons: 0,
+  learnedSkills: ["bola_de_fogo"]
 };
 
 /* ===== IMAGEM DO JOGADOR =====*/
@@ -1403,33 +1404,55 @@ function showWeaponSkills() {
   container.innerHTML = "";
 
   const weapon = player.equippedWeapon;
-  if (!weapon || !weapon.skills) {
-    log("Você não tem habilidades disponíveis.");
-    updateSkills();
-    return;
+
+  // ===== SKILLS DA ARMA =====
+  if (weapon && weapon.skills) {
+    weapon.skills.forEach(skillKey => {
+      const skill = skills[skillKey];
+      if (!skill) return;
+
+      const btn = document.createElement("button");
+      btn.innerText = skill.name;
+      btn.classList.add("skill-weapon");
+
+      btn.onclick = () => {
+        playerTurn(() => weaponSkill(skillKey));
+        updateSkills();
+      };
+
+      container.appendChild(btn);
+    });
   }
 
-  weapon.skills.forEach(skillKey => {
-    const skill = skills[skillKey];
-    if (!skill) return;
+  // ===== SKILLS APRENDIDAS PELO PERSONAGEM =====
+  if (player.learnedSkills && player.learnedSkills.length > 0) {
+    player.learnedSkills.forEach(skillKey => {
+      // evita duplicar skill da arma
+      if (weapon?.skills?.includes(skillKey)) return;
 
-    const btn = document.createElement("button");
-    btn.innerText = skill.name;
+      const skill = skills[skillKey];
+      if (!skill) return;
 
-    btn.onclick = () => {
-      playerTurn(() => weaponSkill(skillKey));
-      updateSkills(); // volta para o menu principal
-    };
+      const btn = document.createElement("button");
+      btn.innerText = skill.name;
+      btn.classList.add("skill-learned");
 
-    container.appendChild(btn);
-  });
+      btn.onclick = () => {
+        playerTurn(() => weaponSkill(skillKey));
+        updateSkills();
+      };
 
-  // botão voltar
+      container.appendChild(btn);
+    });
+  }
+
+  // ===== BOTÃO VOLTAR =====
   const backBtn = document.createElement("button");
   backBtn.innerText = "Voltar";
   backBtn.onclick = updateSkills;
   container.appendChild(backBtn);
 }
+
 
 
 function weaponSkill(skillKey) {
@@ -1820,7 +1843,7 @@ function log(msg) {
 /* ========== SKILL BUTTONS ========== */
 let playerSkills = [
   { name: "Atacar", action: () => playerTurn(attack) },
-  { name: "Usar Poder", action: () => showWeaponSkills() },
+  { name: "Habilidades", action: () => showWeaponSkills() },
   { name: "Defender", action: () => playerTurn(defend) },
 ];
 function updateSkills() {

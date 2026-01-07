@@ -331,6 +331,17 @@ button:hover { background: rgba(255,255,255,0.12); }
   color: #777;
 }
 
+.skill-weapon {
+  background-color: #8b5e3c; /* marrom / arma */
+  color: white;
+}
+
+.skill-learned {
+  background-color: #3c5e8b; /* azul / aprendizado */
+  color: white;
+}
+
+
 /* === EFEITO DE SHAKE NAS BARRAS === */
 @keyframes hpShake {
   0% { transform: translateX(0); }
