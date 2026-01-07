@@ -81,25 +81,56 @@ let trainingDay = 8;
 /* ===== ARMAS DO JOGADOR =====*/
 
 //vantagens e desvantagens nos tipos de arams:
-const vantage = {
-  fisic: {strong: "distance", weak: "magic"},
-  magic: {strong: "fisc", weak: "distance"},
-  distance: {strong: "magic", weak: "fisic"},
-  holly: {strong: "dark", weak: "dark"},
-  dark: {strong: "holly", weak: "holly"}
-}
+const typeAdvantages = {
+  fisic:    { strong: "distance", weak: "magic" },
+  magic:    { strong: "fisic",   weak: "distance" },
+  distance: { strong: "magic",    weak: "fisic" },
+  holy:     { strong: "dark",     weak: "dark" },
+  dark:     { strong: "holy",     weak: "holy" }
+};
+
 
 const weapons = {
-  "Espada de treino":{
-    type: "melee",
-    damage: player.strength+10,
-    skills: [
-      {
-        name: "Corte forte", type: "Físico", power:1.5, critChance:0.15, description:"Uma espada de madeira comum"
-      }
-    ]
+  "Espada de treino": {
+    name: "Espada de treino",
+    type: "fisico",
+    baseDamage: 10,
+    skills: ["corte_forte"]
+  },
+
+  "Cajado simples": {
+    name: "Cajado simples",
+    type: "magic",
+    baseDamage: 6,
+    skills: ["bola_de_fogo"]
   }
-}
+};
+
+const skills = {
+  corte_forte: {
+    name: "Corte Forte",
+    type: "fisico",
+    power: 1.5,
+    critChance: 0.15,
+    description: "Um golpe pesado com a espada"
+  },
+
+  bola_de_fogo: {
+    name: "Bola de Fogo",
+    type: "magic",
+    power: 1.8,
+    critChance: 0.1,
+    manaCost: 10,
+    description: "Uma explosão de chamas"
+  }
+};
+
+const spellIncantations = {
+  ignis: "bola_de_fogo",
+  lux: "cura_leve",
+  gelu: "congelar"
+};
+
 
 //equipar arma
 function equipWeapon(weaponName){
@@ -1334,66 +1365,109 @@ if (enemy.hp <= 0) {
   else setTimeout(enemyAttack, 900);
 }
 
-function calculeteWeaponDamage(attacker, defender, skill){
-  let base = Math.floor(Math.random() * 6) + attacker.weapon.damage;
-  let damage = Math.floor(base*skill.power);
-  let isCrit = Math.random()<skill.critChance;
+function calculateWeaponDamage(attacker, defender, skill, weapon) {
+  let base =
+    Math.floor(Math.random() * 6) +
+    weapon.baseDamage +
+    attacker.strength;
 
-  //aplica a vantagem/desvantagem
+  let damage = Math.floor(base * skill.power);
+  let isCrit = Math.random() < skill.critChance;
+
   const adv = typeAdvantages[skill.type];
-  if(adv){
-    if(adv.strong === defender.type){
+  if (adv) {
+    if (adv.strong === defender.type) {
       damage = Math.floor(damage * 1.25);
-      log(`É super eficaz contra ${defender.name}!`);
-    }else if(adv.weak === defender.type){
+      log("É super eficaz!");
+    }
+    if (adv.weak === defender.type) {
       damage = Math.floor(damage * 0.75);
-      log(`Não é nada eficaz contra ${defender.name}.`);
+      log("Não é muito eficaz...");
     }
   }
-  if(isCrit) damage *= 2;
-  return{damag: damage, isCrit: isCrit};
+
+  if (isCrit) damage *= 2;
+
+  return { damage, isCrit };
 }
 
-function weaponSkill(skill){
-  if(!player.weapon){
-    log("Você está desarmado");
+
+function weaponSkill(skillKey) {
+  if (!processStatuses(player, "player")) {
+    if (enemy.hp > 0) setTimeout(enemyAttack, 900);
     return;
   }
 
-  const {damage, isCrit} = calculeteWeaponDamage(player, enemy, skill);
+  const weapon = player.equippedWeapon;
+  if (!weapon) {
+    log("Você está desarmado.");
+    return;
+  }
+
+  const skill = skills[skillKey];
+  if (!skill) return;
+
+  if (!weapon.skills.includes(skillKey) &&
+      !player.learnedSkills?.includes(skillKey)) {
+    log("Você não sabe usar essa habilidade.");
+    return;
+  }
+
+  if (skill.manaCost && player.mana < skill.manaCost) {
+    log("Mana insuficiente.");
+    return;
+  }
+
+  if (skill.manaCost) player.mana -= skill.manaCost;
+
+  const { damage, isCrit } =
+    calculateWeaponDamage(player, enemy, skill, weapon);
+
   enemy.hp = Math.max(0, enemy.hp - damage);
 
   narrateAttack("player", skill.name, damage, isCrit, false);
 
-  if(isCrit){
-    if(skill.type === "fisico"){
-      applyStatus(enemy, "bleeding", 3, 6);
-    }
-    if(skill.type === "magico"){
-      applyStatus(enemy, "burned", 3,5);
-    }
-    if(skill.type === "distancia"){
-      applyStatus(enemy, "confused", 2, 5);
-    }
-    if(skill.type === "sagrado"){
-      applyStatus(enemy, blinded, 2, 4);
-    }
-  }
+  if (isCrit) applySkillStatus(skill, enemy);
 
   updateBars();
-  if(enemy.hp <= 0){
+
+  if (enemy.hp <= 0) {
     log(`${enemy.name} foi derrotado!`);
     endBattle(true);
-  }else setTimeout(enemyAttack, 1200);
-    
+  } else {
+    setTimeout(enemyAttack, 1000);
+  }
 }
 
+
 function defend() {
-  if (!processStatuses(player, "player")) { if (enemy.hp>0) setTimeout(enemyAttack,900); return; }
+  if (!processStatuses(player, "player")) {
+    if (enemy.hp > 0) setTimeout(enemyAttack, 900);
+    return;
+  }
+
   player.defending = true;
   log(`${player.name} assume uma postura defensiva.`);
   setTimeout(enemyAttack, 900);
 }
+
+function castSpell() {
+  const text = document.getElementById("spellInput").value.toLowerCase();
+  const spellKey = spellIncantations[text];
+
+  if (!spellKey) {
+    log("Nada acontece...");
+    return;
+  }
+
+  if (!player.spellBook.includes(spellKey)) {
+    log("Você não domina essa magia.");
+    return;
+  }
+
+  weaponSkill(spellKey);
+}
+
 
 
 
