@@ -313,6 +313,24 @@ button:hover { background: rgba(255,255,255,0.12); }
 /* BOTÕES DE SKILL */
 .battle-buttons { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 
+.spellInput{
+    display: block;
+  margin: 20px auto;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 200px;
+  text-align: center;
+  background: #1a1a1a;
+  color: #eee;
+  outline: none;
+}
+
+.spellInput::placeholder{
+  color: #777;
+}
+
 /* === EFEITO DE SHAKE NAS BARRAS === */
 @keyframes hpShake {
   0% { transform: translateX(0); }
