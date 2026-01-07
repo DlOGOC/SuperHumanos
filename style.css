@@ -145,24 +145,41 @@ body {
 #hair-front-line    { z-index: 13; }
 #cloth-base         { z-index: 11; }
 
-
 .char-creation {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
 }
 
-/* Card */
+
 .option-group {
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
   padding: 12px;
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+  transition: border 0.2s ease;
+}
+
+.option-group:hover {
+  border-color: #555;
 }
 
 /* Ocupa a linha inteira quando necessário */
 .option-group.full {
   grid-column: 1 / -1;
 }
+
+.option-group h3 {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #333;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 
 /* Radios custom */
 .dot {
@@ -171,18 +188,23 @@ body {
   gap: 8px;
   cursor: pointer;
   margin: 6px 0;
+  font-size: 0.85rem;
+}
+
+.dot span {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #888;
+  border-radius: 50%;
+  position: relative;
 }
 
 .dot input {
   display: none;
 }
 
-.dot span {
-  width: 14px;
-  height: 14px;
-  border: 2px solid #aaa;
-  border-radius: 50%;
-  position: relative;
+.dot input:checked + span {
+  border-color: #fff;
 }
 
 .dot input:checked + span::after {
@@ -196,6 +218,20 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.option-group.wide {
+  grid-column: span 2;
+}
+
+.option-group.wide .options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 24px;
+}
+
+
+
 
 
 /* BARRAS DO SIDEBAR */
