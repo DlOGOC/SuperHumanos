@@ -313,8 +313,8 @@ button:hover { background: rgba(255,255,255,0.12); }
 /* BOTÕES DE SKILL */
 .battle-buttons { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 
-.spellInput{
-    display: block;
+.spell-input{
+  display: block;
   margin: 20px auto;
   padding: 10px 14px;
   border: none;
@@ -327,7 +327,7 @@ button:hover { background: rgba(255,255,255,0.12); }
   outline: none;
 }
 
-.spellInput::placeholder{
+.spell-input::placeholder{
   color: #777;
 }
 

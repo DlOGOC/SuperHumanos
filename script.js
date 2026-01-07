@@ -125,11 +125,12 @@ const skills = {
   }
 };
 
-const spellIncantations = {
+const spellDictionary = {
   ignis: "bola_de_fogo",
-  lux: "cura_leve",
-  gelu: "congelar"
+  lux: "luz_sagrada",
+  glacies: "congelar"
 };
+
 
 
 //equipar arma
@@ -1227,7 +1228,8 @@ function updateBars() {
 }
 
 /* Narrador dinâmico + aplica efeitos visuais */
-function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, attackType = "fisico") {
+function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, attackType = "fisico", spellText = null) {
+
   let narration = "";
 
   if (attacker === "player" && isCrit) {
@@ -1254,12 +1256,14 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
     }
     hpShake("enemy");
   } else if (attacker === "player") {
-    if (attackType === "fisico"){ 
-      narration = `${player.name} ataca o ${defenderName}, causando ${damage} de dano.`
-  }else {
-      narration = `${player.name} usa ${attackType.toLowerCase()} e causa ${damage} de dano ao ${defenderName}.`;
-    }
+  if (attackType === "fisico") { 
+    narration = `${player.name} ataca o ${defenderName}, causando ${damage} de dano.`;
+  } else {
+    const spellName = spellText ? spellText : attackType.toLowerCase();
+    narration = `✨ ${player.name} conjura "${spellName}" e causa ${damage} de dano ao ${defenderName}.`;
   }
+}
+
 
   if (attacker === "enemy" && isCrit) {
     switch (defenderName) {
@@ -1283,7 +1287,8 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
     narration = `${defenderName} atacou, mas ${player.name} defendeu parcialmente, reduzindo o dano.`;
   } else if (attacker === "enemy" && !isCrit && !wasDefended) {
     narration = `${defenderName} atacou e causou ${damage} de dano em ${player.name}.`;
-    player.hp = matchMedia.max(0, player.hp - damage);
+    player.hp = Math.max(0, player.hp - damage);
+
 
   }
 
@@ -1451,22 +1456,98 @@ function defend() {
   setTimeout(enemyAttack, 900);
 }
 
-function castSpell() {
-  const text = document.getElementById("spellInput").value.toLowerCase();
-  const spellKey = spellIncantations[text];
 
-  if (!spellKey) {
-    log("Nada acontece...");
+function castSpellFromText() {
+  const input = document.getElementById("spell-input");
+  if (!input) return;
+
+  const spellText = input.value.trim().toLowerCase();
+  input.value = "";
+
+ const skillKey = spellDictionary[spellText];
+
+  if (!skillKey || !skills[skillKey]) {
+    log("✨ O encantamento falha. Nada acontece.");
+    setTimeout(enemyAttack, 900);
     return;
   }
 
-  if (!player.spellBook.includes(spellKey)) {
-    log("Você não domina essa magia.");
+  const skill = skills[skillKey];
+
+  if (!processStatuses(player, "player")) {
+    if (enemy.hp > 0) setTimeout(enemyAttack, 900);
     return;
   }
 
-  weaponSkill(spellKey);
+  const cost = skill.manaCost || 0;
+
+  // magia acima do nível do personagem
+  if (cost > player.maxMana) {
+    log("📜 Esse encantamento é de um nível superior ao seu.");
+    setTimeout(enemyAttack, 900);
+    return;
+  }
+
+  // mana insuficiente
+  if (cost > player.mana) {
+    log("💧 Mana insuficiente.");
+    setTimeout(enemyAttack, 900);
+    return;
+  }
+
+  // consome mana
+  player.mana -= cost;
+
+  // ===== CÁLCULO DE DANO MÁGICO (SEU MODELO) =====
+  let damage = Math.floor(
+    (cost * skill.power) + (player.intelligence * 2)
+  );
+
+  const isCrit = Math.random() < skill.critChance;
+  if (isCrit) damage *= 2;
+
+  enemy.hp = Math.max(0, enemy.hp - damage);
+
+  narrateAttack(
+  "player",
+  enemy.name,
+  damage,
+  isCrit,
+  false,
+  skill.type,
+  spellText // 👈 NOVO
+);
+
+
+  // ===== STATUS POR CRÍTICO =====
+  if (isCrit) {
+    switch (skill.type) {
+      case "magic":
+        applyStatus(enemy, "burning", 3, 5);
+        break;
+      case "ice":
+        applyStatus(enemy, "frozen", 2);
+        break;
+      case "lightning":
+        applyStatus(enemy, "confused", 2);
+        break;
+      case "holly":
+        applyStatus(enemy, "blinded", 2);
+        break;
+    }
+  }
+
+  updateBars();
+
+  if (enemy.hp <= 0) {
+    log(`${enemy.name} foi derrotado!`);
+    endBattle(true);
+  } else {
+    setTimeout(enemyAttack, 1200);
+  }
 }
+
+
 
 
 
@@ -1681,7 +1762,7 @@ function log(msg) {
 
   // Define uma classe CSS com base no tipo da mensagem
   if (/💀|☠️/i.test(msg)) p.classList.add("log-death");
-  else if (/🔥|queim|Pirocinese|fogo/i.test(msg)) p.classList.add("log-fire");
+  else if (/🔥|queim|Pirocinese|fogo|ignis/i.test(msg)) p.classList.add("log-fire");
   else if (/❄️|gelo|Criogenese|frio/i.test(msg)) p.classList.add("log-ice");
   else if (/🌀|Telecinese|impacto/i.test(msg)) p.classList.add("log-tele");
   else if (/⚡|paralis|eletrocinese|raio/i.test(msg)) p.classList.add("log-eletric");
