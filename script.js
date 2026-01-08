@@ -781,24 +781,26 @@ function typeText(elementId, text, speed = 320, callback = null) {
  * @param {string|function} proxima - nome da função (string) ou referência direta à função
  * @param {string} containerId - id do container de botões (padrão: "powerChoices")
  */
-function criarBotaoHistoria(texto, proxima, containerId = "powerChoices", min) {
+function criarBotaoHistoria(texto, proxima, containerId = "powerChoices", min = 0, hr = 0) {
   const btnDiv = document.getElementById(containerId);
   if (!btnDiv) return;
 
   const btn = document.createElement("button");
   btn.innerText = texto;
 
-  // aceita tanto string quanto referência direta à função
-  if (typeof proxima === "string") {
-    btn.onclick = () => {
-      if (typeof window[proxima] === "function"){
-        advanceTime(min);
+  btn.onclick = () => {
+    if (min || hr) advanceTime(min, hr);
+
+    if (typeof proxima == "string") {
+      if (typeof window[proxima] ==="function"){
         window[proxima]();
-    }else console.warn(`Função ${proxima} não encontrada.`);
-    };
-  } else if (typeof proxima === "function") {
-    btn.onclick = proxima;
-  }
+      }else{
+        console.warn(`Função ${proxima} não encontrada.`);
+      }
+    }else if (typeof proxima === "function"){
+      proxima();
+    }
+  };
 
   btnDiv.appendChild(btn);
 }
@@ -947,14 +949,12 @@ function continueBackStory2(){
 
 function houseUser() {
 
-  advanceTime(timeLocal);
-  timeLocal = 1;
   const story = `Você está em casa`;
 
   changeScene(story, () =>{
     criarBotaoHistoria("Seu quarto (00:01)", userRoom, "powerChoices", 1);
-    criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom);
-    criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse);
+    criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom, "powerChoices", 1);
+    criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse, "powerChoices", 1);
   })
 
   /*changeScene(story, (choices) => {
@@ -972,11 +972,10 @@ function houseUser() {
 }
 
 function userRoom(){
-//  advanceTime(1);
   const story = `Você está no seu quarto, o lugar é vazio e sem graça, sua cama pequena está arrumada e convidativa para dormir`;
   changeScene(story, () =>{
     criarBotaoHistoria("Dormir", sleep);
-    criarBotaoHistoria("Sair do quarto (00:01)", houseUser);
+    criarBotaoHistoria("Sair do quarto (00:01)", houseUser, "powerChoices", 1);
   })
 }
 
@@ -1016,32 +1015,30 @@ function wake(min, hr){
 }
 
 function motherRoom(){
-  advanceTime(1);
   const story = `Você está no quarto de Melody.
   
   ${motherStatus()}`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Sair do quarto (00:01)", houseUser);
+    criarBotaoHistoria("Sair do quarto (00:01)", houseUser, "powerChoices", 1);
   })
 }
 
 
 
 function leftUserHouse(){
-  advanceTime(1);
   
   let story = `Você está na rua, ${timeMessage}`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Avenida da Guilda (00:05)", guildStreet);
+    criarBotaoHistoria("Avenida da Guilda (00:05)", guildStreet, "powerChoices", 5);
   })
 }
 
 function guildStreet(){
   const story = `Você está na rua da guilda, ${timeMessage}`;
   changeScene(story, () =>{
-    criarBotaoHistoria("Guilda (00:01)", guildHub);
+    criarBotaoHistoria("Guilda (00:01)", guildHub, "powerChoices", 1);
   })
 }
 
@@ -1089,7 +1086,6 @@ function guildTraining(){
     
       "Olá ${player.name}! Fiquei sabendo de você, eu sou o Rudoufh, mas pode me chamar de Rudo, serei o seu treinador, eu sei de tudo um pouco então espero ser bem útil para você, sou um veterano de guerra e tenho várias expectativas em você! Não me decepcione!" diz ele e logo dá um tapa nas suas costas.`;
       meetCharacter("Rudo");
-      trainingDay--;
   }
    let story = `Você possui ${trainingDay} dias de treino.
    
@@ -1097,10 +1093,10 @@ function guildTraining(){
    
    "Vamos começar? O que vamos treinar hoje?"`;
     changeScene(story, () =>{
-      criarBotaoHistoria("Luta com espadas", () => trainClass("warrior"), "powerChoices", 480);
-      criarBotaoHistoria("Conceitos da magia", () => trainClass("mage"), "powerChoices", 480);
-      criarBotaoHistoria("Arte da furtividade", () => trainClass("thief"), "powerChoices", 480);
-      criarBotaoHistoria("Arte sagrada", () => trainClass("healer"), "powerChoices", 480);
+      criarBotaoHistoria("Luta com espadas", () => trainClass("warrior"), "powerChoices", 0, 8);
+      criarBotaoHistoria("Conceitos da magia", () => trainClass("mage"), "powerChoices", 0, 8);
+      criarBotaoHistoria("Arte da furtividade", () => trainClass("thief"), "powerChoices", 0, 8);
+      criarBotaoHistoria("Arte sagrada", () => trainClass("healer"), "powerChoices", 0, 8);
     })
 }
 
@@ -1186,7 +1182,6 @@ function warrior(){
       }
 
       let story = `${traingDescription}`;
-      player.strength += 4 -(((Math.max(1, Math.min(7, trainingDay)))/6)*4-1);
       changeScene(story, () =>{
         criarBotaoHistoria("Continuar", posTraing);
       })
@@ -1220,7 +1215,6 @@ function mage(){
       }
 
       const story = `${traingDescription}`;
-      player.intelligence += 4 -(((Math.max(1, Math.min(7, trainingDay)))/6)*4-1);
       changeScene(story, () =>{
         criarBotaoHistoria("Continuar", posTraing);
       })
@@ -1298,10 +1292,8 @@ function posTraing(){
   Você vai andando da área de treinamento, seu corpo cansado mas ao mesmo tempo, revigorado.
   
   Passando pelo hall da guilda, Stevan lhe comprimenta, acenando como forma de dar tchau, você espelha seu gesto e segue seu caminho.`;
-
-  trainingDay--;
   changeScene(story, () =>{
-    criarBotaoHistoria("Lobby da guilda (00:01)", guildHub);
+    criarBotaoHistoria("Lobby da guilda (00:01)", guildHub, "powerChoices", 1);
   })
 }
 
