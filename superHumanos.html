@@ -34,28 +34,44 @@
       <p>Hora: <span id="game-time">08:00</span></p>
       <p>Dia da Semana: <span id="game-weekday">Segunda-feira</span></p>
       <label>HP</label>
-      <div class="bar"><div id="bar-hp" class="fill red"></div></div>
+      <div class="bar-wrapper" id="hp-bar" data-tooltip="">
+        <div class="bar">
+          <div id="bar-hp" class="fill red"></div>
+        </div>
+      </div>
 
       <label>Mana</label>
-      <div class="bar"><div id="bar-mana" class="fill blue"></div></div>
+      <div class="bar-wrapper" id="mana-bar" data-tooltip="">
+        <div class="bar">
+          <div id="bar-mana" class="fill blue"></div>
+        </div>
+      </div>
 
       <label>Fome</label>
-      <div class="bar"><div id="bar-hunger" class="fill orange"></div></div>
+        <div class="bar-wrapper" id="hunger-bar" data-tooltip="">
+          <div class="bar">
+            <div id="bar-hunger" class="fill orange"></div>
+          </div>
+        </div>
 
       <label>Sono</label>
-      <div class="bar"><div id="bar-sleep" class="fill purple"></div></div>
-    </div>
+      <div class="bar-wrapper" id="sleep-bar" data-tooltip="">
+        <div class="bar">
+            <div id="bar-sleep" class="fill purple"></div>
+        </div>
+      </div>
+
+      </div>
 
     <div class="sidebar-section">
       <p>Força: <span id="attr-strength"></span></p>
       <p>Inteligência: <span id="attr-int"></span></p>
       <p>Fé: <span id="attr-faith"></span></p>
-      <p>Habilidade: <span id="attr-skill"></span></p>
+      <p>Mente: <span id = "attr-mind"></span></p>
+      <p>Destreza: <span id="attr-skill"></span></p>
       <p>Defesa: <span id="attr-defense"></span></p>
       <p>Vigor: <span id="attr-vigor"></span></p>
-      <p>Energia: <span id="attr-energy">100</span></p>
       <p>$ <span id="money">00,00</span></p>
-      <p id="talent-line" style="display:none;">Talento: <span id="attr-talent">???</span></p>
       <button id="friends-btn" class="sidebar-btn">Relações</button>
         <div id="friends-panel" class="hidden"><h2>Relações</h2>
           <div id="friends-list"></div>

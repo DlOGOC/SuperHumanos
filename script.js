@@ -1,6 +1,6 @@
 /* ======= script.js ======= */
 function distributeAttributePoints(player){
-  const attribute = ["strength", "intelligence", "skill", "defense", "faith", "vigor"];
+  const attribute = ["strength", "intelligence", "skill", "defense", "faith", "vigor", "mind"];
 
   attribute.forEach(attr => player[attr] = 1);
 
@@ -16,6 +16,45 @@ function distributeAttributePoints(player){
   }
 }
 /* ===== DADOS DO JOGADOR ===== */
+
+const BASE_HP = 50;
+const HP_PER_VIGOR = 8;
+
+const BASE_MANA = 20;
+const MANA_PER_MIND = 6;
+
+function recalculateMaxStats() {
+  const oldMaxHp = player.maxHp;
+  const oldMaxMana = player.maxMana;
+
+  if(player.vigor >= 10){
+    player.maxHp = BASE_HP + player.vigor * (HP_PER_VIGOR/2);
+  }else if(player.vigor >= 20){
+    player.maxHp = BASE_HP + player.vigor * (HP_PER_VIGOR/8);
+  }else{
+    player.maxHp = BASE_HP + player.vigor * HP_PER_VIGOR;
+  }
+
+  if(player.mind >= 10){
+    player.maxMana = BASE_MANA + player.mind * (MANA_PER_MIND/2);
+  }else if(player.mind >= 20){
+    player.maxMana = BASE_MANA + player.mind * (MANA_PER_MIND/6);
+  }else{
+    player.maxMana = BASE_MANA + player.mind * MANA_PER_MIND;
+  }
+
+  // mantém proporção atual (opcional, mas elegante)
+  player.hp = Math.round(player.hp * (player.maxHp / oldMaxHp));
+  player.mana = Math.round(player.mana * (player.maxMana / oldMaxMana));
+
+  // segurança
+  player.hp = Math.min(player.hp, player.maxHp);
+  player.mana = Math.min(player.mana, player.maxMana);
+
+  updateSidebar();
+}
+
+
 let player = {
   name: "",
   level: 0,
@@ -23,7 +62,7 @@ let player = {
   hp: 100, maxHp: 100,
   mana: 50, maxMana: 50,
   hunger: 100, sleep: 100, energy: 100,
-  strength: 10, intelligence: 10, skill: 10, defense: 10, faith:10, 
+  strength: 10, intelligence: 10, skill: 10, defense: 10, faith:10, mind: 10, 
   vigor: 8,
   money: 0,
   guild: null,
@@ -478,17 +517,36 @@ function updateSidebar() {
   if (document.getElementById("bar-sleep")) setWidth("bar-sleep", player.sleep);
   if (document.getElementById("attr-talent")) setWidth("attr-talent"), player.powerType;
   
+  const hpBar = document.getElementById("hp-bar");
+  if(hpBar){
+    hpBar.dataset.tooltip = `${player.hp} / ${player.maxHp}`;
+  }
+
+  const manaBar = document.getElementById("mana-bar");
+  if(manaBar){
+    manaBar.dataset.tooltip = `${player.mana} / ${player.maxMana}`;
+  }
+
+  const hungerBar = document.getElementById("hunger-bar");
+  if(hungerBar){
+    hungerBar.dataset.tooltip = `${player.hunger} / 100`;
+  }
+  const sleepBar = document.getElementById("sleep-bar");
+  if(sleepBar){
+    sleepBar.dataset.tooltip = `${player.sleep} / 100`;
+  }
+
   const setText = (id, v) => { const e = document.getElementById(id); if (e) e.innerText = v; };
   setText("sidebar-name", player.name || "Jogador");
   setText("attr-level", player.level);
   setText("attr-strength", player.strength);
   setText("attr-int", player.intelligence);
+  setText("attr-mind", player.mind);
   setText("attr-skill", player.skill);
   setText("attr-faith", player.faith);
   setText("attr-defense", player.defense);
   setText("attr-vigor", player.vigor);
-  setText("attr-energy", Math.round(player.energy));
-  setText("attr-talent", player.powerType);
+  //setText("attr-energy", Math.round(player.energy));
   setText("money", player.money.toFixed(2));
 }
 
@@ -883,6 +941,9 @@ document.addEventListener("DOMContentLoaded", () => {
       distributeAttributePoints(player);
       discoverPower();
       updateSidebar();
+      recalculateMaxStats();
+      player.hp = player.maxHp;
+      player.mana = player.maxMana;
     });
   }
 
@@ -1162,10 +1223,16 @@ function warrior(){
       As horas passam e você continua apenas defendendo os ataques, cada golpe mais forte que o anterior, você sente que está se fortalecendo.`;
       break;
     case 2:
-      traingDescription = ``;
+      traingDescription = `Quando você se prepara, Rudo vêm para cima de você com tudo, seus músculos ainda em desenvolvimento rugem para acompanhar os movimentos e a força dele, o barulho das espadas de madeira batendo é ensurdecedor.
+      
+      As horas passam e você consegue ver uma melhora, você agora já não sente tanta dificuldade em se defender, seus reflexos definitivamente estão melhorando.`;
       break;
     case 3:
-      traingDescription = ``;
+      traingDescription = `Quando você pisa no pátio de treinamento, Rudo com um grito parte para cima de você com tudo. Afirmando que um bom guerreiro sabe se virar até de mãos limpas, você começa a se deviar matendo com a palma das mãos na espada de madeira o que vai te custar muito mais tarde.
+      
+      As horas passam e você sente suas mãos latejando de dor, mas pelo menos, agora você consegue resistir um pouco a mais de dor.`;
+
+
       break;
     case 4:
       traingDescription = ``;

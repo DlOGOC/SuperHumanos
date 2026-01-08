@@ -251,6 +251,60 @@ body {
 .fill.purple { background: linear-gradient(90deg,#b48aff,#7b3bff); }
 .fill.enemy { background: linear-gradient(90deg,#8b1c1c,#3a0000); }
 
+.bar{
+  position: relative;
+}
+
+.bar::after{
+  content:attr(data-tooltip);
+  position:absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+.bar:hover::after{
+  opacity: 1;
+}
+
+.bar-wrapper{
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.bar-wrapper::after{
+  content:attr(data-tooltip);
+  position: absolute;
+  bottom: 140%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease ;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  z-index: 10;
+}
+
+.bar-wrapper:hover::after{
+  opacity: 1;
+}
+
 /* RELAÇÕES */
 #friends-panel{
   position: fixed;
