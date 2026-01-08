@@ -32,7 +32,7 @@ let player = {
   status: {}, // e.g. { burning: {turns:3, value:3}, frozen: {turns:2} }
   mainWeapons: 0,
   subWeapons: 0,
-  learnedSkills: ["bola_de_fogo"]
+  learnedSkills: []
 };
 
 /* ===== IMAGEM DO JOGADOR =====*/
@@ -265,7 +265,7 @@ const typeAdvantages = {
   magic:    { strong: "fisic",   weak: "distance" },
   distance: { strong: "magic",    weak: "fisic" },
   holy:     { strong: "dark",     weak: "dark" },
-  dark:     { strong: "holy",     weak: "holy" }
+  dark:     { strong: "holy",     weak: "holy" },
 };
 
 
@@ -288,7 +288,7 @@ const weapons = {
 const skills = {
   corte_forte: {
     name: "Corte Forte",
-    type: "fisico",
+    type: "weapon_skill",
     power: 1.5,
     critChance: 0.15,
     description: "Um golpe pesado com a espada"
@@ -310,6 +310,29 @@ const spellDictionary = {
   glacies: "congelar"
 };
 
+function learnSkill(skillKey) {
+  // skill existe?
+  if (!skills[skillKey]) {
+    console.warn("Skill inexistente:", skillKey);
+    return;
+  }
+
+  // inicializa caso não exista
+  if (!player.learnedSkills) {
+    player.learnedSkills = [];
+  }
+
+  // já aprendeu?
+  if (player.learnedSkills.includes(skillKey)) {
+    log(`📘 Você já conhece ${skills[skillKey].name}.`);
+    return;
+  }
+
+  // aprende
+  player.learnedSkills.push(skillKey);
+
+  log(`✨ Você aprendeu uma nova habilidade: ${skills[skillKey].name}!`);
+}
 
 
 //equipar arma
@@ -1436,10 +1459,13 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
     hpShake("enemy");
   } else if (attacker === "player") {
   if (attackType === "fisico") { 
-    narration = `${player.name} ataca o ${defenderName}, causando ${damage} de dano.`;
-  } else {
+    narration = `${player.name} ataca ${defenderName}, causando ${damage} de dano.`;
+  } else if (attackType === "weapon_skill"){
+    const weaponSkill = spellText ? spellText : attackType.toLocaleLowerCase();
+    narration = `${player.name} realiza um ${weaponSkill} e causa ${damage} de dano em ${defenderName}`;
+  }else {
     const spellName = spellText ? spellText : attackType.toLowerCase();
-    narration = `✨ ${player.name} conjura "${spellName}" e causa ${damage} de dano ao ${defenderName}.`;
+    narration = `✨ ${player.name} conjura ${spellName} e causa ${damage} de dano ao ${defenderName}.`;
   }
 }
 
@@ -1666,7 +1692,7 @@ function weaponSkill(skillKey) {
 
   enemy.hp = Math.max(0, enemy.hp - damage);
 
-  narrateAttack("player", skill.name, damage, isCrit, false);
+  narrateAttack("player", enemy.name, damage, isCrit, false, skill.type, skill.name);
 
   if (isCrit) applySkillStatus(skill, enemy);
 
@@ -1751,7 +1777,7 @@ function castSpellFromText() {
   isCrit,
   false,
   skill.type,
-  spellText // 👈 NOVO
+  spellText 
 );
 
 
