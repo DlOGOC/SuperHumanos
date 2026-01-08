@@ -529,11 +529,11 @@ function updateSidebar() {
 
   const hungerBar = document.getElementById("hunger-bar");
   if(hungerBar){
-    hungerBar.dataset.tooltip = `${player.hunger} / 100`;
+    hungerBar.dataset.tooltip = `${Math.floor(player.hunger)} / 100`;
   }
   const sleepBar = document.getElementById("sleep-bar");
   if(sleepBar){
-    sleepBar.dataset.tooltip = `${player.sleep} / 100`;
+    sleepBar.dataset.tooltip = `${Math.floor(player.sleep)} / 100`;
   }
 
   const setText = (id, v) => { const e = document.getElementById(id); if (e) e.innerText = v; };
