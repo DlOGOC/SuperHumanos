@@ -952,7 +952,7 @@ function houseUser() {
   const story = `Você está em casa`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Seu quarto (00:01)", userRoom);
+    criarBotaoHistoria("Seu quarto (00:01)", userRoom, "powerChoices", 1);
     criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom);
     criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse);
   })
@@ -972,7 +972,7 @@ function houseUser() {
 }
 
 function userRoom(){
- advanceTime(1);
+//  advanceTime(1);
   const story = `Você está no seu quarto, o lugar é vazio e sem graça, sua cama pequena está arrumada e convidativa para dormir`;
   changeScene(story, () =>{
     criarBotaoHistoria("Dormir", sleep);
@@ -1097,19 +1097,47 @@ function guildTraining(){
    
    "Vamos começar? O que vamos treinar hoje?"`;
     changeScene(story, () =>{
-      criarBotaoHistoria("Luta com espadas", warrior);
-      criarBotaoHistoria("Conceitos da magia", mage);
-      criarBotaoHistoria("Arte da furtividade e ataque a distância", thief);
-      criarBotaoHistoria("Arte sagrada", cleric);
+      criarBotaoHistoria("Luta com espadas", () => trainClass("warrior"), "powerChoices", 480);
+      criarBotaoHistoria("Conceitos da magia", () => trainClass("mage"), "powerChoices", 480);
+      criarBotaoHistoria("Arte da furtividade", () => trainClass("thief"), "powerChoices", 480);
+      criarBotaoHistoria("Arte sagrada", () => trainClass("healer"), "powerChoices", 480);
     })
 }
 
 // =========== FUNÇÃO DAS CLASSES ===========
 
+function trainClass(classe) {
+  if (trainingDay <= 0) {
+    changeScene(
+      "Seu período de treinamento terminou.",
+      () => criarBotaoHistoria("Continuar", finalTraining)
+    );
+    return;
+  }
+
+  trainingDay--;
+
+  // aplica ganho de atributo baseado no nível atual
+  classTraining(classe, 8 - trainingDay);
+
+  // chama a função narrativa específica
+  switch (classe) {
+    case "warrior": warrior(); break;
+    case "mage": mage(); break;
+    case "thief": thief(); break;
+    case "healer": cleric(); break;
+  }
+}
+
 function classTraining(classe, nivel){
   const ganhoMax = 4;
   const ganhoMin = 1;
-  const ganho = Math.round(ganhoMax - ((nivel - 1)/6) *(ganhoMax-ganhoMin));
+  const ganho = Math.max(
+  ganhoMin,
+  Math.floor(
+    ganhoMax - ((nivel - 1) / 6) * (ganhoMax - ganhoMin)
+  )
+);
 
   switch(classe){
     case "warrior":
@@ -1133,7 +1161,9 @@ function warrior(){
   let traingDescription;
   switch (guild.warrior) {
     case 1:
-      traingDescription = ``;
+      traingDescription = `Você começa a treinar com Rudo, seus movimentos comparados aos dele, é quase como se uma formiga estivesse lutando contra um gigante, ele não perde muito tempo com a teoria e vocês logo começam a lutar com espadas de madeira, é exaustivo e doloroso, seu corpo parece que vai se quebrar diversas vezes, mas você aguenta.
+      
+      As horas passam e você continua apenas defendendo os ataques, cada golpe mais forte que o anterior, você sente que está se fortalecendo.`;
       break;
     case 2:
       traingDescription = ``;
@@ -1151,14 +1181,11 @@ function warrior(){
       traingDescription = ``;
       break;
     default:
-      traingDescription = `Você começa a treinar com Rudo, seus movimentos comparados aos dele, é quase como se uma formiga estivesse lutando contra um gigante, ele não perde muito tempo com a teoria e vocês logo começam a lutar com espadas de madeira, é exaustivo e doloroso, seu corpo parece que vai se quebrar diversas vezes, mas você aguenta.
-      
-      As horas passam e você continua apenas defendendo os ataques, cada golpe mais forte que o anterior, você sente que está se fortalecendo.`;
-
+      traingDescription = ``
       break;
       }
 
-      let story = `${traingDescription} ...`;
+      let story = `${traingDescription}`;
       player.strength += 4 -(((Math.max(1, Math.min(7, trainingDay)))/6)*4-1);
       changeScene(story, () =>{
         criarBotaoHistoria("Continuar", posTraing);
