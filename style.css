@@ -129,21 +129,35 @@ body {
 }
 
  
-#hair-back-color    { z-index: 0;  }
-#hair-back-line     { z-index: 1;  }
-#face-base          { z-index: 2;  }
-#skin-line          { z-index: 3;  }
-#skin-effects       { z-index: 4;  }
+#hair-back-color    { z-index: 0; }
+#hair-back-line     { z-index: 1; }
 
-#mouth              { z-index: 5;  }
-#eyebrow            { z-index: 6;  }
-#eyebrow            { z-index: 7;  }
-#olho-base          { z-index: 8;  }
-#olho               { z-index: 9;  }
-#cor-olho           { z-index: 10; }
-#hair-front-color   { z-index: 12; }
-#hair-front-line    { z-index: 13; }
-#cloth-base         { z-index: 11; }
+#skin-color         { z-index: 2; }
+#skin-line          { z-index: 3; }
+
+.skin-effect {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+}
+
+#skin-vitiligo      { z-index: 4; }
+#skin-freckles      { z-index: 5; }
+
+#mouth              { z-index: 6; }
+
+#eyebrow-color      { z-index: 7; }
+#eyebrow-line       { z-index: 8; }
+
+#eye-sclera         { z-index: 9; }
+#eye-line           { z-index: 12; }
+#eye-color          { z-index: 11; }
+
+#cloth-base         { z-index: 13; }
+
+#hair-front-color   { z-index: 14; }
+#hair-front-line    { z-index: 15; }
+
 
 .char-creation {
   display: grid;

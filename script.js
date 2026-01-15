@@ -77,22 +77,59 @@ let player = {
 /* ===== IMAGEM DO JOGADOR =====*/
 const playerFace = {
   skin: "skin_1",
-  skinLine: "skin_line_1",
-  skinEffects: "vitiligo",
-  eyes: "blue",
-  lineEye: "eye_1",
-  sclera: "sclera",
-  hair_front: "hair_front_1",
+  skin_color: "light",
+    skin_effects: {
+    vitiligo: false,
+    freckles: false
+  },
+  eye_shape: "eye_1",
+  eye_color: "blue",
+  hair_front: "hair_1",
+  hair_back:  "hair_1",
   hair_front_color: "black",
-  hair_back: "hair_back_1",
-  hair_back_color: "black",
+  hair_back_color:  "black",
   eyebrow: "eyebrow_1",
   eyebrowColor: "black",
   mouth: "mouth_1",
   cloth: "cloth_1"
 };
 
+/* ===== CAPTURA DOS ELEMENTOS DO DOM =====*/
+const noneRadio = document.getElementById("effect-none");
+const vitiligoCheckbox = document.getElementById("vitiligo-toggle");
+const frecklesCheckbox = document.getElementById("freckles-toggle");
+
+function syncSkinEffectsUI() {
+  const anyEffectChecked =
+    vitiligoCheckbox.checked || frecklesCheckbox.checked;
+
+  if (anyEffectChecked) {
+    noneRadio.checked = false;
+  }
+
+  if (noneRadio.checked) {
+    vitiligoCheckbox.checked = false;
+    frecklesCheckbox.checked = false;
+  }
+
+  playerFace.skin_effects.vitiligo = vitiligoCheckbox.checked;
+  playerFace.skin_effects.freckles = frecklesCheckbox.checked;
+
+  updateSkinEffects();
+}
+
+noneRadio.addEventListener("change", syncSkinEffectsUI);
+vitiligoCheckbox.addEventListener("change", syncSkinEffectsUI);
+frecklesCheckbox.addEventListener("change", syncSkinEffectsUI);
+
+function updateSkinEffects() {
+  updateVitiligo();
+  updateFreckles();
+}
+
 /* ===== ATUALIZAR PERFIL =====*/
+
+const EMPTY_IMG = "img/common/empty.webp";
 
 function updateEyebrow() {
   document.getElementById("eyebrow").src =
@@ -100,42 +137,75 @@ function updateEyebrow() {
 }
 
 function updateHairFront() {
-  document.getElementById("hair-front-color").src =
-    `img/hair/${playerFace.hair_front}_${playerFace.hair_front_color}.webp`;
+  const base = `img/hair/front/${playerFace.hair_front}/${playerFace.hair_front_color}`;
 
-  document.getElementById("hair-front-line").src =
-    `img/hair/${playerFace.hair_front}.webp`;
+  document.getElementById("hair-front-color").src = `${base}_color.webp`;
+  document.getElementById("hair-front-line").src  = `${base}_line.webp`;
 }
 
 function updateHairBack() {
-  document.getElementById("hair-back-color").src =
-    `img/hair/${playerFace.hair_back}_${playerFace.hair_back_color}.webp`;
+  const base = `img/hair/back/${playerFace.hair_back}/${playerFace.hair_back_color}`;
 
-  document.getElementById("hair-back-line").src =
-    `img/hair/${playerFace.hair_back}.webp`;
+  document.getElementById("hair-back-color").src = `${base}_color.webp`;
+  document.getElementById("hair-back-line").src  = `${base}_line.webp`;
 }
 
+function updateVitiligo() {
+  const img = document.getElementById("skin-vitiligo");
+  if (!img) return;
+
+  if (!playerFace.skin_effects.vitiligo) {
+    img.src = EMPTY_IMG;
+    return;
+  }
+
+  img.src =
+    `img/faces/skin/effects/vitiligo/${playerFace.skin}/${playerFace.skin_color}.webp`;
+}
+
+function updateFreckles() {
+  const img = document.getElementById("skin-freckles");
+  if (!img) return;
+
+  console.log(
+  "Freckles path:",
+  `img/faces/skin/effects/freckles/${playerFace.skin}/${playerFace.skin_color}.webp`
+);
+
+  if (!playerFace.skin_effects.freckles) {
+    img.src = EMPTY_IMG;
+    return;
+  }
+
+  img.src =
+    `img/faces/skin/effects/freckles/${playerFace.skin}/${playerFace.skin_color}.webp`;
+}
+
+
+
 function updateSkin() {
-  document.getElementById("face-base").src =
-    `img/faces/${playerFace.skin}.webp`;
+  const base = `img/skin/base/${playerFace.skin}/${playerFace.skin_color}`;
 
-  document.getElementById("skin-line").src =
-    `img/faces/${playerFace.skinLine}.webp`;
-
-  document.getElementById("skin-effects").src =
-    `img/faces/${playerFace.skinEffects}.webp`;
+  document.getElementById("skin-color").src = `${base}_color.webp`;
+  document.getElementById("skin-line").src  = `${base}_line.webp`;
+  updateVitiligo();
 }
 
 function updateEyes() {
-  document.getElementById("olho-base").src =
-    `img/eyes/${playerFace.sclera}.webp`;
+  const sclera = document.getElementById("eye-sclera");
+  const line   = document.getElementById("eye-line");
+  const color  = document.getElementById("eye-color");
 
-  document.getElementById("olho").src =
-    `img/eyes/${playerFace.lineEye}.webp`;
+  if (!sclera || !line || !color) return;
 
-  document.getElementById("cor-olho").src =
-    `img/eyes/${playerFace.eyes}.webp`;
+  const base = `img/eyes/${playerFace.eye_shape}`;
+
+  sclera.src = `${base}/sclera.webp`;
+  line.src   = `${base}/line.webp`;
+  color.src  = `${base}/colors/${playerFace.eye_color}.webp`;
 }
+
+
 
 function updateMouth() {
   document.getElementById("mouth").src =
@@ -157,6 +227,7 @@ function updateFace() {
   updateEyes();
   updateMouth();
   updateCloth();
+  updateSkinEffects()
 }
 
 
@@ -179,7 +250,7 @@ document
   .forEach(radio => {
     radio.addEventListener("change", e => {
       playerFace.hair_front_color = e.target.value;
-      updateFrontHair(); // ou updateFace()
+      updateHairFront(); // ou updateFace()
     });
   });
 
@@ -228,7 +299,7 @@ document
   .querySelectorAll('input[name="eye-shape"]')
   .forEach(radio => {
     radio.addEventListener("change", e => {
-      playerFace.lineEye = e.target.value;
+      playerFace.eye_shape = e.target.value;
       updateEyes();
     });
   });
@@ -237,20 +308,11 @@ document
   .querySelectorAll('input[name="eye-color"]')
   .forEach(radio => {
     radio.addEventListener("change", e => {
-      playerFace.eyes = e.target.value;
+      playerFace.eye_color = e.target.value;
       updateEyes();
     });
   });
 
-
-document
-  .querySelectorAll('input[name="eye-sclera"]')
-  .forEach(radio => {
-    radio.addEventListener("change", e => {
-      playerFace.sclera = e.target.value;
-      updateEyes();
-    });
-  });
 
 /* ===== BOCA =====*/
 
@@ -263,35 +325,85 @@ document
     });
   });
 
-/* ===== BOCA =====*/
+/* ===== PELE =====*/
 
 document
-  .querySelectorAll('input[name="skin"]')
+  .querySelectorAll('input[name="skin_color"]')
   .forEach(radio => {
     radio.addEventListener("change", e => {
-      playerFace.skin = e.target.value;
+      playerFace.skin_color = e.target.value;
       updateSkin();
     });
   });
 
 document
-  .querySelectorAll('input[name="skin-line"]')
+  .querySelectorAll('input[name="skin-color"]')
   .forEach(radio => {
     radio.addEventListener("change", e => {
-      playerFace.skinLine = e.target.value;
+      playerFace.skin_color = e.target.value;
       updateSkin();
     });
+  });
+
+function syncNoneEffect() {
+  const none = document.getElementById("effect-none");
+
+  none.checked =
+    !playerFace.skin_effects.vitiligo &&
+    !playerFace.skin_effects.freckles;
+}
+
+
+
+document
+  .getElementById("effect-none")
+  .addEventListener("change", () => {
+
+    playerFace.skin_effects.vitiligo = false;
+    playerFace.skin_effects.freckles = false;
+
+    document.getElementById("vitiligo-toggle").checked = false;
+    document.getElementById("freckles-toggle").checked = false;
+
+    updateVitiligo();
+    updateFreckles();
   });
 
 
 document
-  .querySelectorAll('input[name="skin-effects"]')
-  .forEach(radio => {
-    radio.addEventListener("change", e => {
-      playerFace.skinEffects = e.target.value;
-      updateSkin();
-    });
+  .getElementById("vitiligo-toggle")
+  .addEventListener("change", e => {
+
+    playerFace.skin_effects.vitiligo = e.target.checked;
+
+    if (e.target.checked) {
+      document.getElementById("effect-none").checked = false;
+    } else {
+      syncNoneEffect();
+    }
+
+    updateVitiligo();
   });
+
+
+
+
+document
+  .getElementById("freckles-toggle")
+  .addEventListener("change", e => {
+
+    playerFace.skin_effects.freckles = e.target.checked;
+
+    if (e.target.checked) {
+      document.getElementById("effect-none").checked = false;
+    } else {
+      syncNoneEffect();
+    }
+
+    updateFreckles();
+  });
+
+
 
 
 let timeLocal = 0;
