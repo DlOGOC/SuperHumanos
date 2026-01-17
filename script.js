@@ -88,10 +88,10 @@ const playerFace = {
   hair_back:  "hair_1",
   hair_front_color: "black",
   hair_back_color:  "black",
-  eyebrow: "eyebrow_1",
-  eyebrowColor: "black",
+  eyebrow_shape: "brow_1",
+  eyebrow_color: "black",
   mouth: "mouth_1",
-  cloth: "cloth_1"
+  cloth: "base"
 };
 
 /* ===== CAPTURA DOS ELEMENTOS DO DOM =====*/
@@ -122,6 +122,7 @@ noneRadio.addEventListener("change", syncSkinEffectsUI);
 vitiligoCheckbox.addEventListener("change", syncSkinEffectsUI);
 frecklesCheckbox.addEventListener("change", syncSkinEffectsUI);
 
+
 function updateSkinEffects() {
   updateVitiligo();
   updateFreckles();
@@ -132,9 +133,25 @@ function updateSkinEffects() {
 const EMPTY_IMG = "img/common/empty.webp";
 
 function updateEyebrow() {
-  document.getElementById("eyebrow").src =
-    `img/eyebrows/${playerFace.eyebrow}_${playerFace.eyebrowColor}.webp`;
+  const colorImg = document.getElementById("eyebrow-color");
+  const lineImg  = document.getElementById("eyebrow-line");
+
+  if (!colorImg || !lineImg) return;
+
+  if (playerFace.eyebrow_shape === "none") {
+    colorImg.src = EMPTY_IMG;
+    lineImg.src  = EMPTY_IMG;
+    return;
+  }
+
+  const basePath = `img/eyebrows/${playerFace.eyebrow_shape}`;
+
+  colorImg.src = `${basePath}/color/${playerFace.eyebrow_color}.webp`;
+  lineImg.src  = `${basePath}/line/${playerFace.eyebrow_color}.webp`;
 }
+
+
+
 
 function updateHairFront() {
   const base = `img/hair/front/${playerFace.hair_front}/${playerFace.hair_front_color}`;
@@ -213,11 +230,27 @@ function updateMouth() {
 }
 
 function updateCloth() {
-  document.getElementById("cloth-base").src =
-    `img/cloths/${playerFace.cloth}.webp`;
+  const colorImg = document.getElementById("cloth-color");
+  const lineImg  = document.getElementById("cloth-line");
+
+  if (!colorImg || !lineImg) return;
+
+  if (!playerFace.cloth || playerFace.cloth === "none") {
+    colorImg.src = EMPTY_IMG;
+    lineImg.src  = EMPTY_IMG;
+    return;
+  }
+
+  const base = `img/clothes/${playerFace.cloth}`;
+
+  colorImg.src = `${base}/color.webp`;
+  lineImg.src  = `${base}/line.webp`;
 }
 
-
+function equipArmor(id) {
+  playerFace.cloth = id;
+  updateCloth();
+}
 
 function updateFace() {
   updateSkin();
@@ -275,23 +308,21 @@ document
 
 /* ===== SOMBRANCELHA =====*/
 
-document
-  .querySelectorAll('input[name="eyebrow-color"]')
-  .forEach(radio => {
-    radio.addEventListener("change", e => {
-      playerFace.eyebrowColor = e.target.value;
-      updateEyebrow(); // ou updateFace()
-    });
+document.querySelectorAll('input[name="eyebrow-shape"]').forEach(radio => {
+  radio.addEventListener("change", e => {
+    playerFace.eyebrow_shape = e.target.value;
+    updateEyebrow();
   });
+});
 
-  document
-  .querySelectorAll('input[name="eyebrow-shape"]')
-  .forEach(radio => {
-    radio.addEventListener("change", e => {
-      playerFace.eyebrow = e.target.value;
-      updateEyebrow();
-    });
+document.querySelectorAll('input[name="eyebrow-color"]').forEach(radio => {
+  radio.addEventListener("change", e => {
+    playerFace.eyebrow_color = e.target.value;
+    updateEyebrow();
   });
+});
+
+
 
 /* ===== OLHOS =====*/
 
@@ -1491,6 +1522,30 @@ até que a luz vermelha se volta para você.`;
 
 /* ========== COMBATE ========== */
 
+let BattleManager = {
+  active: false,
+  enemy: null,
+  onEnd: null
+};
+
+function endBattle(result) {
+  if (!BattleManager.active) return;
+
+  BattleManager.active = false;
+
+  document.getElementById("battle-screen").style.display = "none";
+  document.getElementById("story-screen").style.display = "block";
+
+  const callback = BattleManager.onEnd;
+
+  BattleManager.enemy = null;
+  BattleManager.onEnd = null;
+
+  if (typeof callback === "function") {
+    callback(result);
+  }
+}
+
 /* =========================
    LISTA DE INIMIGOS
 ========================= */
@@ -2006,95 +2061,6 @@ function castSpellFromText() {
     setTimeout(enemyAttack, 1200);
   }
 }
-
-
-
-
-
-
-// function usePower() {
-//   if (!processStatuses(player, "player")) { if (enemy.hp > 0) setTimeout(enemyAttack, 900); return; }
-//   if (!player.powerType) { log("Você ainda não descobriu seu poder!"); return; }
-
-//   const manaCost = 15;
-//   if (player.mana < manaCost) { log("Mana insuficiente!"); return; }
-
-//   const blindMiss = hasStatus(player, "blinded") ? 0.25 : 0;
-//   if (Math.random() < blindMiss) {
-//     log(`${player.name} tentou usar o poder, mas estava cego e errou!`);
-//     setTimeout(enemyAttack, 900);
-//     return;
-//   }
-
-//   const isCrit = Math.random() < 0.18;
-//   player.mana = Math.max(0, player.mana - manaCost);
-//   let base = Math.floor(Math.random() * 10) + 8;
-//   let damage = isCrit ? base * 2 : base;
-
-//   // === EFEITOS POR PODER ===
-//   switch (player.powerType) {
-//     case "Pirocinese":
-//       damage += 4;
-//       enemy.hp = Math.max(0, enemy.hp - damage);
-//       narrateAttack("player", enemy.name, damage, isCrit, false, "Pirocinese");
-//       if (isCrit) applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp * 0.03)));
-//       break;
-
-//     case "Criogenese":
-//       damage += 2;
-//       enemy.hp = Math.max(0, enemy.hp - damage);
-//       narrateAttack("player", enemy.name, damage, isCrit, false, "Criogenese");
-//       if (isCrit) applyStatus(enemy, "frozen", 2);
-//       break;
-
-//     case "Telecinese":
-//       damage += 3;
-//       enemy.hp = Math.max(0, enemy.hp - damage);
-//       narrateAttack("player", enemy.name, damage, isCrit, false, "Telecinese");
-//       if (isCrit) applyStatus(enemy, "confused", 2);
-//       break;
-
-//     case "Eletrocinese":
-//       damage += 4;
-//       enemy.hp = Math.max(0, enemy.hp - damage);
-//       narrateAttack("player", enemy.name, damage, isCrit, false, "Eletrocinese");
-//       if(isCrit) applyStatus(enemy, "paralizado", 1);
-//       break;
-//   }
-
-//   updateBars();
-
-
-//   if (enemy.hp <= 0) {
-//   if(enemy.name == "João José"){
-//     log(`${enemy.name} puxa uma pistola e dispara contra você. "Você me forçou a isso Senhor ${player.name}"`);
-//     log("Você desmaia.");
-//     const logBox = document.getElementById("battle-log");
-//   if (logBox) {
-//     const btn = document.createElement("button");
-//     btn.innerText = "Continuar";
-
-//     // usa o estilo padrão dos botões do jogo
-//     btn.onclick = () => {
-//       document.getElementById("battle-screen").style.display = "none";
-//       document.getElementById("power-screen").style.display = "block";
-//       if(enemy.name == "João José"){
-//         strangeManWins(); // retorna para a história
-//       }
-
-//     };
-
-//     // adiciona o botão diretamente ao log
-//     logBox.appendChild(btn);
-//     logBox.scrollTop = logBox.scrollHeight;
-//   }
-
-//   }
-//   if(enemy.name != "João José"){
-//     log(` ${enemy.name} foi derrotado!`, true);
-//   }
-//   }else setTimeout(enemyAttack, 900);
-// }
 
 /* ========================= DESCRIÇÕES DE ATAQUES DOS INIMIGOS ========================= */
 function getEnemyAttackDescription(enemyName) {

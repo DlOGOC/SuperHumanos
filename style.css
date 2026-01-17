@@ -146,17 +146,36 @@ body {
 
 #mouth              { z-index: 6; }
 
-#eyebrow-color      { z-index: 7; }
-#eyebrow-line       { z-index: 8; }
+#eyebrow-color { 
+  position: absolute;
+  z-index: 7; 
+}
+
+#eyebrow-line { 
+  position: absolute;
+  z-index: 8; 
+  pointer-events: none;
+}
+
 
 #eye-sclera         { z-index: 9; }
-#eye-line           { z-index: 12; }
 #eye-color          { z-index: 11; }
+#eye-line           { z-index: 12; }
 
-#cloth-base         { z-index: 13; }
+#cloth-color {
+  position: absolute;
+  z-index: 13;
+}
 
-#hair-front-color   { z-index: 14; }
-#hair-front-line    { z-index: 15; }
+#cloth-line {
+  position: absolute;
+  z-index: 14;
+  pointer-events: none;
+}
+
+
+#hair-front-color   { z-index: 15; }
+#hair-front-line    { z-index: 16; }
 
 
 .char-creation {
