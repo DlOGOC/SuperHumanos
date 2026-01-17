@@ -144,38 +144,54 @@ body {
 #skin-vitiligo      { z-index: 4; }
 #skin-freckles      { z-index: 5; }
 
-#mouth              { z-index: 6; }
+#mouth-color {
+  position: absolute;
+  z-index: 6;
+}
+
+#mouth-line {
+  position: absolute;
+  z-index: 7;
+  pointer-events: none;
+}
+
 
 #eyebrow-color { 
   position: absolute;
-  z-index: 7; 
+  z-index: 8; 
 }
 
 #eyebrow-line { 
   position: absolute;
-  z-index: 8; 
+  z-index: 9; 
   pointer-events: none;
 }
 
+#eye-darkcircles {
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+}
 
-#eye-sclera         { z-index: 9; }
-#eye-color          { z-index: 11; }
-#eye-line           { z-index: 12; }
+#eye-sclera         { z-index: 11; }
+
+#eye-color          { z-index: 12; }
+#eye-line           { z-index: 13; }
 
 #cloth-color {
   position: absolute;
-  z-index: 13;
+  z-index: 14;
 }
 
 #cloth-line {
   position: absolute;
-  z-index: 14;
+  z-index: 15;
   pointer-events: none;
 }
 
 
-#hair-front-color   { z-index: 15; }
-#hair-front-line    { z-index: 16; }
+#hair-front-color   { z-index: 16; }
+#hair-front-line    { z-index: 17; }
 
 
 .char-creation {

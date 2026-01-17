@@ -71,7 +71,8 @@ let player = {
   status: {}, // e.g. { burning: {turns:3, value:3}, frozen: {turns:2} }
   mainWeapons: 0,
   subWeapons: 0,
-  learnedSkills: []
+  learnedSkills: [],
+  isVampire: false
 };
 
 /* ===== IMAGEM DO JOGADOR =====*/
@@ -84,6 +85,7 @@ const playerFace = {
   },
   eye_shape: "eye_1",
   eye_color: "blue",
+  hasDarkCircles: false,
   hair_front: "hair_1",
   hair_back:  "hair_1",
   hair_front_color: "black",
@@ -132,6 +134,16 @@ function updateSkinEffects() {
 
 const EMPTY_IMG = "img/common/empty.webp";
 
+function safeSetImage(imgElement, src) {
+  if (!imgElement) return;
+
+  imgElement.onerror = () => {
+    imgElement.src = EMPTY_IMG;
+  };
+
+  imgElement.src = src;
+}
+
 function updateEyebrow() {
   const colorImg = document.getElementById("eyebrow-color");
   const lineImg  = document.getElementById("eyebrow-line");
@@ -149,9 +161,6 @@ function updateEyebrow() {
   colorImg.src = `${basePath}/color/${playerFace.eyebrow_color}.webp`;
   lineImg.src  = `${basePath}/line/${playerFace.eyebrow_color}.webp`;
 }
-
-
-
 
 function updateHairFront() {
   const base = `img/hair/front/${playerFace.hair_front}/${playerFace.hair_front_color}`;
@@ -198,8 +207,6 @@ function updateFreckles() {
     `img/faces/skin/effects/freckles/${playerFace.skin}/${playerFace.skin_color}.webp`;
 }
 
-
-
 function updateSkin() {
   const base = `img/skin/base/${playerFace.skin}/${playerFace.skin_color}`;
 
@@ -220,14 +227,35 @@ function updateEyes() {
   sclera.src = `${base}/sclera.webp`;
   line.src   = `${base}/line.webp`;
   color.src  = `${base}/colors/${playerFace.eye_color}.webp`;
+
+  updateDarkCircles();
+
 }
 
+function updateDarkCircles() {
+  const img = document.getElementById("eye-darkcircles");
+  if (!img) return;
 
+  if (!playerFace.hasDarkCircles) {
+    img.src = EMPTY_IMG;
+    return;
+  }
+
+  img.src = `img/eyes/${playerFace.eye_shape}/darkcircles.webp`;
+}
 
 function updateMouth() {
-  document.getElementById("mouth").src =
-    `img/mouth/${playerFace.mouth}.webp`;
+  const colorImg = document.getElementById("mouth-color");
+  const lineImg  = document.getElementById("mouth-line");
+
+  if (!colorImg || !lineImg) return;
+
+  const base = `img/mouths/${playerFace.mouth}`;
+
+  safeSetImage(colorImg, `${base}/color.webp`);
+  safeSetImage(lineImg,  `${base}/line.webp`);
 }
+
 
 function updateCloth() {
   const colorImg = document.getElementById("cloth-color");
@@ -261,6 +289,8 @@ function updateFace() {
   updateMouth();
   updateCloth();
   updateSkinEffects()
+  updateDarkCircles();
+
 }
 
 
@@ -901,6 +931,26 @@ function checkPlayerStatus() {
 
   // Exibe mensagens novas no log
   msg.forEach(m => log(m));
+  updateFatigueVisuals();
+
+}
+
+function updateFatigueVisuals() {
+  // Vampiro SEMPRE tem olheiras
+  if (player.isVampire) {
+    playerFace.hasDarkCircles = true;
+    updateDarkCircles();
+    return;
+  }
+
+  // Olheiras por cansaço
+  if (player.sleep <= 30 || player.energy <= 20) {
+    playerFace.hasDarkCircles = true;
+  } else {
+    playerFace.hasDarkCircles = false;
+  }
+
+  updateDarkCircles();
 }
 
 /* ======= SISTEMA DE DESCANSO ======= */
