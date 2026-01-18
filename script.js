@@ -72,7 +72,8 @@ let player = {
   mainWeapons: 0,
   subWeapons: 0,
   learnedSkills: [],
-  isVampire: false
+  isVampire: false,
+  equippedArmor: null
 };
 
 /* ===== IMAGEM DO JOGADOR =====*/
@@ -273,11 +274,8 @@ function updateCloth() {
 
   colorImg.src = `${base}/color.webp`;
   lineImg.src  = `${base}/line.webp`;
-}
 
-function equipArmor(id) {
-  playerFace.cloth = id;
-  updateCloth();
+  updateSidebar();
 }
 
 function updateFace() {
@@ -497,6 +495,68 @@ const weapons = {
   }
 };
 
+/* ===== ARMADURAS DO JOGADOR =====*/
+
+const ARMORS = {
+  base: {
+    id: "base",
+    name: "Armadura Básica",
+    defense: 2
+  },
+
+  full_thief: {
+    id: "full_thief",
+    name: "Armadura de Ladino Completa",
+    defense: 6
+  },
+
+  full_thief_no_mask:{
+    id: "full_thief_no_mask",
+    name: "Armadura de Ladino Completa (Sem Máscara)",
+    defense: 6
+  },
+
+  thief:{
+    id: "thief_mask",
+    name: "Armadura de Ladino",
+    defense: 6
+  },
+
+  thief:{
+    id: "thief_no_mask",
+    name: "Armadura de Ladino (Sem Máscara)",
+    defense: 6
+  }
+};
+
+/* ===== EQUIPAR A ARMADURA =====*/
+
+function equipArmor(armorId) {
+  const newArmor = ARMORS[armorId];
+  if (!newArmor) return;
+
+  //  Remove bônus da armadura antiga
+  if (player.equippedArmor) {
+    const oldArmor = ARMORS[player.equippedArmor];
+    if (oldArmor) {
+      player.defense -= oldArmor.defense;
+    }
+  }
+
+  //  Aplica bônus da nova armadura
+  player.defense += newArmor.defense;
+
+  // Atualiza estados
+  player.equippedArmor = armorId;
+  playerFace.cloth = armorId;
+
+  updateCloth();
+}
+
+
+
+/* ===== SKILLS DO JOGADOR =====*/
+
 const skills = {
   corte_forte: {
     name: "Corte Forte",
@@ -515,6 +575,8 @@ const skills = {
     description: "Uma explosão de chamas"
   }
 };
+
+/* ===== ENCANTAMENTOS =====*/
 
 const spellDictionary = {
   ignis: "bola_de_fogo",
