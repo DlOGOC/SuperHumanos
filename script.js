@@ -97,6 +97,10 @@ const playerFace = {
   cloth: "base"
 };
 
+let barberPreview = null;
+
+
+
 /* ===== CAPTURA DOS ELEMENTOS DO DOM =====*/
 const noneRadio = document.getElementById("effect-none");
 const vitiligoCheckbox = document.getElementById("vitiligo-toggle");
@@ -175,6 +179,11 @@ function updateHairBack() {
 
   document.getElementById("hair-back-color").src = `${base}_color.webp`;
   document.getElementById("hair-back-line").src  = `${base}_line.webp`;
+}
+
+function updateHair(){
+  updateHairBack();
+  updateHairFront();
 }
 
 function updateVitiligo() {
@@ -280,8 +289,7 @@ function updateCloth() {
 
 function updateFace() {
   updateSkin();
-  updateHairBack();
-  updateHairFront();
+  updateHair();
   updateEyebrow();
   updateEyes();
   updateMouth();
@@ -1347,7 +1355,8 @@ function leftUserHouse(){
   let story = `Você está na rua, ${timeMessage}`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Avenida da Guilda (00:05)", guildStreet, "powerChoices", 5);
+    criarBotaoHistoria("Avenida da Guilda (00:05)", guildStreet, "powerChoices", 5)
+    criarBotaoHistoria("Rua principal (00:05)", principalStreet, "powerChoices", 5);
   })
 }
 
@@ -1357,6 +1366,121 @@ function guildStreet(){
     criarBotaoHistoria("Guilda (00:01)", guildHub, "powerChoices", 1);
   })
 }
+
+function principalStreet(){
+  const story = `Você está na rua principal da vila, ${timeMessage}`;
+  changeScene(story, () =>{
+    criarBotaoHistoria("Cabelereiro (00:01)", barber, "powerChoices", 1);
+  })
+}
+
+function barber(){
+ const story = `Olá! O que você vai querer hoje?`;
+
+   changeScene(story, () => {
+    criarBotaoHistoria("Cortar cabelo (50$)", barberHairCut);
+    criarBotaoHistoria("Pintar cabelo (25$)", barberHairColor);
+    criarBotaoHistoria("Sair", principalStreet);
+  });
+}
+
+function previewHairCut(hairId) {
+  barberPreview.hair_front = hairId;
+  barberPreview.hair_back  = hairId;
+
+  playerFace.hair_front = hairId;
+  playerFace.hair_back  = hairId;
+
+  updateHair();
+}
+
+function confirmHairCut() {
+  if (player.money < 50) {
+    changeScene(
+      "Você não tem dinheiro suficiente para cortar o cabelo.",
+      () => criarBotaoHistoria("Voltar", barber)
+    );
+    return;
+  }
+
+  player.money -= 50;
+
+  playerFace.hair_front = barberPreview.hair_front;
+  playerFace.hair_back  = barberPreview.hair_back;
+
+  updateHair();
+  updateSidebar();
+
+  changeScene(
+    "O barbeiro termina o corte e sorri satisfeito.",
+    () => criarBotaoHistoria("Voltar", barber)
+  );
+}
+
+
+function barberHairCut() {
+  barberPreview = { ...playerFace };
+
+  const story = `Escolha um novo corte de cabelo.`;
+
+  changeScene(story, () => {
+    criarBotaoHistoria("Cabelo 1", () => previewHairCut("hair_1"));
+    criarBotaoHistoria("Cabelo 2", () => previewHairCut("hair_2"));
+    criarBotaoHistoria("Cabelo 3", () => previewHairCut("hair_3"));
+    criarBotaoHistoria("Cabelo 4", () => previewHairCut("hair_4"));
+    criarBotaoHistoria("Confirmar", confirmHairCut);
+    criarBotaoHistoria("Cancelar", barber);
+  });
+}
+
+function previewHairColor(color) {
+  barberPreview.hair_front_color = color;
+  barberPreview.hair_back_color  = color;
+
+  playerFace.hair_front_color = color;
+  playerFace.hair_back_color  = color;
+
+  updateHair();
+}
+
+function confirmHairColor() {
+  if (player.money < 25) {
+    changeScene(
+      "Você não tem dinheiro suficiente para pintar o cabelo.",
+      () => criarBotaoHistoria("Voltar", barber)
+    );
+    return;
+  }
+
+  player.money -= 25;
+
+  playerFace.hair_front_color = barberPreview.hair_front_color;
+  playerFace.hair_back_color  = barberPreview.hair_back_color;
+
+  updateHair();
+  updateSidebar();
+
+  changeScene(
+    "O barbeiro mistura as tintas e finaliza o trabalho.",
+    () => criarBotaoHistoria("Voltar", barber)
+  );
+}
+
+
+function barberHairColor() {
+  barberPreview = { ...playerFace };
+
+  const story = `Escolha uma nova cor.`;
+
+  changeScene(story, () => {
+    criarBotaoHistoria("Preto", () => previewHairColor("black"));
+    criarBotaoHistoria("Loiro", () => previewHairColor("blonde"));
+    criarBotaoHistoria("Ruivo", () => previewHairColor("ginger"));
+    criarBotaoHistoria("Confirmar", confirmHairColor);
+    criarBotaoHistoria("Cancelar", barber);
+  });
+}
+
 
 function guildHub(){
   let guildMember;
