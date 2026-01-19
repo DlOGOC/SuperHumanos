@@ -1604,6 +1604,7 @@ function warrior(){
       
       As horas passam e você sente suas mãos latejando de dor, mas pelo menos, agora você consegue resistir um pouco a mais de dor.`;
 
+      player.defense += 2;
       break;
     case 4:
       trainingDescription = `Você chega na sala de treinamento e vê rudo com uma expressão séria. "Hoje vamos simular um combate real, estamos no meio do seu treinamento e quero saber como está o seu nível real, pegue a espada"`;
@@ -1647,7 +1648,7 @@ function winRudo1(){
   
   Você sente que venceu.`;
 
-  forceStoryScreen()
+  forceStoryScreen();
 
   changeFriendship("Rudo", 5);
   changeScene(story, () =>{
@@ -1659,6 +1660,8 @@ function loseRudo1(){
   let story = `O combate estava acirado, mas com um movimento surpresa, Rudo ataca seu estômago e começa um ataque sobre sua cabeça, você não vai conseguir desviar...
   
   Mas antes que o ataque o atinja, Stevan para a luta. Mesmo sem um final definitivo, você sente que perdeu.`;
+
+  forceStoryScreen();
 
   changeScene(story, () =>{
     criarBotaoHistoria("Continuar", posTraining);
@@ -1842,6 +1845,17 @@ const enemies = {
     status: {},
     description: "Um homem comum, mas com treinamento militar. Seus golpes são precisos e frios.",
   },
+
+  rudo: {
+    name: "Rudo",
+    maxHp: 120,
+    hp: 120,
+    attack: 15,
+    defense: 13,
+    powerType: "Físico",
+    status: {},
+    description: "O treinador da guilda."
+  }
 };
 
 /* =========================
@@ -2208,7 +2222,7 @@ function castSpellFromText() {
  const skillKey = spellDictionary[spellText];
 
   if (!skillKey || !skills[skillKey]) {
-    log("✨ O encantamento falha. Nada acontece.");
+    log("O encantamento falha. Nada acontece.");
     setTimeout(enemyAttack, 900);
     return;
   }
@@ -2224,7 +2238,7 @@ function castSpellFromText() {
 
   // magia acima do nível do personagem
   if (cost > player.maxMana) {
-    log("📜 Esse encantamento é de um nível superior ao seu.");
+    log("Esse encantamento é de um nível superior ao seu.");
     setTimeout(enemyAttack, 900);
     return;
   }
@@ -2308,6 +2322,13 @@ function getEnemyAttackDescription(enemyName) {
         "O Drone vibra no ar e lança uma descarga contra você!"
       ][Math.floor(Math.random() * 3)];
 
+      case "Rudo":
+        return [
+          "Rudo avança em disparada e te acerta em cheio com sua espada!",
+          "Rudo pula e te acerta um soco no rosto!",
+          "Rudo joga a espada em você e a pega no ar",
+          "Rudo desfere uma sequência de golpes"
+        ][Math.floor(Math.random() * 4)];
     default:
       return `${enemyName} ataca impiedosamente!`;
   }
