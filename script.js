@@ -500,6 +500,13 @@ const weapons = {
     type: "magic",
     baseDamage: 6,
     skills: ["bola_de_fogo"]
+  },
+
+  "Espada dentada": {
+    name: "Espada dentada",
+    type: "dark",
+    baseDamage: 15,
+    skills: ["corte_forte", "golpe_vampirico"]
   }
 };
 
@@ -581,14 +588,34 @@ const skills = {
     critChance: 0.1,
     manaCost: 10,
     description: "Uma explosão de chamas"
-  }
+  },
+
+  cura_basica: {
+    name: "Cura Báscia",
+    type: "holy",
+    heal: true,
+    power: 1.2,
+    manaCost: 8,
+    critChance: 0.1,
+    description: "Recupera um pouco de vida"
+  },
+
+  golpe_vampirico: {
+  name: "Golpe Vampírico",
+  type: "weapon_skill",
+  power: 1.1,
+  lifesteal: 0.35, // 35% do dano vira cura
+  critChance: 0.15,
+  description: "Rouba a vitalidade do inimigo"
+}
+
 };
 
 /* ===== ENCANTAMENTOS =====*/
 
 const spellDictionary = {
   ignis: "bola_de_fogo",
-  lux: "luz_sagrada",
+  lux: "cura_basica",
   glacies: "congelar"
 };
 
@@ -2166,8 +2193,10 @@ function weaponSkill(skillKey) {
   const skill = skills[skillKey];
   if (!skill) return;
 
-  if (!weapon.skills.includes(skillKey) &&
-      !player.learnedSkills?.includes(skillKey)) {
+  if (
+    !weapon.skills.includes(skillKey) &&
+    !player.learnedSkills?.includes(skillKey)
+  ) {
     log("Você não sabe usar essa habilidade.");
     return;
   }
@@ -2179,12 +2208,65 @@ function weaponSkill(skillKey) {
 
   if (skill.manaCost) player.mana -= skill.manaCost;
 
+  /* =========================
+     CURA PURA (SEM DANO)
+     ========================= */
+  if (skill.heal) {
+    let healAmount = Math.floor(
+      (skill.power * weapon.baseDamage) +
+      (player.intelligence * 2)
+    );
+
+    const isCrit = Math.random() < (skill.critChance || 0);
+    if (isCrit) healAmount *= 2;
+
+    const before = player.hp;
+    player.hp = Math.min(player.maxHp, player.hp + healAmount);
+
+    log(
+      `${player.name} usa ${skill.name} e recupera ${
+        player.hp - before
+      } de vida.`
+    );
+
+    updateBars();
+    setTimeout(enemyAttack, 900);
+    return;
+  }
+
+  /* =========================
+     DANO (BASE)
+     ========================= */
   const { damage, isCrit } =
     calculateWeaponDamage(player, enemy, skill, weapon);
 
   enemy.hp = Math.max(0, enemy.hp - damage);
 
-  narrateAttack("player", enemy.name, damage, isCrit, false, skill.type, skill.name);
+  narrateAttack(
+    "player",
+    enemy.name,
+    damage,
+    isCrit,
+    false,
+    skill.type,
+    skill.name
+  );
+
+  /* =========================
+     ROUBO DE VIDA
+     ========================= */
+  if (skill.lifesteal) {
+    const stealAmount = Math.floor(damage * skill.lifesteal);
+    const before = player.hp;
+
+    player.hp = Math.min(player.maxHp, player.hp + stealAmount);
+
+    log(
+      `${player.name} absorve ${
+        player.hp - before
+      } de vida do inimigo.`
+    );
+  }
 
   if (isCrit) applyStatus(skill, enemy);
 
@@ -2192,7 +2274,6 @@ function weaponSkill(skillKey) {
 
   if (enemy.hp <= 0) {
     log(`${enemy.name} foi derrotado!`);
-    console.log("onEnd:", BattleManager.onEnd);
     endBattle(true);
   } else {
     setTimeout(enemyAttack, 1000);
@@ -2219,7 +2300,7 @@ function castSpellFromText() {
   const spellText = input.value.trim().toLowerCase();
   input.value = "";
 
- const skillKey = spellDictionary[spellText];
+  const skillKey = spellDictionary[spellText];
 
   if (!skillKey || !skills[skillKey]) {
     log("O encantamento falha. Nada acontece.");
@@ -2245,7 +2326,7 @@ function castSpellFromText() {
 
   // mana insuficiente
   if (cost > player.mana) {
-    log("💧 Mana insuficiente.");
+    log("Mana insuficiente.");
     setTimeout(enemyAttack, 900);
     return;
   }
@@ -2253,7 +2334,34 @@ function castSpellFromText() {
   // consome mana
   player.mana -= cost;
 
-  // ===== CÁLCULO DE DANO MÁGICO (SEU MODELO) =====
+  /* =========================
+     MAGIA DE CURA
+     ========================= */
+  if (skill.heal) {
+    let healAmount = Math.floor(
+      (cost * skill.power) + (player.intelligence * 2)
+    );
+
+    const isCrit = Math.random() < (skill.critChance || 0);
+    if (isCrit) healAmount *= 2;
+
+    const before = player.hp;
+    player.hp = Math.min(player.maxHp, player.hp + healAmount);
+
+    log(
+      `${player.name} conjura ${skill.name} e recupera ${
+        player.hp - before
+      } de vida.`
+    );
+
+    updateBars();
+    setTimeout(enemyAttack, 900);
+    return;
+  }
+
+  /* =========================
+     MAGIA DE DANO 
+     ========================= */
   let damage = Math.floor(
     (cost * skill.power) + (player.intelligence * 2)
   );
@@ -2264,44 +2372,25 @@ function castSpellFromText() {
   enemy.hp = Math.max(0, enemy.hp - damage);
 
   narrateAttack(
-  "player",
-  enemy.name,
-  damage,
-  isCrit,
-  false,
-  skill.type,
-  spellText 
-);
-
-
-  // ===== STATUS POR CRÍTICO =====
-  if (isCrit) {
-    switch (skill.type) {
-      case "magic":
-        applyStatus(enemy, "burning", 3, 5);
-        break;
-      case "ice":
-        applyStatus(enemy, "frozen", 2);
-        break;
-      case "lightning":
-        applyStatus(enemy, "confused", 2);
-        break;
-      case "holly":
-        applyStatus(enemy, "blinded", 2);
-        break;
-    }
-  }
+    "player",
+    enemy.name,
+    damage,
+    isCrit,
+    false,
+    skill.type,
+    skill.name
+  );
 
   updateBars();
 
   if (enemy.hp <= 0) {
     log(`${enemy.name} foi derrotado!`);
-    console.log("onEnd:", BattleManager.onEnd);
     endBattle(true);
   } else {
-    setTimeout(enemyAttack, 1200);
+    setTimeout(enemyAttack, 1000);
   }
 }
+
 
 /* ========================= DESCRIÇÕES DE ATAQUES DOS INIMIGOS ========================= */
 function getEnemyAttackDescription(enemyName) {
@@ -2402,6 +2491,8 @@ function log(msg) {
   else if (/🌀|Telecinese|impacto/i.test(msg)) p.classList.add("log-tele");
   else if (/⚡|paralis|eletrocinese|raio/i.test(msg)) p.classList.add("log-eletric");
   else if (/💥|crítico|critico/i.test(msg)) p.classList.add("log-crit");
+  else if (/cura|recupera/i.test(msg)) p.classList.add("log-heal");
+  else if (/absorve|rouba/i.test(msg)) p.classList.add("log-life-steal");
   else if (/defendeu|reduzido|bloque/i.test(msg)) p.classList.add("log-defense");
   else if (/errou|falhou|confuso/i.test(msg)) p.classList.add("log-miss");
   else if (/sangra|sangramento/i.test(msg)) p.classList.add("log-bleed");

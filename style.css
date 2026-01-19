@@ -556,6 +556,16 @@ button:hover { background: rgba(255,255,255,0.12); }
   border-left-color: #e74c3c;
 }
 
+.log-heal {
+  color: #6ef2b3;
+  border-left-color: #3ddc97;
+}
+
+.log-life-steal {
+  color: #b455ff;
+  border-left-color: #8e44ad;
+}
+
 .log-crit {
   color: #ffd700;
   font-weight: bold;
