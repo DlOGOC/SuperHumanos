@@ -1126,6 +1126,12 @@ function criarBotaoHistoria(texto, proxima, containerId = "powerChoices", min = 
   btnDiv.appendChild(btn);
 }
 
+function forceStoryScreen() {
+  document.getElementById("story-screen").style.display = "none";
+  document.getElementById("power-screen").style.display = "block";
+}
+
+
 function clearButtons(containerId) {
   const btnDiv = document.getElementById(containerId);
   if (!btnDiv) return;
@@ -1280,19 +1286,6 @@ function houseUser() {
     criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom, "powerChoices", 1);
     criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse, "powerChoices", 1);
   })
-
-  /*changeScene(story, (choices) => {
-    const fightBtn = document.createElement("button");
-    fightBtn.innerText = "Enfrentar o drone";
-    fightBtn.onclick = () => startBattle("Drone de Captura");
-
-    const hideBtn = document.createElement("button");
-    hideBtn.innerText = "Tentar se esconder";
-    hideBtn.onclick = () => hideFromDrone();
-
-    choices.appendChild(fightBtn);
-    choices.appendChild(hideBtn);
-  }, 300, "storyText", "choices");*/
 }
 
 function userRoom(){
@@ -1594,145 +1587,184 @@ function classTraining(classe, nivel){
 
 function warrior(){
   guild.warrior++;
-  let traingDescription;
+  let trainingDescription;
   switch (guild.warrior) {
     case 1:
-      traingDescription = `Você começa a treinar com Rudo, seus movimentos comparados aos dele, é quase como se uma formiga estivesse lutando contra um gigante, ele não perde muito tempo com a teoria e vocês logo começam a lutar com espadas de madeira, é exaustivo e doloroso, seu corpo parece que vai se quebrar diversas vezes, mas você aguenta.
+      trainingDescription = `Você começa a treinar com Rudo, seus movimentos comparados aos dele, é quase como se uma formiga estivesse lutando contra um gigante, ele não perde muito tempo com a teoria e vocês logo começam a lutar com espadas de madeira, é exaustivo e doloroso, seu corpo parece que vai se quebrar diversas vezes, mas você aguenta.
       
       As horas passam e você continua apenas defendendo os ataques, cada golpe mais forte que o anterior, você sente que está se fortalecendo.`;
       break;
     case 2:
-      traingDescription = `Quando você se prepara, Rudo vêm para cima de você com tudo, seus músculos ainda em desenvolvimento rugem para acompanhar os movimentos e a força dele, o barulho das espadas de madeira batendo é ensurdecedor.
+      trainingDescription = `Quando você se prepara, Rudo vêm para cima de você com tudo, seus músculos ainda em desenvolvimento rugem para acompanhar os movimentos e a força dele, o barulho das espadas de madeira batendo é ensurdecedor.
       
       As horas passam e você consegue ver uma melhora, você agora já não sente tanta dificuldade em se defender, seus reflexos definitivamente estão melhorando.`;
       break;
     case 3:
-      traingDescription = `Quando você pisa no pátio de treinamento, Rudo com um grito parte para cima de você com tudo. Afirmando que um bom guerreiro sabe se virar até de mãos limpas, você começa a se deviar matendo com a palma das mãos na espada de madeira o que vai te custar muito mais tarde.
+      trainingDescription = `Quando você pisa no pátio de treinamento, Rudo com um grito parte para cima de você com tudo. Afirmando que um bom guerreiro sabe se virar até de mãos limpas, você começa a se deviar batendo com a palma das mãos na espada de madeira o que vai te custar muito mais tarde.
       
       As horas passam e você sente suas mãos latejando de dor, mas pelo menos, agora você consegue resistir um pouco a mais de dor.`;
 
-
       break;
     case 4:
-      traingDescription = ``;
+      trainingDescription = `Você chega na sala de treinamento e vê rudo com uma expressão séria. "Hoje vamos simular um combate real, estamos no meio do seu treinamento e quero saber como está o seu nível real, pegue a espada"`;
       break;
     case 5:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 6:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     default:
-      traingDescription = ``
+      trainingDescription = ``
       break;
       }
 
-      let story = `${traingDescription}`;
+      let story = `${trainingDescription}`;
+      if(guild.warrior == 4){
+        player.equippedWeapon = weapons["Espada de treino"];
+        changeScene(story, () =>{
+          criarBotaoHistoria("Pegar a espada", fightRudo1);
+        })
+      }else{
       changeScene(story, () =>{
-        criarBotaoHistoria("Continuar", posTraing);
+        criarBotaoHistoria("Continuar", posTraining);
       })
+    }
+}
+
+function fightRudo1() {
+  startBattle("Rudo", (won) => {
+    if (won) {
+      winRudo1();
+    } else {
+      loseRudo1();
+    }
+  });
+}
+
+function winRudo1(){
+  let story = `O combate estava acirrado e quando você ia dar o golpe final, Stevan para a luta.
+  
+  Você sente que venceu.`;
+
+  forceStoryScreen()
+
+  changeFriendship("Rudo", 5);
+  changeScene(story, () =>{
+    criarBotaoHistoria("Continuar", posTraining);
+  })
+}
+
+function loseRudo1(){
+  let story = `O combate estava acirado, mas com um movimento surpresa, Rudo ataca seu estômago e começa um ataque sobre sua cabeça, você não vai conseguir desviar...
+  
+  Mas antes que o ataque o atinja, Stevan para a luta. Mesmo sem um final definitivo, você sente que perdeu.`;
+
+  changeScene(story, () =>{
+    criarBotaoHistoria("Continuar", posTraining);
+  })
 }
 
 function mage(){
   guild.mage++;
   trainingDay--;
-  let traingDescription;
+  let trainingDescription;
   switch (guild.mage) {
     case 1:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 2:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 3:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 4:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 5:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 6:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     default:
       break;
       }
 
-      const story = `${traingDescription}`;
+      const story = `${trainingDescription}`;
       changeScene(story, () =>{
-        criarBotaoHistoria("Continuar", posTraing);
+        criarBotaoHistoria("Continuar", posTraining);
       })
 }
 
 function thief(){
   guild.thief++;
   trainingDay--;
-  let traingDescription;
+  let trainingDescription;
   switch (guild.thief) {
     case 1:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 2:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 3:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 4:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 5:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 6:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     default:
       break;
       }
 
-      const story = `${traingDescription}`;
+      const story = `${trainingDescription}`;
       changeScene(story, () =>{
-        criarBotaoHistoria("Continuar", posTraing);
+        criarBotaoHistoria("Continuar", posTraining);
       })
 }
 
 function cleric(){
   guild.cleric++;
   trainingDay--;
-  let traingDescription;
+  let trainingDescription;
   switch (guild.cleric) {
     case 1:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 2:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 3:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 4:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 5:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     case 6:
-      traingDescription = ``;
+      trainingDescription = ``;
       break;
     default:
       break;
       }
 
-      const story = `${traingDescription}`;
+      const story = `${trainingDescription}`;
       changeScene(story, () =>{
-        criarBotaoHistoria("Continuar", posTraing);
+        criarBotaoHistoria("Continuar", posTraining);
       })
 }
 
-function posTraing(){
+function posTraining(){
   const story = `"Você se saiu bem garoto, continue vindo, estou ansioso para amanhã."
   
   Você vai andando da área de treinamento, seu corpo cansado mas ao mesmo tempo, revigorado.
@@ -1743,18 +1775,18 @@ function posTraing(){
   })
 }
 
-function hideFromDrone() {
-  const story = `Você se esconde atrás de destroços. 
-O drone passa lentamente, escaneando a área. Por um momento, o silêncio é absoluto... 
-até que a luz vermelha se volta para você.`;
+// function hideFromDrone() {
+//   const story = `Você se esconde atrás de destroços. 
+// O drone passa lentamente, escaneando a área. Por um momento, o silêncio é absoluto... 
+// até que a luz vermelha se volta para você.`;
 
-  changeScene(story, (choices) => {
-    const foundBtn = document.createElement("button");
-    foundBtn.innerText = "O drone te encontrou!";
-    foundBtn.onclick = () => startBattle("Drone de Captura");
-    choices.appendChild(foundBtn);
-  }, 300, "storyText", "choices");
-}
+//   changeScene(story, (choices) => {
+//     const foundBtn = document.createElement("button");
+//     foundBtn.innerText = "O drone te encontrou!";
+//     foundBtn.onclick = () => startBattle("Drone de Captura");
+//     choices.appendChild(foundBtn);
+//   }, 300, "storyText", "choices");
+// }
 
 /* ========== COMBATE ========== */
 
@@ -1765,6 +1797,7 @@ let BattleManager = {
 };
 
 function endBattle(result) {
+  console.log("END BATTLE CHAMADO", result, BattleManager.onEnd);
   if (!BattleManager.active) return;
 
   BattleManager.active = false;
@@ -1814,7 +1847,15 @@ const enemies = {
 /* =========================
    INÍCIO DO COMBATE
 ========================= */
-function startBattle(enemyName = "Drone de Captura") {
+function startBattle(enemyName, onEndCallback) {
+  if (typeof onEndCallback !== "function") {
+    console.error("startBattle chamado SEM callback:", enemyName);
+    return;
+  }
+
+  BattleManager.active = true;
+  BattleManager.enemy = enemyName;
+  BattleManager.onEnd = onEndCallback;
 
   // limpa textos e botões da história
 const textArea = document.getElementById("powerText");
@@ -1856,18 +1897,6 @@ if (logBox) logBox.innerHTML = "";
   updateBars();
   updateSkills();
   log(`⚔️ ${enemy.description || "Um inimigo apareceu!"}`);
-}
-
-
-function updateBars() {
-  const pct = (v,m) => Math.max(0, Math.min(100, (v/m)*100));
-  const pHp = document.getElementById("player-hp-fill");
-  const pMana = document.getElementById("player-mana-fill");
-  const eHp = document.getElementById("enemy-hp-fill");
-  if (pHp) pHp.style.width = pct(player.hp, player.maxHp) + "%";
-  if (pMana) pMana.style.width = pct(player.mana, player.maxMana) + "%";
-  if (eHp) eHp.style.width = pct(enemy.hp, enemy.maxHp) + "%";
-  updateSidebar();
 }
 
 function updateStatusIcons() {
@@ -1981,7 +2010,6 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
     narration = `${defenderName} atacou, mas ${player.name} defendeu parcialmente, reduzindo o dano.`;
   } else if (attacker === "enemy" && !isCrit && !wasDefended) {
     narration = `${defenderName} atacou e causou ${damage} de dano em ${player.name}.`;
-    player.hp = Math.max(0, player.hp - damage);
 
 
   }
@@ -2011,58 +2039,19 @@ function attack() {
   enemy.hp = Math.max(0, enemy.hp - damage);
   narrateAttack("player", enemy.name, damage, isCrit, false, "fisico");
 
-  updateBars();
+updateBars();
+
 if (enemy.hp <= 0) {
-  if(enemy.name == "João José"){
-    log(`${enemy.name} puxa uma pistola e dispara contra você. "Você me forçou a isso Senhor ${player.name}"`);
-    log("Você desmaia.");
-    const logBox = document.getElementById("battle-log");
-  if (logBox) {
-    const btn = document.createElement("button");
-    btn.innerText = "Continuar";
-
-    // usa o estilo padrão dos botões do jogo
-    btn.onclick = () => {
-      document.getElementById("battle-screen").style.display = "none";
-      document.getElementById("power-screen").style.display = "block";
-      if(enemy.name == "João José"){
-        strangeManWins(); // retorna para a história
-      }
-
-    };
-
-    // adiciona o botão diretamente ao log
-    logBox.appendChild(btn);
-    logBox.scrollTop = logBox.scrollHeight;
-  }
-
-  }
-  if(enemy.name != "João José"){
-    log(` ${enemy.name} foi derrotado!`);
-      // Cria o botão de continuar dentro do log
-  const logBox = document.getElementById("battle-log");
-  if (logBox) {
-    const btn = document.createElement("button");
-    btn.innerText = "Continuar";
-
-    // usa o estilo padrão dos botões do jogo
-    btn.onclick = () => {
-      document.getElementById("battle-screen").style.display = "none";
-      document.getElementById("story-screen").style.display = "block";
-      startStory(); // retorna para a história
-    };
-
-    // adiciona o botão diretamente ao log
-    logBox.appendChild(btn);
-    logBox.scrollTop = logBox.scrollHeight;
-  }
-
-  return; // evita continuar o turno após a morte do inimigo
-  }
+  log(`${enemy.name} foi derrotado!`);
+  console.log("onEnd:", BattleManager.onEnd);
+  endBattle(true);
+  return;
+} else {
+  setTimeout(enemyAttack, 800);
+}
 
 }
-  else setTimeout(enemyAttack, 900);
-}
+
 
 function calculateWeaponDamage(attacker, defender, skill, weapon) {
   let base =
@@ -2183,12 +2172,13 @@ function weaponSkill(skillKey) {
 
   narrateAttack("player", enemy.name, damage, isCrit, false, skill.type, skill.name);
 
-  if (isCrit) applySkillStatus(skill, enemy);
+  if (isCrit) applyStatus(skill, enemy);
 
   updateBars();
 
   if (enemy.hp <= 0) {
     log(`${enemy.name} foi derrotado!`);
+    console.log("onEnd:", BattleManager.onEnd);
     endBattle(true);
   } else {
     setTimeout(enemyAttack, 1000);
@@ -2292,6 +2282,7 @@ function castSpellFromText() {
 
   if (enemy.hp <= 0) {
     log(`${enemy.name} foi derrotado!`);
+    console.log("onEnd:", BattleManager.onEnd);
     endBattle(true);
   } else {
     setTimeout(enemyAttack, 1200);
@@ -2324,7 +2315,11 @@ function getEnemyAttackDescription(enemyName) {
 
 /* ========== ATAQUE DO INIMIGO ========== */
 function enemyAttack() {
-  if (!processStatuses(enemy, "enemy")) { return; }
+  if (!processStatuses(enemy, "enemy")) {
+  updateBars();
+  return;
+}
+
 
   const blindMiss = hasStatus(enemy, "blinded") ? 0.25 : 0;
   const missChance = 0.1 + blindMiss;
@@ -2339,35 +2334,18 @@ function enemyAttack() {
 
   if (hasStatus(player,"frozen")) { damage *= 2; clearStatus(player,"frozen"); log(`❄️ O gelo que cobria ${player.name} se quebra com o impacto!`); applyStatus(player,"bleeding",3,8); }
 
-  log(getEnemyAttackDescription(enemy.name)); // mensagem de ataque personalizada
-
+  log(getEnemyAttackDescription(enemy.name));
   player.hp = Math.max(0, player.hp - damage);
-  if(player.hp <=0){
-    player.hp = 0;
-    updateBars();
-    log(`☠️ ${player.name} foi derrotado...`)
-    const logBox = document.getElementById("battle-log");
-   if (logBox) {
-     const btn = document.createElement("button");
-     btn.innerText = "Continuar";
- 
-     // usa o estilo padrão dos botões do jogo
-     btn.onclick = () => {
-       document.getElementById("battle-screen").style.display = "none";
-       document.getElementById("power-screen").style.display = "block";
-       if(enemy.name == "João José"){
-         strangeManWins(); // retorna para a história
-       }
-      };
 
-          // adiciona o botão diretamente ao log
-    logBox.appendChild(btn);
-    logBox.scrollTop = logBox.scrollHeight;
 
-    }
-    return;
-    
-  }
+if (player.hp <= 0) {
+  player.hp = 0;
+  updateBars();
+  log(`☠️ ${player.name} foi derrotado...`);
+  endBattle(false);
+  return;
+}
+
   updateBars();
   if (isCrit) hpShake("player");
 
@@ -2381,32 +2359,6 @@ function enemyAttack() {
   else narrateAttack("enemy", enemy.name, damage, false, wasDefended);
 
   updateBars();
-  if (player.hp <= 0){
-    player.hp = 0;
-    updateBars();
-    log(`☠️ ${player.name} foi derrotado...`)
-   const logBox = document.getElementById("battle-log");
-  if (logBox) {
-    const btn = document.createElement("button");
-    btn.innerText = "Continuar";
-
-    // usa o estilo padrão dos botões do jogo
-    btn.onclick = () => {
-      document.getElementById("battle-screen").style.display = "none";
-      document.getElementById("power-screen").style.display = "block";
-      if(enemy.name == "João José"){
-        strangeManWins(); // retorna para a história
-      }
-
-    };
-
-    // adiciona o botão diretamente ao log
-    logBox.appendChild(btn);
-    logBox.scrollTop = logBox.scrollHeight;
-  }
-
-  return; // evita continuar o turno após a morte do inimigo
-}
   } 
 
 /* ========== CONTROLE DE TURNOS ========== */
