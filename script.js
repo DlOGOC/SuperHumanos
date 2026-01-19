@@ -436,7 +436,6 @@ document
     updateFreckles();
   });
 
-
 document
   .getElementById("vitiligo-toggle")
   .addEventListener("change", e => {
@@ -451,9 +450,6 @@ document
 
     updateVitiligo();
   });
-
-
-
 
 document
   .getElementById("freckles-toggle")
@@ -470,9 +466,6 @@ document
     updateFreckles();
   });
 
-
-
-
 let timeLocal = 0;
 let trainingDay = 8;
 /* ===== ARMAS DO JOGADOR =====*/
@@ -485,7 +478,6 @@ const typeAdvantages = {
   holy:     { strong: "dark",     weak: "dark" },
   dark:     { strong: "holy",     weak: "holy" },
 };
-
 
 const weapons = {
   "Espada de treino": {
@@ -573,6 +565,8 @@ function equipArmor(armorId) {
 /* ===== SKILLS DO JOGADOR =====*/
 
 const skills = {
+
+  /* ===== WEAPON SKILLS ===== */
   corte_forte: {
     name: "Corte Forte",
     type: "weapon_skill",
@@ -580,7 +574,31 @@ const skills = {
     critChance: 0.15,
     description: "Um golpe pesado com a espada"
   },
+  estocada_precisa: {
+    name: "Estocada Precisa",
+    type: "weapon_skill",
+    power: 1.3,
+    critChance: 0.25,
+    description: "Um golpe rápido e preciso visando pontos vitais"
+  },
 
+  esmagar: {
+    name: "Esmagar",
+    type: "weapon_skill",
+    power: 1.7,
+    critChance: 0.1,
+    description: "Um ataque brutal que quebra defesas"
+  },
+
+  corte_giratorio: {
+    name: "Corte Giratório",
+    type: "weapon_skill",
+    power: 1.5,
+    critChance: 0.15,
+    description: "Um giro amplo que atinge o inimigo"
+  },
+
+  /* ===== MAGIC ===== */
   bola_de_fogo: {
     name: "Bola de Fogo",
     type: "magic",
@@ -590,6 +608,79 @@ const skills = {
     description: "Uma explosão de chamas"
   },
 
+  congelar: {
+    name: "Congelar",
+    type: "magic",
+    power: 1.2,
+    critChance: 0.1,
+    manaCost: 9,
+    status: "freeze",
+    description: "Reduz a mobilidade do inimigo com gelo"
+  },
+
+  raio_arcano: {
+    name: "Raio Arcano",
+    type: "magic",
+    power: 1.6,
+    critChance: 0.15,
+    manaCost: 12,
+    description: "Um disparo concentrado de energia mágica"
+  },
+
+  explosao_igneia: {
+    name: "Explosão Ígnea",
+    type: "magic",
+    power: 1.9,
+    critChance: 0.1,
+    manaCost: 15,
+    description: "Uma detonação de fogo concentrado"
+},
+
+  lanca_de_gelo: {
+    name: "Lança de Gelo",
+    type: "magic",
+    power: 1.5,
+    critChance: 0.15,
+    manaCost: 11,
+    description: "Um projétil congelante atravessa o inimigo"
+  },
+
+  onda_arcana: {
+    name: "Onda Arcana",
+    type: "magic",
+    power: 1.4,
+    critChance: 0.2,
+    manaCost: 12,
+    description: "Energia mágica se espalha em linha reta"
+  },
+
+  
+/* ===== DISTANCE ===== */
+  flecha_perfurante: {
+    name: "Flecha Perfurante",
+    type: "distance",
+    power: 1.4,
+    critChance: 0.2,
+    description: "Uma flecha que atravessa armaduras"
+  },
+
+  chuva_de_flechas: {
+    name: "Chuva de Flechas",
+    type: "distance",
+    power: 1.1,
+    critChance: 0.1,
+    description: "Vários projéteis atingem o inimigo"
+  },
+
+  tiro_rapido: {
+    name: "Tiro Rápido",
+    type: "distance",
+    power: 1.3,
+    critChance: 0.25,
+    description: "Disparo veloz à distância"
+  },
+
+/* ===== HOLY ===== */
   cura_basica: {
     name: "Cura Báscia",
     type: "holy",
@@ -599,25 +690,107 @@ const skills = {
     critChance: 0.1,
     description: "Recupera um pouco de vida"
   },
+  julgamento: {
+    name: "Julgamento",
+    type: "holy",
+    power: 1.5,
+    critChance: 0.2,
+    manaCost: 13,
+    description: "Energia sagrada castiga criaturas impuras"
+  },
 
+  toque_da_luz: {
+    name: "Toque da Luz",
+    type: "holy",
+    heal: true,
+    power: 1.4,
+    critChance: 0.15,
+    manaCost: 10,
+    description: "A luz divina restaura ferimentos"
+},
+
+  castigo_divino: {
+    name: "Castigo Divino",
+    type: "holy",
+    power: 1.7,
+    critChance: 0.2,
+    manaCost: 14,
+    description: "A ira dos céus atinge o inimigo"
+  },
+
+  /* ===== DARK ===== */
   golpe_vampirico: {
-  name: "Golpe Vampírico",
-  type: "weapon_skill",
-  power: 1.1,
-  lifesteal: 0.35, // 35% do dano vira cura
-  critChance: 0.15,
-  description: "Rouba a vitalidade do inimigo"
-}
+    name: "Golpe Vampírico",
+    type: "weapon_skill",
+    power: 1.1,
+    lifesteal: 0.35, // 35% do dano vira cura
+    critChance: 0.15,
+    description: "Rouba a vitalidade do inimigo"
+},
+  toque_sombrio: {
+    name: "Toque Sombrio",
+    type: "dark",
+    power: 1.3,
+    lifesteal: 0.25,
+    critChance: 0.15,
+    manaCost: 10,
+    description: "Drena vida através da escuridão"
+  },
 
+  maldicao: {
+    name: "Maldição",
+    type: "dark",
+    power: 1.1,
+    critChance: 0.1,
+    manaCost: 8,
+    applyCurse: true,
+    description: "Enfraquece o inimigo lentamente"
+  },
+
+  abraco_das_sombras: {
+    name: "Abraço das Sombras",
+    type: "dark",
+    power: 1.3,
+    lifesteal: 0.3,
+    critChance: 0.15,
+    manaCost: 11,
+    description: "As trevas drenam a vitalidade do alvo"
+  },
+
+  marca_da_maldicao: {
+    name: "Marca da Maldição",
+    type: "dark",
+    power: 1.2,
+    critChance: 0.1,
+    manaCost: 9,
+    applyCurse: true,
+    description: "Uma maldição enfraquece o inimigo"
+  }
 };
 
 /* ===== ENCANTAMENTOS =====*/
 
 const spellDictionary = {
+
+  /* ===== MAGIC ===== */
   ignis: "bola_de_fogo",
+  glacies: "congelar",
+  fulgur: "raio_arcano",
+  unda: "onda_arcana",
+
+  /* ===== HOLY ===== */
   lux: "cura_basica",
-  glacies: "congelar"
+  judicium: "julgamento",
+  benedictio: "toque_da_luz",
+  puritas: "castigo_divino",
+
+  /* ===== DARK ===== */
+  umbra: "toque_sombrio",
+  maledictio: "maldicao",
+  cruor: "marca_da_maldicao",
+  tenebrae: "abraco_das_sombras"
 };
+
 
 function learnSkill(skillKey) {
   // skill existe?
@@ -721,6 +894,22 @@ function processStatuses(entity, who) {
   if (!entity.status) entity.status = {};
 
   // DOTs
+  if (entity.status?.curse?.turns > 0) {
+  const curse = entity.status.curse;
+
+  // dano por turno
+  const dot = Math.max(1, Math.floor(entity.maxHp * 0.03));
+  entity.hp = Math.max(0, entity.hp - dot);
+
+  log(`☠️ ${entity.name} sofre ${dot} de dano pela maldição.`);
+
+  curse.turns--;
+
+  if (curse.turns <= 0) {
+    delete entity.status.curse;
+    log(`✨ A maldição sobre ${entity.name} se dissipa.`);
+  }
+}
   if (hasStatus(entity, "burning")) {
     const dmg = entity.status.burning.value || Math.max(2, Math.round(entity.maxHp * 0.05));
     entity.hp = Math.max(0, entity.hp - dmg);
@@ -1951,7 +2140,8 @@ function updateStatusIcons() {
     bleeding: "🩸",
     confused: "💫",
     blinded: "🌀",
-    paralizado: "⚡"
+    paralizado: "⚡",
+    curse: "☠️"
   };
   const descMap = {
     burning: "Queimando — perde HP a cada turno.",
@@ -1959,7 +2149,8 @@ function updateStatusIcons() {
     bleeding: "Sangramento — sofre dano contínuo.",
     confused: "Confuso — chance de perder o turno.",
     blinded: "Cego — ataques têm chance de errar.",
-    paralizado: "Paralizado — perde um turno."
+    paralizado: "Paralizado — perde um turno.",
+    curse: "Maldição — ataque e defesa reduzidos, perde vida por turno."
   };
 
   const makeIcons = (entity) => {
@@ -2066,8 +2257,13 @@ function attack() {
 
   const critChance = 0.15;
   const isCrit = Math.random() < critChance;
-  const base = Math.floor(Math.random()*8) + 8;
-  let damage = isCrit ? base*2 : base;
+  let baseDamage = Math.floor(Math.random() * 8) + 8;
+
+  if (hasStatus(player, "curse")) {
+    baseDamage = Math.floor(baseDamage * 0.7); // -30% dano
+  }
+
+  let damage = isCrit ? baseDamage * 2 : baseDamage;
 
   if (hasStatus(enemy, "frozen")) {
     damage *= 2;
@@ -2234,50 +2430,60 @@ function weaponSkill(skillKey) {
     return;
   }
 
-  /* =========================
-     DANO (BASE)
-     ========================= */
-  const { damage, isCrit } =
-    calculateWeaponDamage(player, enemy, skill, weapon);
+ /* =========================
+   DANO (BASE)
+   ========================= */
+const { damage, isCrit } =
+  calculateWeaponDamage(player, enemy, skill, weapon);
 
-  enemy.hp = Math.max(0, enemy.hp - damage);
+enemy.hp = Math.max(0, enemy.hp - damage);
 
-  narrateAttack(
-    "player",
-    enemy.name,
-    damage,
-    isCrit,
-    false,
-    skill.type,
-    skill.name
-  );
+narrateAttack(
+  "player",
+  enemy.name,
+  damage,
+  isCrit,
+  false,
+  skill.type,
+  skill.name
+);
 
-  /* =========================
-     ROUBO DE VIDA
-     ========================= */
-  if (skill.lifesteal) {
-    const stealAmount = Math.floor(damage * skill.lifesteal);
-    const before = player.hp;
+/* =========================
+   ROUBO DE VIDA
+   ========================= */
+if (skill.lifesteal && damage > 0) {
+  const stealAmount = Math.floor(damage * skill.lifesteal);
+  const before = player.hp;
 
-    player.hp = Math.min(player.maxHp, player.hp + stealAmount);
+  player.hp = Math.min(player.maxHp, player.hp + stealAmount);
 
-    log(
-      `${player.name} absorve ${
-        player.hp - before
-      } de vida do inimigo.`
-    );
-  }
+  log(`${player.name} absorve ${player.hp - before} de vida do inimigo.`);
+}
 
-  if (isCrit) applyStatus(skill, enemy);
+/* =========================
+   MALDIÇÃO
+   ========================= */
+if (skill.applyCurse) {
+  applyStatus(enemy, "curse", 3);
+  log(`🕯️ ${enemy.name} foi amaldiçoado.`);
+}
 
-  updateBars();
+/* =========================
+   STATUS CRÍTICO (SE EXISTIR)
+   ========================= */
+if (isCrit && skill.statusOnCrit) {
+  applyStatus(enemy, skill.statusOnCrit, skill.statusDuration || 2);
+}
 
-  if (enemy.hp <= 0) {
-    log(`${enemy.name} foi derrotado!`);
-    endBattle(true);
-  } else {
-    setTimeout(enemyAttack, 1000);
-  }
+updateBars();
+
+if (enemy.hp <= 0) {
+  log(`${enemy.name} foi derrotado!`);
+  endBattle(true);
+} else {
+  setTimeout(enemyAttack, 1000);
+}
+
 }
 
 
@@ -2297,7 +2503,7 @@ function castSpellFromText() {
   const input = document.getElementById("spell-input");
   if (!input) return;
 
-  const spellText = input.value.trim().toLowerCase();
+  const spellText = input.value.trim().toLowerCase().replace(/\s+/g, " ");;
   input.value = "";
 
   const skillKey = spellDictionary[spellText];
@@ -2359,36 +2565,57 @@ function castSpellFromText() {
     return;
   }
 
-  /* =========================
-     MAGIA DE DANO 
-     ========================= */
-  let damage = Math.floor(
-    (cost * skill.power) + (player.intelligence * 2)
-  );
+/* =========================
+   MAGIA DE DANO 
+   ========================= */
+let damage = Math.floor(
+  (cost * skill.power) + (player.intelligence * 2)
+);
 
-  const isCrit = Math.random() < skill.critChance;
-  if (isCrit) damage *= 2;
+const isCrit = Math.random() < skill.critChance;
+if (isCrit) damage *= 2;
 
-  enemy.hp = Math.max(0, enemy.hp - damage);
+enemy.hp = Math.max(0, enemy.hp - damage);
 
-  narrateAttack(
-    "player",
-    enemy.name,
-    damage,
-    isCrit,
-    false,
-    skill.type,
-    skill.name
-  );
+narrateAttack(
+  "player",
+  enemy.name,
+  damage,
+  isCrit,
+  false,
+  skill.type,
+  skill.name
+);
 
-  updateBars();
+/* =========================
+   ROUBO DE VIDA
+   ========================= */
+if (skill.lifesteal && damage > 0) {
+  const stealAmount = Math.floor(damage * skill.lifesteal);
+  const before = player.hp;
 
-  if (enemy.hp <= 0) {
-    log(`${enemy.name} foi derrotado!`);
-    endBattle(true);
-  } else {
-    setTimeout(enemyAttack, 1000);
-  }
+  player.hp = Math.min(player.maxHp, player.hp + stealAmount);
+
+  log(`🩸 ${player.name} absorve ${player.hp - before} de vida.`);
+}
+
+/* =========================
+   MALDIÇÃO
+   ========================= */
+if (skill.applyCurse) {
+  applyStatus(enemy, "curse", 3);
+  log(`🕯️ ${enemy.name} foi amaldiçoado.`);
+}
+
+updateBars();
+
+if (enemy.hp <= 0) {
+  log(`${enemy.name} foi derrotado!`);
+  endBattle(true);
+} else {
+  setTimeout(enemyAttack, 1000);
+}
+
 }
 
 
@@ -2436,7 +2663,14 @@ function enemyAttack() {
   if (Math.random() < missChance) { log(`${enemy.name} errou o ataque!`); return; }
 
   const isCrit = Math.random() < 0.15;
-  let base = Math.floor(Math.random()*enemy.attack) + 6;
+  let attackPower = enemy.attack;
+
+  if (hasStatus(enemy, "curse")) {
+    attackPower = Math.floor(attackPower * 0.7); // -30% ataque
+  }
+
+  let base = Math.floor(Math.random() * attackPower) + 6;
+
   let damage = isCrit ? base*2 : base;
 
   const wasDefended = player.defending;
@@ -2487,12 +2721,15 @@ function log(msg) {
   // Define uma classe CSS com base no tipo da mensagem
   if (/💀|☠️/i.test(msg)) p.classList.add("log-death");
   else if (/🔥|queim|Pirocinese|fogo|ignis/i.test(msg)) p.classList.add("log-fire");
-  else if (/❄️|gelo|Criogenese|frio/i.test(msg)) p.classList.add("log-ice");
+  else if (/❄️|gelo|Criogenese|frio|congel/i.test(msg)) p.classList.add("log-ice");
   else if (/🌀|Telecinese|impacto/i.test(msg)) p.classList.add("log-tele");
   else if (/⚡|paralis|eletrocinese|raio/i.test(msg)) p.classList.add("log-eletric");
   else if (/💥|crítico|critico/i.test(msg)) p.classList.add("log-crit");
+  else if (/divin|sagrad|luz|julgamento|celestial/i.test(msg)) p.classList.add("log-divine");
   else if (/cura|recupera/i.test(msg)) p.classList.add("log-heal");
   else if (/absorve|rouba/i.test(msg)) p.classList.add("log-life-steal");
+  else if (/🌑|sombr|dark|trevas|maldi|maldicao|amaldi|demoniac|infern/i.test(msg)) p.classList.add("log-dark");
+  else if (/arcano|mana|ritual|encantamento/i.test(msg)) p.classList.add("log-arcane");
   else if (/defendeu|reduzido|bloque/i.test(msg)) p.classList.add("log-defense");
   else if (/errou|falhou|confuso/i.test(msg)) p.classList.add("log-miss");
   else if (/sangra|sangramento/i.test(msg)) p.classList.add("log-bleed");

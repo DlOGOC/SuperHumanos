@@ -561,6 +561,26 @@ button:hover { background: rgba(255,255,255,0.12); }
   border-left-color: #3ddc97;
 }
 
+.log-divine {
+  color: #e6d38f;
+  border-left-color: #ffd700;
+}
+
+.log-dark {
+  color: #8b5cf6;
+  border-left: 4px solid #4c1d95;
+}
+
+.log-ice {
+  color: #7dd3fc;
+  border-left: 4px solid #0ea5e9;
+}
+
+.log-arcane {
+  color: #c084fc;
+  border-left: 4px solid #9333ea;
+}
+
 .log-life-steal {
   color: #b455ff;
   border-left-color: #8e44ad;
