@@ -2082,6 +2082,56 @@ const enemies = {
   }
 };
 
+let tooltipTimeout = null;
+
+function showSkillTooltip(skill, x, y) {
+  const tooltip = document.getElementById("skill-tooltip");
+  if (!tooltip || !skill?.description) return;
+
+  tooltip.innerHTML = `<strong>${skill.name}</strong><br>${skill.description}`;
+  tooltip.style.left = `${x + 12}px`;
+  tooltip.style.top = `${y + 12}px`;
+  tooltip.classList.remove("hidden");
+}
+
+function hideSkillTooltip() {
+  const tooltip = document.getElementById("skill-tooltip");
+  if (!tooltip) return;
+
+  tooltip.classList.add("hidden");
+}
+
+function bindSkillTooltip(btn, skill) {
+  /* ===== DESKTOP ===== */
+  btn.addEventListener("mouseenter", e => {
+    showSkillTooltip(skill, e.clientX, e.clientY);
+  });
+
+  btn.addEventListener("mousemove", e => {
+    showSkillTooltip(skill, e.clientX, e.clientY);
+  });
+
+  btn.addEventListener("mouseleave", hideSkillTooltip);
+
+  /* ===== MOBILE (TOQUE LONGO) ===== */
+  btn.addEventListener("touchstart", e => {
+    tooltipTimeout = setTimeout(() => {
+      const touch = e.touches[0];
+      showSkillTooltip(skill, touch.clientX, touch.clientY);
+    }, 400); // tempo de segurar
+  });
+
+  btn.addEventListener("touchend", () => {
+    clearTimeout(tooltipTimeout);
+    hideSkillTooltip();
+  });
+
+  btn.addEventListener("touchcancel", () => {
+    clearTimeout(tooltipTimeout);
+    hideSkillTooltip();
+  });
+}
+
 /* =========================
    INÍCIO DO COMBATE
 ========================= */
@@ -2378,6 +2428,7 @@ function showWeaponSkills() {
       btn.classList.add("skill-weapon");
 
       applySkillColor(btn, skill);
+      bindSkillTooltip(btn, skill);
 
       btn.onclick = () => {
         playerTurn(() => weaponSkill(skillKey));
@@ -2401,6 +2452,7 @@ function showWeaponSkills() {
       btn.classList.add("skill-learned");
 
       applySkillColor(btn, skill);
+      bindSkillTooltip(btn, skill);
 
       btn.onclick = () => {
         playerTurn(() => weaponSkill(skillKey));

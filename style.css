@@ -487,7 +487,23 @@ button:hover { background: rgba(255,255,255,0.12); }
   filter: brightness(1.15);
 }
 
+.skill-tooltip {
+  position: fixed;
+  max-width: 260px;
+  background: rgba(20, 20, 20, 0.95);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+}
 
+.skill-tooltip.hidden {
+  display: none;
+}
 
 /* === EFEITO DE SHAKE NAS BARRAS === */
 @keyframes hpShake {
