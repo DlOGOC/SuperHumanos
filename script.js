@@ -610,6 +610,8 @@ const skills = {
   },
 
   /* ===== MAGIC ===== */
+  
+  /* ===== FIRE ===== */
   bola_de_fogo: {
     name: "Bola de Fogo",
     type: "fire",
@@ -617,34 +619,6 @@ const skills = {
     critChance: 0.1,
     manaCost: 10,
     description: "Uma explosão de chamas"
-  },
-
-  congelar: {
-    name: "Congelar",
-    type: "ice",
-    power: 1.2,
-    critChance: 0.1,
-    manaCost: 9,
-    status: "freeze",
-    description: "Reduz a mobilidade do inimigo com gelo"
-  },
-
-  faisca_estatica: {
-    name: "Faísca Estática",
-    type: "eletric",
-    power: 1.2,
-    critChance: 0.2,
-    manaCost: 7,
-    description: "Uma descarga elétrica rápida e instável"
-},
-
-  raio_arcano: {
-    name: "Raio Arcano",
-    type: "arcane",
-    power: 1.6,
-    critChance: 0.15,
-    manaCost: 12,
-    description: "Um disparo concentrado de energia mágica"
   },
 
   explosao_igneia: {
@@ -656,6 +630,36 @@ const skills = {
     description: "Uma detonação de fogo concentrado"
 },
 
+  muralha_de_chamas: {
+    name: "Muralha de Chamas",
+    type: "fire",
+    power: 1.6,
+    critChance: 0.1,
+    manaCost: 13,
+    description: "Uma parede de fogo avança contra o inimigo"
+},
+
+  brasas_vivas: {
+    name: "Brasas Vivas",
+    type: "fire",
+    power: 1.3,
+    critChance: 0.15,
+    manaCost: 9,
+    description: "Fragmentos incandescentes queimam o alvo"
+ },
+
+
+  /* ===== ICE ===== */
+  congelar: {
+    name: "Congelar",
+    type: "ice",
+    power: 1.2,
+    critChance: 0.1,
+    manaCost: 9,
+    status: "freeze",
+    description: "Reduz a mobilidade do inimigo com gelo"
+  },
+
   lanca_de_gelo: {
     name: "Lança de Gelo",
     type: "ice",
@@ -663,6 +667,53 @@ const skills = {
     critChance: 0.15,
     manaCost: 11,
     description: "Um projétil congelante atravessa o inimigo"
+  },
+
+  nevasca: {
+    name: "Nevasca",
+    type: "ice",
+    power: 1.4,
+    critChance: 0.15,
+    manaCost: 14,
+    description: "Uma tempestade congelante cobre a área"
+  },
+
+  /* ===== ELETRIC ===== */
+  faisca_estatica: {
+    name: "Faísca Estática",
+    type: "eletric",
+    power: 1.2,
+    critChance: 0.2,
+    manaCost: 7,
+    description: "Uma descarga elétrica rápida e instável"
+  },
+
+  raio_celeste: {
+    name: "Raio Celeste",
+    type: "eletric",
+    power: 1.8,
+    critChance: 0.15,
+    manaCost: 14,
+    description: "Um raio violento cai do céu"
+  },
+
+  sobrecarga: {
+    name: "Sobrecarga",
+    type: "eletric",
+    power: 1.4,
+    critChance: 0.25,
+    manaCost: 10,
+    description: "Energia elétrica instável explode no alvo"
+  },
+
+  /* ===== ARCANE ===== */
+  pulso_arcano: {
+    name: "Raio Arcano",
+    type: "arcane",
+    power: 1.6,
+    critChance: 0.15,
+    manaCost: 12,
+    description: "Um disparo concentrado de energia mágica"
   },
 
   onda_arcana: {
@@ -674,6 +725,23 @@ const skills = {
     description: "Energia mágica se espalha em linha reta"
   },
 
+  ruptura_arcana: {
+    name: "Ruptura Arcana",
+    type: "arcane",
+    power: 1.7,
+    critChance: 0.2,
+    manaCost: 14,
+    description: "A magia se rompe dentro do inimigo"
+  },
+
+  vortice_arcano: {
+    name: "Vórtice Arcano",
+    type: "arcane",
+    power: 1.5,
+    critChance: 0.15,
+    manaCost: 13,
+    description: "Energia arcana gira e despedaça o alvo"
+  },
   
 /* ===== DISTANCE ===== */
   flecha_perfurante: {
@@ -710,6 +778,7 @@ const skills = {
     critChance: 0.1,
     description: "Recupera um pouco de vida"
   },
+
   julgamento: {
     name: "Julgamento",
     type: "holy",
@@ -727,7 +796,7 @@ const skills = {
     critChance: 0.15,
     manaCost: 10,
     description: "A luz divina restaura ferimentos"
-},
+  },
 
   castigo_divino: {
     name: "Castigo Divino",
@@ -738,6 +807,25 @@ const skills = {
     description: "A ira dos céus atinge o inimigo"
   },
 
+  luz_restauradora: {
+    name: "Luz Restauradora",
+    type: "holy",
+    heal: true,
+    power: 1.6,
+    critChance: 0.15,
+    manaCost: 14,
+    description: "Uma luz intensa restaura profundamente a vida"
+  },
+
+  sentenca_sagrada: {
+    name: "Sentença Sagrada",
+    type: "holy",
+    power: 1.8,
+    critChance: 0.2,
+    manaCost: 16,
+    description: "O julgamento final da luz divina"
+  },
+
   /* ===== DARK ===== */
   golpe_vampirico: {
     name: "Golpe Vampírico",
@@ -746,7 +834,7 @@ const skills = {
     lifesteal: 0.35, // 35% do dano vira cura
     critChance: 0.15,
     description: "Rouba a vitalidade do inimigo"
-},
+  },
   toque_sombrio: {
     name: "Toque Sombrio",
     type: "dark",
@@ -785,7 +873,28 @@ const skills = {
     manaCost: 9,
     applyCurse: true,
     description: "Uma maldição enfraquece o inimigo"
+  },
+
+  agonia_profunda: {
+    name: "Agonia Profunda",
+    type: "dark",
+    power: 1.3,
+    critChance: 0.15,
+    manaCost: 10,
+    applyCurse: true,
+    description: "Dor contínua consome o inimigo"
+  },
+
+  sangria_sombria: {
+    name: "Sangria Sombria",
+    type: "dark",
+    power: 1.4,
+    lifesteal: 0.3,
+    critChance: 0.1,
+    manaCost: 12,
+    description: "O sangue do inimigo fortalece as trevas"
   }
+
 };
 
 /* ===== ENCANTAMENTOS =====*/
@@ -793,23 +902,43 @@ const skills = {
 const spellDictionary = {
 
   /* ===== MAGIC ===== */
+
+  /* ===== FIRE ===== */
   ignis: "bola_de_fogo",
+  flamma: "muralha_de_chamas",
+  favilla: "brasas_vivas",
+
+  /* ===== ICE ===== */
   glacies: "congelar",
-  fulgur: "raio_arcano",
-  unda: "onda_arcana",
+  nix: "prisao_de_gelo",
+  hiems: "nevasca",
+
+  /* ===== ELETRIC ===== */
+  fulgur: "pulso_arcano",
   scintilla: "faisca_estatica",
+  fulmen: "raio_celeste",
+  impetus: "sobrecarga",
+
+  /* ===== ARCANE ===== */
+  unda: "onda_arcana",
+  ruptura: "ruptura_arcana",
+  vortex: "vortice_arcano",
 
   /* ===== HOLY ===== */
   lux: "cura_basica",
   judicium: "julgamento",
   benedictio: "toque_da_luz",
   puritas: "castigo_divino",
+  sententia: "sentenca_sagrada",
+  sanctum: "luz_restauradora",
 
   /* ===== DARK ===== */
   umbra: "toque_sombrio",
   maledictio: "maldicao",
   cruor: "marca_da_maldicao",
-  tenebrae: "abraco_das_sombras"
+  tenebrae: "abraco_das_sombras",
+  dolor: "agonia_profunda",
+  sanguis: "sangria_sombria",
 };
 
 
@@ -939,7 +1068,7 @@ function applyStatus(entity, statusName, turns, value = null) {
   }
 
   entity.status[statusName] = { turns, value };
-  log(`☠️ ${entity.name} sofre ${getStatusName(statusName)}.`);
+  log(`${entity.name} sofre ${getStatusName(statusName)}.`);
   return true;
 }
 
@@ -2855,6 +2984,18 @@ if (enemy.hp <= 0) {
 
 }
 
+// ===== ENTER CONJURA MAGIA =====
+const spellInput = document.getElementById("spell-input");
+
+if (spellInput) {
+  spellInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      castSpellFromText();
+    }
+  });
+}
+
 
 /* ========================= DESCRIÇÕES DE ATAQUES DOS INIMIGOS ========================= */
 function getEnemyAttackDescription(enemyName) {
@@ -2960,7 +3101,7 @@ function log(msg) {
   else if (/🔥|queim|Pirocinese|fogo|ignis/i.test(msg)) p.classList.add("log-fire");
   else if (/❄️|gelo|Criogenese|frio|congel/i.test(msg)) p.classList.add("log-ice");
   else if (/🌀|Telecinese|impacto/i.test(msg)) p.classList.add("log-tele");
-  else if (/⚡|paralis|eletrocinese|faísca|elétric|choque/i.test(msg)) p.classList.add("log-eletric");
+  else if (/⚡|paralis|eletrocinese|faísca|elétric|choque|raio/i.test(msg)) p.classList.add("log-eletric");
   else if (/💥|crítico|critico/i.test(msg)) p.classList.add("log-crit");
   else if (/divin|sagrad|luz|julgamento|celestial/i.test(msg)) p.classList.add("log-divine");
   else if (/cura|recupera/i.test(msg)) p.classList.add("log-heal");
