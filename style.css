@@ -471,15 +471,22 @@ button:hover { background: rgba(255,255,255,0.12); }
   color: #777;
 }
 
-.skill-weapon {
-  background-color: #8b5e3c; /* marrom / arma */
+.skill-weapon,
+.skill-learned {
   color: white;
+  border: none;
+  padding: 6px 10px;
+  margin: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
 }
 
-.skill-learned {
-  background-color: #3c5e8b; /* azul / aprendizado */
-  color: white;
+.skill-weapon:hover,
+.skill-learned:hover {
+  filter: brightness(1.15);
 }
+
 
 
 /* === EFEITO DE SHAKE NAS BARRAS === */

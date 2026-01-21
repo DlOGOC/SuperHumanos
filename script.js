@@ -472,12 +472,23 @@ let trainingDay = 8;
 
 //vantagens e desvantagens nos tipos de arams:
 const typeAdvantages = {
-  fisic:    { strong: "distance", weak: "magic" },
-  magic:    { strong: "fisic",   weak: "distance" },
-  distance: { strong: "magic",    weak: "fisic" },
-  holy:     { strong: "dark",     weak: "dark" },
-  dark:     { strong: "holy",     weak: "holy" },
+  // ===== BASE =====
+  fisico:   { strong: "distance", weak: "arcane" },
+  distance: { strong: "fisico",   weak: "arcane" },
+
+  // ===== ELEMENTAIS =====
+  fire:     { strong: "ice",      weak: "arcane" },
+  ice:      { strong: "eletric",  weak: "arcane" },
+  eletric:  { strong: "distance", weak: "arcane" },
+
+  // ===== ARCANO (OP) =====
+  arcane:   { strong: "fire",     weak: "arcane" },
+
+  // ===== DIVINO / SOMBRIO =====
+  holy:     { strong: "dark",     weak: "arcane" },
+  dark:     { strong: "holy",     weak: "arcane" },
 };
+
 
 const weapons = {
   "Espada de treino": {
@@ -601,7 +612,7 @@ const skills = {
   /* ===== MAGIC ===== */
   bola_de_fogo: {
     name: "Bola de Fogo",
-    type: "magic",
+    type: "fire",
     power: 1.8,
     critChance: 0.1,
     manaCost: 10,
@@ -610,7 +621,7 @@ const skills = {
 
   congelar: {
     name: "Congelar",
-    type: "magic",
+    type: "ice",
     power: 1.2,
     critChance: 0.1,
     manaCost: 9,
@@ -618,9 +629,18 @@ const skills = {
     description: "Reduz a mobilidade do inimigo com gelo"
   },
 
+  faisca_estatica: {
+    name: "Faísca Estática",
+    type: "eletric",
+    power: 1.2,
+    critChance: 0.2,
+    manaCost: 7,
+    description: "Uma descarga elétrica rápida e instável"
+},
+
   raio_arcano: {
     name: "Raio Arcano",
-    type: "magic",
+    type: "arcane",
     power: 1.6,
     critChance: 0.15,
     manaCost: 12,
@@ -629,7 +649,7 @@ const skills = {
 
   explosao_igneia: {
     name: "Explosão Ígnea",
-    type: "magic",
+    type: "fire",
     power: 1.9,
     critChance: 0.1,
     manaCost: 15,
@@ -638,7 +658,7 @@ const skills = {
 
   lanca_de_gelo: {
     name: "Lança de Gelo",
-    type: "magic",
+    type: "ice",
     power: 1.5,
     critChance: 0.15,
     manaCost: 11,
@@ -647,7 +667,7 @@ const skills = {
 
   onda_arcana: {
     name: "Onda Arcana",
-    type: "magic",
+    type: "arcane",
     power: 1.4,
     critChance: 0.2,
     manaCost: 12,
@@ -777,6 +797,7 @@ const spellDictionary = {
   glacies: "congelar",
   fulgur: "raio_arcano",
   unda: "onda_arcana",
+  scintilla: "faisca_estatica",
 
   /* ===== HOLY ===== */
   lux: "cura_basica",
@@ -1994,19 +2015,6 @@ function posTraining(){
   })
 }
 
-// function hideFromDrone() {
-//   const story = `Você se esconde atrás de destroços. 
-// O drone passa lentamente, escaneando a área. Por um momento, o silêncio é absoluto... 
-// até que a luz vermelha se volta para você.`;
-
-//   changeScene(story, (choices) => {
-//     const foundBtn = document.createElement("button");
-//     foundBtn.innerText = "O drone te encontrou!";
-//     foundBtn.onclick = () => startBattle("Drone de Captura");
-//     choices.appendChild(foundBtn);
-//   }, 300, "storyText", "choices");
-// }
-
 /* ========== COMBATE ========== */
 
 let BattleManager = {
@@ -2139,7 +2147,7 @@ function updateStatusIcons() {
     frozen: "❄️",
     bleeding: "🩸",
     confused: "💫",
-    blinded: "🌀",
+    blinded: "👁️‍🗨️",
     paralizado: "⚡",
     curse: "☠️"
   };
@@ -2186,21 +2194,36 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
 
   if (attacker === "player" && isCrit) {
     switch (attackType) {
-      case "Pirocinese":
+      case "weapon_skill":
+        narration = `💥 ${player.name} executa ${skillName} com precisão brutal — um golpe crítico que faz ${defenderName} vacilar!`;
+        applyStatus(enemy, "confused", 2);
+        break;
+      case "distance":
+        narration = `🏹 ${player.name} acerta um disparo perfeito! O projétil atinge ${defenderName} em cheio — crítico!`;
+        applyStatus(enemy, "bleeding", 3, 8);
+        break;
+      case "fire":
         narration = `🔥 ${player.name} desencadeia uma explosão de chamas — crítico! ${defenderName} é engolido pelo fogo.`;
         applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp*0.03)));
         break;
-      case "Criogenese":
+      case "ice":
         narration = `❄️ Um golpe gélido perfeito! ${player.name} congela partes do ${defenderName}, causando dano crítico.`;
         applyStatus(enemy, "frozen", 2);
         break;
-      case "Telecinese":
-        narration = `🌀 ${player.name} arremessa o ${defenderName} com força total — impacto crítico!`;
+      case "holy":
+        narration = `✨ A fé de ${player.name} responde, o julgamento divino cai sobre ${defenderName} com força total — causando um crítico sagrado!`;
         applyStatus(enemy, "confused", 2);
         break;
-      case "Eletrocinese":
+      case "eletric":
         narration = `⚡ ${player.name} atinge ${defenderName} com um raio intenso — causando uma descarga neural!`;
         applyStatus(enemy, "paralizado", 1);
+        break;
+      case "dark":
+        narration = `🌑 Um sussurro maldito antecede o impacto. As trevas se fecham sobre ${defenderName}!`;
+        applyStatus(enemy, "blinded", 2);
+        break;
+      case "arcane":
+        narration = `🌀 A magia se distorce e rasga a realidade — energia arcana explode contra ${defenderName}!`;
         break;
       default:
         narration = `💥 ${player.name} desfere um ataque devastador, um crítico que faz o ${defenderName} cambalear!`;
@@ -2316,6 +2339,26 @@ function calculateWeaponDamage(attacker, defender, skill, weapon) {
   return { damage, isCrit };
 }
 
+const skillTypeColors = {
+  weapon_skill: "#8b5e3c", // marrom (arma)
+  distance:     "#5e8b3c", // verde (distância)
+  fire:         "#c0392b", // vermelho
+  ice:          "#3498db", // azul
+  eletric:      "#f1c40f", // amarelo
+  arcane:       "#9b59b6", // roxo
+  holy:         "#f5e960", // dourado
+  dark:         "#2c2c2c", // preto
+};
+
+function applySkillColor(btn, skill) {
+  const color = skillTypeColors[skill.type];
+
+  if (color) {
+    btn.style.backgroundColor = color;
+    btn.style.color = "#fff";
+  }
+}
+
 function showWeaponSkills() {
   const container = document.getElementById("skill-buttons");
   if (!container) return;
@@ -2324,7 +2367,7 @@ function showWeaponSkills() {
 
   const weapon = player.equippedWeapon;
 
-  // ===== SKILLS DA ARMA =====
+  /* ===== SKILLS DA ARMA ===== */
   if (weapon && weapon.skills) {
     weapon.skills.forEach(skillKey => {
       const skill = skills[skillKey];
@@ -2334,6 +2377,8 @@ function showWeaponSkills() {
       btn.innerText = skill.name;
       btn.classList.add("skill-weapon");
 
+      applySkillColor(btn, skill);
+
       btn.onclick = () => {
         playerTurn(() => weaponSkill(skillKey));
         updateSkills();
@@ -2343,10 +2388,9 @@ function showWeaponSkills() {
     });
   }
 
-  // ===== SKILLS APRENDIDAS PELO PERSONAGEM =====
+  /* ===== SKILLS APRENDIDAS ===== */
   if (player.learnedSkills && player.learnedSkills.length > 0) {
     player.learnedSkills.forEach(skillKey => {
-      // evita duplicar skill da arma
       if (weapon?.skills?.includes(skillKey)) return;
 
       const skill = skills[skillKey];
@@ -2356,6 +2400,8 @@ function showWeaponSkills() {
       btn.innerText = skill.name;
       btn.classList.add("skill-learned");
 
+      applySkillColor(btn, skill);
+
       btn.onclick = () => {
         playerTurn(() => weaponSkill(skillKey));
         updateSkills();
@@ -2365,13 +2411,32 @@ function showWeaponSkills() {
     });
   }
 
-  // ===== BOTÃO VOLTAR =====
+  /* ===== BOTÃO VOLTAR ===== */
   const backBtn = document.createElement("button");
   backBtn.innerText = "Voltar";
   backBtn.onclick = updateSkills;
   container.appendChild(backBtn);
 }
 
+
+function getMagicScaling(player, skill) {
+  switch (skill.type) {
+    case "holy":
+    case "divine":
+      return player.faith * 2;
+
+    case "dark":
+      return Math.floor((player.intelligence + player.faith) / 2) * 2;
+
+    // elementais / arcanas
+    case "fire":
+    case "ice":
+    case "eletric":
+    case "arcane":
+    default:
+      return player.intelligence * 2;
+  }
+}
 
 
 function weaponSkill(skillKey) {
@@ -2404,13 +2469,18 @@ function weaponSkill(skillKey) {
 
   if (skill.manaCost) player.mana -= skill.manaCost;
 
+  const isMagic =
+    skill.type !== "fisico" &&
+    skill.type !== "weapon_skill";
+
   /* =========================
-     CURA PURA (SEM DANO)
+     CURA PURA
      ========================= */
   if (skill.heal) {
+    const scaling = getMagicScaling(player, skill);
+
     let healAmount = Math.floor(
-      (skill.power * weapon.baseDamage) +
-      (player.intelligence * 2)
+      (skill.power * weapon.baseDamage) + scaling
     );
 
     const isCrit = Math.random() < (skill.critChance || 0);
@@ -2430,61 +2500,80 @@ function weaponSkill(skillKey) {
     return;
   }
 
- /* =========================
-   DANO (BASE)
-   ========================= */
-const { damage, isCrit } =
-  calculateWeaponDamage(player, enemy, skill, weapon);
+  /* =========================
+     DANO
+     ========================= */
+  let damage, isCrit;
 
-enemy.hp = Math.max(0, enemy.hp - damage);
+  if (isMagic) {
+    const scaling = getMagicScaling(player, skill);
 
-narrateAttack(
-  "player",
-  enemy.name,
-  damage,
-  isCrit,
-  false,
-  skill.type,
-  skill.name
-);
+    damage = Math.floor(
+      (weapon.baseDamage * skill.power) + scaling
+    );
 
-/* =========================
-   ROUBO DE VIDA
-   ========================= */
-if (skill.lifesteal && damage > 0) {
-  const stealAmount = Math.floor(damage * skill.lifesteal);
-  const before = player.hp;
+    isCrit = Math.random() < skill.critChance;
+    if (isCrit) damage *= 2;
+  } else {
+    ({ damage, isCrit } =
+      calculateWeaponDamage(player, enemy, skill, weapon));
+  }
 
-  player.hp = Math.min(player.maxHp, player.hp + stealAmount);
+  enemy.hp = Math.max(0, enemy.hp - damage);
 
-  log(`${player.name} absorve ${player.hp - before} de vida do inimigo.`);
+  narrateAttack(
+    "player",
+    enemy.name,
+    damage,
+    isCrit,
+    false,
+    skill.type,
+    skill.name
+  );
+
+  /* =========================
+     ROUBO DE VIDA
+     ========================= */
+  if (skill.lifesteal && damage > 0) {
+    const stealAmount = Math.floor(damage * skill.lifesteal);
+    const before = player.hp;
+
+    player.hp = Math.min(player.maxHp, player.hp + stealAmount);
+
+    log(
+      `${player.name} absorve ${player.hp - before} de vida do inimigo.`
+    );
+  }
+
+  /* =========================
+     MALDIÇÃO
+     ========================= */
+  if (skill.applyCurse) {
+    applyStatus(enemy, "curse", 3);
+    log(`🕯️ ${enemy.name} foi amaldiçoado.`);
+  }
+
+  /* =========================
+     STATUS NO CRÍTICO
+     ========================= */
+  if (isCrit && skill.statusOnCrit) {
+    applyStatus(
+      enemy,
+      skill.statusOnCrit,
+      skill.statusDuration || 2
+    );
+  }
+
+  updateBars();
+
+  if (enemy.hp <= 0) {
+    log(`${enemy.name} foi derrotado!`);
+    endBattle(true);
+  } else {
+    setTimeout(enemyAttack, 1000);
+  }
 }
 
-/* =========================
-   MALDIÇÃO
-   ========================= */
-if (skill.applyCurse) {
-  applyStatus(enemy, "curse", 3);
-  log(`🕯️ ${enemy.name} foi amaldiçoado.`);
-}
-
-/* =========================
-   STATUS CRÍTICO (SE EXISTIR)
-   ========================= */
-if (isCrit && skill.statusOnCrit) {
-  applyStatus(enemy, skill.statusOnCrit, skill.statusDuration || 2);
-}
-
-updateBars();
-
-if (enemy.hp <= 0) {
-  log(`${enemy.name} foi derrotado!`);
-  endBattle(true);
-} else {
-  setTimeout(enemyAttack, 1000);
-}
-
-}
 
 
 function defend() {
@@ -2540,12 +2629,14 @@ function castSpellFromText() {
   // consome mana
   player.mana -= cost;
 
+  const scaling = getMagicScaling(player, skill);
+
   /* =========================
      MAGIA DE CURA
      ========================= */
   if (skill.heal) {
     let healAmount = Math.floor(
-      (cost * skill.power) + (player.intelligence * 2)
+      (cost * skill.power) + scaling
     );
 
     const isCrit = Math.random() < (skill.critChance || 0);
@@ -2569,8 +2660,9 @@ function castSpellFromText() {
    MAGIA DE DANO 
    ========================= */
 let damage = Math.floor(
-  (cost * skill.power) + (player.intelligence * 2)
+  (cost * skill.power) + scaling
 );
+
 
 const isCrit = Math.random() < skill.critChance;
 if (isCrit) damage *= 2;
@@ -2723,13 +2815,13 @@ function log(msg) {
   else if (/🔥|queim|Pirocinese|fogo|ignis/i.test(msg)) p.classList.add("log-fire");
   else if (/❄️|gelo|Criogenese|frio|congel/i.test(msg)) p.classList.add("log-ice");
   else if (/🌀|Telecinese|impacto/i.test(msg)) p.classList.add("log-tele");
-  else if (/⚡|paralis|eletrocinese|raio/i.test(msg)) p.classList.add("log-eletric");
+  else if (/⚡|paralis|eletrocinese|faísca|elétric|choque/i.test(msg)) p.classList.add("log-eletric");
   else if (/💥|crítico|critico/i.test(msg)) p.classList.add("log-crit");
   else if (/divin|sagrad|luz|julgamento|celestial/i.test(msg)) p.classList.add("log-divine");
   else if (/cura|recupera/i.test(msg)) p.classList.add("log-heal");
   else if (/absorve|rouba/i.test(msg)) p.classList.add("log-life-steal");
   else if (/🌑|sombr|dark|trevas|maldi|maldicao|amaldi|demoniac|infern/i.test(msg)) p.classList.add("log-dark");
-  else if (/arcano|mana|ritual|encantamento/i.test(msg)) p.classList.add("log-arcane");
+  else if (/arcan|mana|ritual|encantamento/i.test(msg)) p.classList.add("log-arcane");
   else if (/defendeu|reduzido|bloque/i.test(msg)) p.classList.add("log-defense");
   else if (/errou|falhou|confuso/i.test(msg)) p.classList.add("log-miss");
   else if (/sangra|sangramento/i.test(msg)) p.classList.add("log-bleed");
