@@ -1921,7 +1921,7 @@ function warrior(){
 }
 
 function fightRudo1() {
-  startBattle("Rudo", (won) => {
+  startBattle("Demônio Abissal", (won) => {
     if (won) {
       winRudo1();
     } else {
@@ -2130,7 +2130,25 @@ const enemies = {
     status: {},
     immunities: [],
     description: "O treinador da guilda."
-  }
+  },
+
+  demon: {
+    name: "Demônio Abissal",
+    hp: 220,
+    maxHp: 220,
+    attack: 20,
+    defense: 30,
+    powerType: "dark",
+    immunities: ["fear", "blind"], // status
+    damageImmunities: ["dark"],    // NÃO TOMA DANO
+    resistances: {                 // toma menos dano
+      fire: 0.5,    // 50% de dano
+      holy: 1.5     // 50% a mais
+    },
+
+    description: "Um demônio vindo do inferno"
+}
+
 };
 
 let tooltipTimeout = null;
@@ -2343,7 +2361,6 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
   }
 }
 
-
   if (attacker === "enemy" && isCrit) {
     switch (defenderName) {
       case "Drone de Captura":
@@ -2366,11 +2383,22 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
     narration = `${defenderName} atacou, mas ${player.name} defendeu parcialmente, reduzindo o dano.`;
   } else if (attacker === "enemy" && !isCrit && !wasDefended) {
     narration = `${defenderName} atacou e causou ${damage} de dano em ${player.name}.`;
-
-
   }
 
   if (narration) log(narration);
+}
+
+function applyDamage(target, damage, type) {
+  if (type !== "arcane" && target.damageImmunities?.includes(type)) {
+    log(`🛡️ ${target.name} é imune a dano ${type}.`);
+    return 0;
+  }
+
+  if (target.resistances?.[type]) {
+    damage = Math.floor(damage * target.resistances[type]);
+  }
+
+  return Math.max(0, damage);
 }
 
 /* ===== AÇÕES DO JOGADOR ===== */
@@ -2397,7 +2425,8 @@ function attack() {
     applyStatus(enemy, "bleeding", 3, 8);
   }
 
-  enemy.hp = Math.max(0, enemy.hp - damage);
+ enemy.hp = Math.max(0, enemy.hp - damage);
+
   narrateAttack("player", enemy.name, damage, isCrit, false, "fisico");
 
 updateBars();
@@ -2622,7 +2651,9 @@ function weaponSkill(skillKey) {
       calculateWeaponDamage(player, enemy, skill, weapon));
   }
 
+  damage = applyDamage(enemy, damage, skill.type);
   enemy.hp = Math.max(0, enemy.hp - damage);
+
 
   narrateAttack(
     "player",
@@ -2770,7 +2801,9 @@ let damage = Math.floor(
 const isCrit = Math.random() < skill.critChance;
 if (isCrit) damage *= 2;
 
+damage = applyDamage(enemy, damage, skill.type);
 enemy.hp = Math.max(0, enemy.hp - damage);
+
 
 narrateAttack(
   "player",
