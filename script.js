@@ -1921,7 +1921,7 @@ function warrior(){
 }
 
 function fightRudo1() {
-  startBattle("Demônio Abissal", (won) => {
+  startBattle("Rudo", (won) => {
     if (won) {
       winRudo1();
     } else {
