@@ -897,87 +897,137 @@ function changeFriendship(name, amount){
     else if(val < 100) friendships[name].description = "Confia em você";
 }
 /* ========== AUXILIARES DE STATUS ========== */
+
+const ABSOLUTE_STATUS = ["curse"]; // nunca podem ser bloqueados
+
+function isImmune(target, status) {
+  if (ABSOLUTE_STATUS.includes(status)) return false;
+  return target.immunities?.includes(status);
+}
+
+function getStatusName(status) {
+  const names = {
+    bleeding: "Sangramento",
+    blind: "Cegueira",
+    fear: "Medo",
+    poison: "Veneno",
+    burning: "Queimadura",
+    curse: "Maldição",
+    frozen: "Congelamento",
+    paralizado: "Paralisia",
+    confused: "Confusão"
+  };
+  return names[status] || status;
+}
+
+/* Aplica status respeitando imunidade */
 function applyStatus(entity, statusName, turns, value = null) {
+  if (isImmune(entity, statusName)) {
+    log(`🛡️ ${entity.name} é imune a ${getStatusName(statusName)}.`);
+    return false;
+  }
+
   if (!entity.status) entity.status = {};
-  entity.status[statusName] = { turns: turns, value: value };
+
+  // se já existir, só renova se for mais forte
+  if (entity.status[statusName]) {
+    entity.status[statusName].turns = Math.max(
+      entity.status[statusName].turns,
+      turns
+    );
+    return true;
+  }
+
+  entity.status[statusName] = { turns, value };
+  log(`☠️ ${entity.name} sofre ${getStatusName(statusName)}.`);
+  return true;
 }
 
 function hasStatus(entity, name) {
-  return entity.status && entity.status[name] && entity.status[name].turns > 0;
+  return entity.status?.[name]?.turns > 0;
 }
 
 function clearStatus(entity, name) {
-  if (entity.status && entity.status[name]) delete entity.status[name];
+  if (entity.status?.[name]) delete entity.status[name];
 }
 
-/* Processa DOTs e efeitos no começo do turno; retorna true se pode agir */
+/* ===========================
+   PROCESSAMENTO DE STATUS
+   =========================== */
 function processStatuses(entity, who) {
   if (!entity.status) entity.status = {};
 
-  // DOTs
-  if (entity.status?.curse?.turns > 0) {
-  const curse = entity.status.curse;
+  /* ===== MALDIÇÃO (DOT) ===== */
+  if (hasStatus(entity, "curse")) {
+    const dot = Math.max(1, Math.floor(entity.maxHp * 0.03));
+    entity.hp = Math.max(0, entity.hp - dot);
+    entity.status.curse.turns--;
 
-  // dano por turno
-  const dot = Math.max(1, Math.floor(entity.maxHp * 0.03));
-  entity.hp = Math.max(0, entity.hp - dot);
+    log(`☠️ ${entity.name} sofre ${dot} de dano pela maldição.`);
 
-  log(`☠️ ${entity.name} sofre ${dot} de dano pela maldição.`);
-
-  curse.turns--;
-
-  if (curse.turns <= 0) {
-    delete entity.status.curse;
-    log(`✨ A maldição sobre ${entity.name} se dissipa.`);
+    if (entity.status.curse.turns <= 0) {
+      clearStatus(entity, "curse");
+      log(`✨ A maldição sobre ${entity.name} se dissipa.`);
+    }
   }
-}
+
+  /* ===== QUEIMADURA ===== */
   if (hasStatus(entity, "burning")) {
-    const dmg = entity.status.burning.value || Math.max(2, Math.round(entity.maxHp * 0.05));
+    const dmg = entity.status.burning.value ?? Math.max(2, Math.round(entity.maxHp * 0.05));
     entity.hp = Math.max(0, entity.hp - dmg);
     entity.status.burning.turns--;
-    if (entity.status.burning.turns <= 0) clearStatus(entity, "burning");
+
     log(`${who === "player" ? "Você" : entity.name} sofre ${dmg} de queimadura.`);
+
+    if (entity.status.burning.turns <= 0) clearStatus(entity, "burning");
   }
+
+  /* ===== SANGRAMENTO ===== */
   if (hasStatus(entity, "bleeding")) {
-    const dmg = entity.status.bleeding.value || (8 + Math.floor(Math.random() * 3));
+    const dmg = entity.status.bleeding.value ?? (8 + Math.floor(Math.random() * 3));
     entity.hp = Math.max(0, entity.hp - dmg);
     entity.status.bleeding.turns--;
-    if (entity.status.bleeding.turns <= 0) clearStatus(entity, "bleeding");
+
     log(`${who === "player" ? "Você" : entity.name} perde ${dmg} por sangramento.`);
+
+    if (entity.status.bleeding.turns <= 0) clearStatus(entity, "bleeding");
   }
 
-  // reduzir turnos de statuses passivos
-  ["blinded","frozen","confused"].forEach(s => {
-    if (hasStatus(entity, s)) {
-      entity.status[s].turns--;
-      if (entity.status[s].turns <= 0) clearStatus(entity, s);
-    }
-  });
+  /* ===== PARALISIA (PERDE TURNO) ===== */
+  if (hasStatus(entity, "paralizado")) {
+    log(`${who === "player" ? "Você" : entity.name} está paralisado e perde o turno.`);
+    entity.status.paralizado.turns--;
 
-  // paralizado (perde o turno garantidamente)
-  if(hasStatus(entity, "paralizado")){
-    log(`${who === "player" ? "você" : entity.name} está paralizado e perde o turno`);
-    entity.status.paralizado.turns --;
-    if(entity.status.paralizado.turn <=0){
-      clearStatus(entity, "paralizado");
-      return false; //perde o turno
-    }
+    if (entity.status.paralizado.turns <= 0) clearStatus(entity, "paralizado");
+    return false;
   }
-  // Confusion check (50% perder o turno)
+
+  /* ===== CONFUSÃO (50%) ===== */
   if (hasStatus(entity, "confused")) {
-    const lose = Math.random() < 0.5;
-    if (lose) {
+    entity.status.confused.turns--;
+
+    if (Math.random() < 0.5) {
       log(`${who === "player" ? "Você" : entity.name} está confuso e perde o turno!`);
+      if (entity.status.confused.turns <= 0) clearStatus(entity, "confused");
       return false;
     }
+
+    if (entity.status.confused.turns <= 0) clearStatus(entity, "confused");
+  }
+
+  /* ===== MEDO ===== */
+  if (hasStatus(entity, "fear")) {
+    entity.status.fear.turns--;
+    log(`${who === "player" ? "Você" : entity.name} hesita tomado pelo medo.`);
+
+    if (entity.status.fear.turns <= 0) clearStatus(entity, "fear");
   }
 
   return entity.hp > 0;
 }
 
-/* Efeito visual: shake na barra de HP da vítima */
+/* ===== EFEITO VISUAL ===== */
 function hpShake(targetStr) {
-  // targetStr: "player" ou "enemy"
   const id = targetStr === "player" ? "player-hp-fill" : "enemy-hp-fill";
   const el = document.getElementById(id);
   if (!el) return;
@@ -2078,6 +2128,7 @@ const enemies = {
     defense: 13,
     powerType: "Físico",
     status: {},
+    immunities: [],
     description: "O treinador da guilda."
   }
 };
