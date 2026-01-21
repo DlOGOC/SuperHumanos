@@ -2184,11 +2184,13 @@ function bindSkillTooltip(btn, skill) {
 
   /* ===== MOBILE (TOQUE LONGO) ===== */
   btn.addEventListener("touchstart", e => {
+    e.preventDefault(); // 👈 MUITO IMPORTANTE
     tooltipTimeout = setTimeout(() => {
       const touch = e.touches[0];
       showSkillTooltip(skill, touch.clientX, touch.clientY);
-    }, 400); // tempo de segurar
+    }, 400);
   });
+
 
   btn.addEventListener("touchend", () => {
     clearTimeout(tooltipTimeout);
@@ -2511,6 +2513,7 @@ function showWeaponSkills() {
       bindSkillTooltip(btn, skill);
 
       btn.onclick = () => {
+        hideSkillTooltip()
         playerTurn(() => weaponSkill(skillKey));
         updateSkills();
       };
@@ -2518,6 +2521,12 @@ function showWeaponSkills() {
       container.appendChild(btn);
     });
   }
+
+  document.addEventListener("click", e => {
+  if (!e.target.closest(".skill-weapon")) {
+    hideSkillTooltip();
+  }
+});
 
   /* ===== SKILLS APRENDIDAS ===== */
   if (player.learnedSkills && player.learnedSkills.length > 0) {
