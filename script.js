@@ -296,9 +296,7 @@ function updateFace() {
   updateCloth();
   updateSkinEffects()
   updateDarkCircles();
-
 }
-
 
 updateFace();
 
@@ -341,7 +339,6 @@ document
     });
   });
 
-
 /* ===== SOMBRANCELHA =====*/
 
 document.querySelectorAll('input[name="eyebrow-shape"]').forEach(radio => {
@@ -357,8 +354,6 @@ document.querySelectorAll('input[name="eyebrow-color"]').forEach(radio => {
     updateEyebrow();
   });
 });
-
-
 
 /* ===== OLHOS =====*/
 
@@ -379,7 +374,6 @@ document
       updateEyes();
     });
   });
-
 
 /* ===== BOCA =====*/
 
@@ -420,8 +414,6 @@ function syncNoneEffect() {
     !playerFace.skin_effects.freckles;
 }
 
-
-
 document
   .getElementById("effect-none")
   .addEventListener("change", () => {
@@ -447,7 +439,6 @@ document
     } else {
       syncNoneEffect();
     }
-
     updateVitiligo();
   });
 
@@ -462,7 +453,6 @@ document
     } else {
       syncNoneEffect();
     }
-
     updateFreckles();
   });
 
@@ -510,6 +500,13 @@ const weapons = {
     type: "dark",
     baseDamage: 15,
     skills: ["corte_forte", "golpe_vampirico"]
+  },
+
+  "Arco do ladino": {
+    name: "Arco do ladino",
+    type: "distance",
+    baseDamage: 15,
+    skills: ["flecha_envenenada", "flecha_perfurante"]
   }
 };
 
@@ -571,8 +568,6 @@ function equipArmor(armorId) {
   updateCloth();
 }
 
-
-
 /* ===== SKILLS DO JOGADOR =====*/
 
 const skills = {
@@ -583,6 +578,7 @@ const skills = {
     type: "weapon_skill",
     power: 1.5,
     critChance: 0.15,
+    manaCost: 5,
     description: "Um golpe pesado com a espada"
   },
 
@@ -591,6 +587,8 @@ const skills = {
     type: "weapon_skill",
     power: 1.3,
     critChance: 0.25,
+    manaCost: 10,
+    applyBleed: true,
     description: "Um golpe rápido e preciso visando pontos vitais"
   },
 
@@ -599,7 +597,9 @@ const skills = {
     type: "weapon_skill",
     power: 1.7,
     critChance: 0.1,
-    description: "Um ataque brutal que quebra defesas"
+    manaCost: 15,
+    applyStun: true,
+    description: "Um ataque brutal que quebra defesas e atordoa"
   },
 
   corte_giratorio: {
@@ -779,6 +779,15 @@ const skills = {
     description: "Disparo veloz à distância"
   },
 
+  flecha_envenenada: {
+    name: "Flecha Envenenada",
+    type: "distance",
+    power: 0.8,
+    critChance: 0.5,
+    appyPoison: true,
+    description: "Dispara uma flecha envenenada"
+  },
+
   /* ===== HOLY ===== */
   cura_basica: {
     name: "Cura Báscia",
@@ -911,8 +920,6 @@ const skills = {
 /* ===== ENCANTAMENTOS =====*/
 
 const spellDictionary = {
-
-  /* ===== MAGIC ===== */
 
   /* ===== FIRE ===== */
   ignis: "bola_de_fogo",
@@ -1056,7 +1063,8 @@ function getStatusName(status) {
     frozen: "Congelamento",
     paralizado: "Paralisia",
     confused: "Confusão",
-    silence: "Silêncio"
+    silence: "Silêncio",
+    poisoning: "Envenenamento"
   };
   return names[status] || status;
 }
@@ -1145,6 +1153,17 @@ function processStatuses(entity, who) {
     log(`${who === "player" ? "Você" : entity.name} perde ${dmg} por sangramento.`);
 
     if (entity.status.bleeding.turns <= 0) clearStatus(entity, "bleeding");
+  }
+
+  /* ===== ENVENENAMENTO ===== */
+  if (hasStatus(entity, "poisoning")){
+    const dmg = entity.status.poisoning.value ?? (10 + Math.floor(Math.random()*4));
+    entity.hp = Math.max(0, entity.hp - dmg);
+    entity.status.poisoning.turns--;
+
+    log(`${who === "player" ? "Você" : entity.name} perde ${dmg} por envenenamento.`);
+
+    if(entity.status.poisoning.turns <= 0) clearStatus(entity, "poisoning");
   }
 
   /* ===== PARALISIA (PERDE TURNO) ===== */
@@ -2442,7 +2461,8 @@ function updateStatusIcons() {
     blinded: "👁️‍🗨️",
     paralizado: "⚡",
     curse: "☠️",
-    silence: "🤐"
+    silence: "🤐",
+    poisoning: "🧪"
   };
   const descMap = {
     burning: "Queimando — perde HP a cada turno.",
@@ -2452,7 +2472,8 @@ function updateStatusIcons() {
     blinded: "Cego — ataques têm chance de errar.",
     paralizado: "Paralizado — perde um turno.",
     curse: "Maldição — ataque e defesa reduzidos, perde vida por turno.",
-    silence: "Silêncio — não pode conjurar magias."
+    silence: "Silêncio — não pode conjurar magias.",
+    poisoning: "Envenenamento — sofre dano contínuo"
   };
 
   const makeIcons = (entity) => {
@@ -2883,6 +2904,32 @@ function weaponSkill(skillKey) {
   }
 
   /* =========================
+    SANGRAMENTO
+    ========================= */
+
+    if (skill.applyBleed) {
+      applyStatus(enemy, "bleeding", 3, 8);
+      log(`🩸 ${enemy.name} está sangrando.`);
+    }
+
+  /* =========================
+    CONFUSÃO
+    ========================= */
+
+    if (skill.applyStun){
+      applyStatus(enemy, "confused", 2);
+      log(`💫 ${enemy.name} está atordoado`);
+    }
+
+  /* =========================
+    ENVENENAMENTO
+    ========================= */
+
+    if(skill.appyPoison){
+      applyStatus(enemy, "poisoning", 3, 9);
+      log(`🧪 ${enemy.name} está envenenado.`)
+    }
+  /* =========================
      STATUS NO CRÍTICO
      ========================= */
   if (isCrit && skill.statusOnCrit) {
@@ -2902,8 +2949,6 @@ function weaponSkill(skillKey) {
     setTimeout(enemyAction, 1000);
   }
 }
-
-
 
 function defend() {
   if (!processStatuses(player, "player")) {
@@ -3285,6 +3330,7 @@ function log(msg) {
   else if (/defendeu|reduzido|bloque/i.test(msg)) p.classList.add("log-defense");
   else if (/errou|falhou|confuso/i.test(msg)) p.classList.add("log-miss");
   else if (/sangra|sangramento/i.test(msg)) p.classList.add("log-bleed");
+  else if (/🧪|envenena/i.test(msg)) p.classList.add("log-poison");
   else p.classList.add("log-normal");
 
   if (/crítico|critico/i.test(msg)) {

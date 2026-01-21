@@ -643,6 +643,11 @@ button:hover { background: rgba(255,255,255,0.12); }
   border-left-color: #ff4d4d;
 }
 
+.log-poison {
+  color: #016d01;
+  border-left-color: #586e31;
+}
+
 /* ==== Barra de rolagem estilizada ==== */
 .battle-log-box::-webkit-scrollbar {
   width: 6px;
