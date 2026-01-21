@@ -505,6 +505,13 @@ button:hover { background: rgba(255,255,255,0.12); }
   display: none;
 }
 
+.disabled-silence {
+  background-color: #444;
+  color: #aaa;
+  cursor: not-allowed;
+  filter: grayscale(100%);
+}
+
 /* === EFEITO DE SHAKE NAS BARRAS === */
 @keyframes hpShake {
   0% { transform: translateX(0); }
