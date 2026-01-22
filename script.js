@@ -625,10 +625,19 @@ const skills = {
   bola_de_fogo: {
     name: "Bola de Fogo",
     type: "fire",
-    power: 1.8,
+    power: 1.5,
     critChance: 0.1,
     manaCost: 10,
     description: "Uma explosão de chamas"
+  },
+
+  grande_bola_de_fogo: {
+    name: "Grande Bola de Fogo",
+    type: "fire",
+    power: 1.9,
+    critChance: 0.5,
+    manaCost: 20,
+    description: "Uma explosão poderosa de chamas"
   },
 
   explosao_igneia: {
@@ -654,6 +663,7 @@ const skills = {
     type: "fire",
     power: 1.3,
     critChance: 0.15,
+    applyBurn: true,
     manaCost: 9,
     description: "Fragmentos incandescentes queimam o alvo"
  },
@@ -2096,6 +2106,8 @@ function warrior(){
       O treino continue sem problemas e sem muita mudança de dinâmica, você e Christine lutam com as espadas de treino, não é de longe tão difícil quanto Rudo, mas definitivamente também não é fácil.
       
       Você sente que melhorou bastante no manejo da espada.`;
+
+      meetCharacter("Christine");
       break;
     case 6:
       trainingDescription = `Você entra na sala de treino e se depara com a sala de treino vazia, para alguns segundos depois ver Crhistine saindo de uma sala ao lado, ela já estava aqui antes de você... Talvez você tenha ficado para trás.
@@ -2188,6 +2200,8 @@ function winCrhistine(){
   
   "${player.name} é a vencedora!" e a sala vai a loucura, você e Crhistine caem no chão, sem forças, mas contentes por terem dado o melhor de vocês.`;
 
+  changeFriendship("Rudo", 5);
+  changeFriendship("Crhistine", 5);
   forceStoryScreen();
   changeScene(story, () =>{
     criarBotaoHistoria("Continuar", posTraining);
@@ -2205,6 +2219,7 @@ function loseCrhistine(){
   
   "Crhistine é a vencedora!" e a sala vai a loucura, você e Crhistine caem no chão, sem forças, mas contentes por terem dado o melhor de vocês.`;
 
+  changeFriendship("Crhistine", 5);
   forceStoryScreen();
   changeScene(story, () =>{
     criarBotaoHistoria("Continuar", posTraining);
@@ -2217,16 +2232,45 @@ function mage(){
   let trainingDescription;
   switch (guild.mage) {
     case 1:
-      trainingDescription = ``;
+      trainingDescription = `Você entra no campo de treinamento, é uma vista agradável de um campo extenso com alguns bonecos de treino no final. Rudo já está lá te esperando "Vou ser sincero com você ${player.name}, eu não sei lançar quase nenhuma magia, mas eu conheço vários magos, e nesses dias, vou chamar esses conhecidos e eles vão te encinar algumas coisas e eu vou apenas fiscalizar seu cresciemnto", você ascente e ele chama um dos amigos que mencionou.
+      
+      Entra um homem com um robe marrom, olhos verdes e cabelo vermelho "Sou o Legh, vou te ajudar com magias de fogo, algumas básicas para você conseguir usar em combate real."
+      
+      E então, ele começa a te ensinar sobre os principios da magia, você descobre que existem dois tipos de magia, aquelas conjuradas, que você entoa o encantamento e aquelas que você apenas lança, o primeiro sendo o mais forte, porém o mais custoso e pode fazê-la ficar vulnerável se errar o encantamento, o segundo é um pouco menos eficaz, porém não existe risco da magia falhar. 
+      
+      Neste dia, você apenas aprendeu a teoria da magia, mas se sente mais inteligente.`;
+
+      meetCharacter("Legh");
       break;
     case 2:
-      trainingDescription = ``;
+      trainingDescription = `Quando você entra na sala de treino, vê novamente Legh que a cumprimenta e se levanta da sua cadeira. Rudo não está aqui. Mas antes que você possa perguntar o motivo, ele entra atrás de você "Desculpem o atraso, estava ajudando uma nova aspirante a aventureira, é possível que ela participe com você nas próximas aulas.
+      
+      Depois de alguns segundos Leigh assume a aula novamente e começa a explicar mais um pouco da teoria da magia e ensina quais elementos são mais fortes que outros.
+      
+      Fogo -> Gelo -> Elétrico -> Fogo
+      Sagrado -> <- Escuridão
+
+      E também, o elemento arcano, que mais forte que todos os elementos, é um tipo de magia ancestral que sobrepõe qualquer elemento, e por isso são extremamente poderosos, e também extremamente custosos. Não se conhece nenhum mago que consiga usar magia arcana sem ser por encantamento.
+      
+      Você começa a sentir vontade de aprender mais sobre magia, e é então que Legh continua "Sei que tudo isso pode ser maravilhoso, e realmente é. Mas escute garota, nunca treine encantamentos se não souber o que está fazendo, pois em um combate real, pode ser o motivo da sua morte."
+      
+      A aula acaba, mas não sem um aviso de que amanhã será o dia em que você vai aprender um encantamento.`;
       break;
     case 3:
-      trainingDescription = ``;
+      trainingDescription = `Você chega na sala de treino e Legh está explicando algumas coisas para uma outra gartoa, ela tem cabelos verdes que vão quase até o chão, quando perecebem sua presença, ambos se viram para para a comprimentar, que dá mais visão da sua nova colega, assim como o cabelo, seus olhos são verdes como esmeralda, sua pele um pouco escura e com sardas intensificam a cor de seus olhos "Chegou na hora certa ${player.name}, essa é Lucy vamos começar o treinamento de verdade? Hoje o dia será resevado inteiramente para o dominio do encantamento 'ignis' a bola de fogo.
+      
+      O dia se passa com vocês duas conjurando e entoando o dia todo, Legh e Rudo auxiliavam sempre que achavam necessário.
+      
+      Você aprendeu a conjurar bola de fogo`;
+
+      meetCharacter("Lucy");
+      learnSkill("bola_de_fogo");
+      player.mana=0;
+
       break;
     case 4:
-      trainingDescription = ``;
+      trainingDescription = `Quando você entra na sala de aula, vê Legh e Rudo sérios "Hoje nós vamos testar a habilidades de vocês individualmente" começa Rudo "uma a uma vocês vão lutar contra mim, não é o ideal, mas isso vai ensinar a vocês a se defender e o risco do campo de batalha real, pois nenhum monstro vai pegar leve. Você ${player.name}, pegue o cajado na caixa e vamos começar.`;
+
       break;
     case 5:
       trainingDescription = ``;
@@ -2239,9 +2283,51 @@ function mage(){
       }
 
       const story = `${trainingDescription}`;
+
+      if(guild.mage == 4){
+        player.equipWeapon = weapons ["Cajado simples"]
+
+        changeScene(story, () =>{
+          "Pegar o cajado", fightRudo2})
+      }
       changeScene(story, () =>{
         criarBotaoHistoria("Continuar", posTraining);
       })
+}
+
+function fightRudo2(){
+    startBattle("Rudo", (won) => {
+    if (won) {
+      winRudo2();
+    } else {
+      loseRudo2();
+    }
+  });
+}
+
+function winRudo2(){
+  let story = `O combate estava acirrado com Rudo acertando vários golpes de sua espada em você, mas mesmo assim, não era o suficiente para te fazer desistir e com persistência, conseguiu fazer uma finta e esquivou de um golpe, apontando o cajado para o pescoço de Rudo e começando a conjurar, a ponta do cajado brilhando em um vermelho fogo.
+  
+  Legh dá a luta por encerrada, declarando você como vencedora. Todos a elogiam. E então é a vez da Lucy, o combate dos dois é muito diferente do seu, a garota começa correndo para trás e conjurando várias bolas de fogo, algumas até atinger Rudo que não parece se importar muito.
+  
+  Com persistência, Rudo consegue alcançar a garota que tenta imitar o seu movimento, mas o instrutor já estava preparado e acerta com tudo um ataque nela, que faz um movimento de puxar com o cajado e então, uma grande bola de fogo atinge as costas de Rudo, explodindo e queimando sua roupa e pele. Claramente o ataque foi mais forte do que ela imaginava, mas acaba vencendo a luta também e vocês duas são parabenizadas por tanto Legh quanto Rudo, que alguns segundos depois, parece que não acabou de ser acertado por uma magia poderosa.`;
+  
+    changeFriendship("Rudo", 5);
+    forceStoryScreen();
+    changeScene(story, () =>{
+      criarBotaoHistoria("Continuar", posTraining);
+    });
+}
+
+function loseRudo2(){
+  let story = `O combate estava acirrado, você conseguia acertar alguns golpes que chamuscavam Rudo, que não parecia ligar muito, a luta continuou por mais alguns minutos, sua mana se esgotando aos poucos, quando ficou sem reservas, apostou tudo em um ataque e pulou para cima do instrutor conjurando o encantamento 'ignis' quando terminou, já estava de cara com Rudo que sem pensar duas vezes, girou duas vezes e golpeou seu cajado, discipando o encantamento e o resto de sua mana. Você cai no chão, derrotada, mas se depara com a mão de Rudo estendida para te ajudar a levantar. Ele te elogia e Legh a chama para descansar enquanto observa a luta de Lucy, o combate dos dois é muito diferente do seu, a garota começa correndo para trás e conjurando várias bolas de fogo, algumas até atinger Rudo que não parece se importar muito.
+  
+  Com persistência, Rudo consegue alcançar a garota que tenta criar uma finta para acertá-lo com uma magia, mas o instrutor já estava preparado e acerta com tudo um ataque em Lucy, que faz um movimento de puxar com o cajado e então, uma grande bola de fogo atinge as costas de Rudo, explodindo e queimando sua roupa e pele. Claramente o ataque foi mais forte do que ela imaginava, mas acaba vencendo a luta. Vocês se comprimentam e descansam o resto do dia para se recuperarem.`;
+  
+    forceStoryScreen();
+    changeScene(story, () =>{
+      criarBotaoHistoria("Continuar", posTraining);
+    });
 }
 
 function thief(){
@@ -2311,7 +2397,7 @@ function cleric(){
 }
 
 function posTraining(){
-  const story = `"Você se saiu bem garoto, continue vindo, estou ansioso para amanhã."
+  const story = `"Você se saiu bem gaorta, continue vindo, estou ansioso para amanhã."
   
   Você vai andando da área de treinamento, seu corpo cansado mas ao mesmo tempo, revigorado.
   
@@ -3033,6 +3119,16 @@ function weaponSkill(skillKey) {
       applyStatus(enemy, "poisoning", 3, 9);
       log(`🧪 ${enemy.name} está envenenado.`)
     }
+
+  /* =========================
+    QUEIMADURA
+    ========================= */
+    
+    if(skill.applyBurn){
+      applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp*0.03)));
+      log(`🔥 ${enemy.name} está queimando.`)
+    }
+
   /* =========================
      STATUS NO CRÍTICO
      ========================= */
