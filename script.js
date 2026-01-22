@@ -784,7 +784,7 @@ const skills = {
     type: "distance",
     power: 0.8,
     critChance: 0.5,
-    appyPoison: true,
+    applyPoison: true,
     description: "Dispara uma flecha envenenada"
   },
 
@@ -2308,8 +2308,8 @@ const enemies = {
     status: {},
     immunities: [],
     skills: [
-      "estocada_precisa",
-      "ataque_forte"
+      "corte_giratorio",
+      "corte_forte"
     ],
     skillChance: 0.6,
     description: "O treinador da guilda."
@@ -2510,38 +2510,38 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
   if (attacker === "player" && isCrit) {
     switch (attackType) {
       case "weapon_skill":
-        narration = `💥 ${player.name} executa um golpe com precisão brutal — um golpe crítico que faz ${defenderName} vacilar!`;
+        narration = `💥 ${player.name} executa um golpe com precisão brutal — um golpe crítico que faz ${defenderName} vacilar, causando ${damage} de dano!`;
         applyStatus(enemy, "confused", 2);
         break;
       case "distance":
-        narration = `🏹 ${player.name} acerta um disparo perfeito! O projétil atinge ${defenderName} em cheio — crítico!`;
+        narration = `🏹 ${player.name} acerta um disparo perfeito! O projétil atinge ${defenderName} em cheio, causando ${damage} de dano — crítico!`;
         applyStatus(enemy, "bleeding", 3, 8);
         break;
       case "fire":
-        narration = `🔥 ${player.name} desencadeia uma explosão de chamas — crítico! ${defenderName} é engolido pelo fogo.`;
+        narration = `🔥 ${player.name} desencadeia uma explosão de chamas — crítico! ${defenderName} é engolido pelo fogo, causando ${damage} de dano!`;
         applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp*0.03)));
         break;
       case "ice":
-        narration = `❄️ Um golpe gélido perfeito! ${player.name} congela partes do ${defenderName}, causando dano crítico.`;
+        narration = `❄️ Um golpe gélido perfeito! ${player.name} congela partes do ${defenderName}, causando dano crítico, causando ${damage} de dano!`;
         applyStatus(enemy, "frozen", 2);
         break;
       case "holy":
-        narration = `✨ A fé de ${player.name} responde, o julgamento divino cai sobre ${defenderName} com força total — causando um crítico sagrado!`;
+        narration = `✨ A fé de ${player.name} responde, o julgamento divino cai sobre ${defenderName} com força total — causando ${damage} de dano crítico sagrado!`;
         applyStatus(enemy, "confused", 2);
         break;
       case "eletric":
-        narration = `⚡ ${player.name} atinge ${defenderName} com um raio intenso — causando uma descarga neural!`;
+        narration = `⚡ ${player.name} atinge ${defenderName} com um raio intenso — causando uma descarga neural, causando ${damage} de dano!`;
         applyStatus(enemy, "paralizado", 1);
         break;
       case "dark":
-        narration = `🌑 Um sussurro maldito antecede o impacto. As trevas se fecham sobre ${defenderName}!`;
+        narration = `🌑 Um sussurro maldito antecede o impacto. As trevas se fecham sobre ${defenderName}, causando ${damage} de dano!`;
         applyStatus(enemy, "blinded", 2);
         break;
       case "arcane":
-        narration = `🌀 A magia se distorce e rasga a realidade — energia arcana explode contra ${defenderName}!`;
+        narration = `🌀 A magia se distorce e rasga a realidade — energia arcana explode contra ${defenderName}, causando ${damage} de dano!`;
         break;
       default:
-        narration = `💥 ${player.name} desfere um ataque devastador, um crítico que faz o ${defenderName} cambalear!`;
+        narration = `💥 ${player.name} desfere um ataque devastador, um crítico que faz o ${defenderName} cambalear, causando ${damage} de dano!`;
         applyStatus(enemy, "confused", 2);
     }
     hpShake("enemy");
@@ -2925,7 +2925,7 @@ function weaponSkill(skillKey) {
     ENVENENAMENTO
     ========================= */
 
-    if(skill.appyPoison){
+    if(skill.applyPoison){
       applyStatus(enemy, "poisoning", 3, 9);
       log(`🧪 ${enemy.name} está envenenado.`)
     }
@@ -3109,7 +3109,7 @@ if (enemy.hp <= 0) {
   log(`${enemy.name} foi derrotado!`);
   endBattle(true);
 } else {
-  setTimeout(enemyAction, 1000);
+  setTimeout(enemyAction, 900);
 }
 
 }
@@ -3219,10 +3219,45 @@ if (skill.applySilence && base > 0) {
   }
 }
 
-  log(
-    `${user.name} usa ${skill.name} causando ${base} de dano!` +
-    (isCrit ? " 💥 CRÍTICO!" : "")
-  );
+  // ===== SANGRAMENTO =====
+    if (skill.applyBleed) {
+      applyStatus(target, "bleeding", 3, 8);
+      log(`🩸 ${target.name} está sangrando.`);
+    }
+
+  // ===== QUEIMADURA =====
+    else if (skill.type == "fire" && isCrit){
+      applyStatus(target, "burning", 3, Math.max(2, Math.round(enemy.maxHp*0.03)));
+      log(`🔥 ${user.name} causa um crítico encendeador!`)      
+    }
+  // ===== CONGELAMENTO =====
+
+    else if(skill.type == "ice" && isCrit){
+      applyStatus(target, "frozen", 2);
+      log(`❄️ O gelo congela impedosamente partes do corpo de ${target.name}!`)
+  }
+
+  // ===== CONFUSÃO =====
+    else if(skill.type == "holy" && isCrit){
+      log(`✨ A fé de ${user.name} é fortemente respondida, a luz divina confunde ${target.name}!`);
+      applyStatus(target, "confused", 2);
+  }
+  // ===== CEGUEIRA =====
+    else if(skill.type == "dark" && isCrit){
+      log(`🌑 Um sussuro maldito irrompe na mente de ${target.name} o roubando a visão!`);
+      applyStatus(target, "blinded", 2);
+  }
+  // ===== ENVENENAMENTO =====
+    else if(skill.applyPoison){
+      applyStatus(target, "poisoning", 3, 8);
+      log(`🧪 ${target.name} está envenenado.`);
+    }
+    else{
+      log(
+        `${user.name} usa ${skill.name} causando ${base} de dano!` +
+        (isCrit ? " 💥 CRÍTICO!" : "")
+      );
+    };
 
   // ===== VERIFICA DERROTA =====
 if (target.hp <= 0) {
