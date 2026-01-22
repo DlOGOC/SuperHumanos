@@ -1,6 +1,6 @@
 /* ======= script.js ======= */
 function distributeAttributePoints(player){
-  const attribute = ["strength", "intelligence", "skill", "defense", "faith", "vigor", "mind"];
+  const attribute = ["strength", "intelligence", "dex", "defense", "faith", "vigor", "mind"];
 
   attribute.forEach(attr => player[attr] = 1);
 
@@ -62,7 +62,7 @@ let player = {
   hp: 100, maxHp: 100,
   mana: 50, maxMana: 50,
   hunger: 100, sleep: 100, energy: 100,
-  strength: 10, intelligence: 10, skill: 10, defense: 10, faith:10, mind: 10, 
+  strength: 10, intelligence: 10, dex: 10, defense: 10, faith:10, mind: 10, 
   vigor: 8,
   money: 0,
   guild: null,
@@ -1264,7 +1264,7 @@ function updateSidebar() {
   setText("attr-strength", player.strength);
   setText("attr-int", player.intelligence);
   setText("attr-mind", player.mind);
-  setText("attr-skill", player.skill);
+  setText("attr-dex", player.dex);
   setText("attr-faith", player.faith);
   setText("attr-defense", player.defense);
   setText("attr-vigor", player.vigor);
@@ -2031,7 +2031,7 @@ function trainClass(classe) {
   trainingDay--;
 
   // aplica ganho de atributo baseado no nível atual
-  classTraining(classe, 8 - trainingDay);
+  classTraining(classe, 7 - trainingDay);
 
   // chama a função narrativa específica
   switch (classe) {
@@ -2060,7 +2060,7 @@ function classTraining(classe, nivel){
       player.intelligence += ganho;
       break;
     case "thief":
-      player.skill += ganho;
+      player.dex += ganho;
       break;
     case "healer":
       player.faith += ganho;
@@ -2707,9 +2707,17 @@ function attack() {
   const blindMiss = hasStatus(player, "blinded") ? 0.35 : 0;
   if (Math.random() < blindMiss) { log(`${player.name} tentou atacar, mas estava cego e errou!`); if (enemy.hp > 0) setTimeout(enemyAction, 800); return; }
 
+  const weapon = player.equippedWeapon;
   const critChance = 0.15;
   const isCrit = Math.random() < critChance;
-  let baseDamage = Math.floor(Math.random() * 8) + 8;
+  let baseDamage
+  if(weapon.type === "fisic"){
+     baseDamage = Math.floor(Math.random() * player.strength) + weapon.baseDamage;
+  }else if(weapon.type === "distance"){
+    baseDamage = Math.floor(Math.random() * player.dex) + weapon.baseDamage;
+  }else{
+    baseDamage = Math.floor(Math.random() * 8) + weapon.baseDamage;
+  }
 
   if (hasStatus(player, "curse")) {
     baseDamage = Math.floor(baseDamage * 0.7); // -30% dano
