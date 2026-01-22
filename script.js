@@ -457,14 +457,14 @@ document
   });
 
 let timeLocal = 0;
-let trainingDay = 8;
+let trainingDay = 7;
 /* ===== ARMAS DO JOGADOR =====*/
 
 //vantagens e desvantagens nos tipos de arams:
 const typeAdvantages = {
   // ===== BASE =====
-  fisico:   { strong: "distance", weak: "arcane" },
-  distance: { strong: "fisico",   weak: "arcane" },
+  fisic:   { strong: "distance", weak: "arcane" },
+  distance: { strong: "fisic",   weak: "arcane" },
 
   // ===== ELEMENTAIS =====
   fire:     { strong: "ice",      weak: "arcane" },
@@ -483,9 +483,16 @@ const typeAdvantages = {
 const weapons = {
   "Espada de treino": {
     name: "Espada de treino",
-    type: "fisico",
+    type: "fisic",
     baseDamage: 10,
     skills: ["corte_forte"]
+  },
+
+  "Espada de aço": {
+    name: "Espada de aço",
+    type: "fisic",
+    baseDamage: 15,
+    skills: ["corte_forte", "estocada_precisa", "corte_giratorio"]
   },
 
   "Cajado simples": {
@@ -507,6 +514,13 @@ const weapons = {
     type: "distance",
     baseDamage: 15,
     skills: ["flecha_envenenada", "flecha_perfurante"]
+  },
+
+  "Clava do clérigo": {
+    name: "Clava do clérigo",
+    type: "fisic",
+    baseDamage: 15,
+    skills: ["cura_basica", "esmagar"]
   }
 };
 
@@ -1813,8 +1827,9 @@ function leftUserHouse(){
   let story = `Você está na rua, ${timeMessage}`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Avenida da Guilda (00:05)", guildStreet, "powerChoices", 5)
+    criarBotaoHistoria("Avenida da Guilda (00:05)", guildStreet, "powerChoices", 5);
     criarBotaoHistoria("Rua principal (00:05)", principalStreet, "powerChoices", 5);
+    criarBotaoHistoria("Casa (00:01", houseUser, "powerChoices", 1);
   })
 }
 
@@ -1822,6 +1837,7 @@ function guildStreet(){
   const story = `Você está na rua da guilda, ${timeMessage}`;
   changeScene(story, () =>{
     criarBotaoHistoria("Guilda (00:01)", guildHub, "powerChoices", 1);
+    criarBotaoHistoria("Rua de casa (00:05", leftUserHouse, "powerChoices", 1);
   })
 }
 
@@ -1829,6 +1845,7 @@ function principalStreet(){
   const story = `Você está na rua principal da vila, ${timeMessage}`;
   changeScene(story, () =>{
     criarBotaoHistoria("Cabelereiro (00:01)", barber, "powerChoices", 1);
+    criarBotaoHistoria("Rua de casa (00:05", leftUserHouse, "powerChoices", 1);
   })
 }
 
@@ -1953,6 +1970,7 @@ function guildHub(){
    changeScene(story, () =>{
     criarBotaoHistoria("Ir para o recepcionista", recepcionist);
     criarBotaoHistoria("Mural", questBoard);
+    criarBotaoHistoria("Voltar", guildStreet);
    })
 }
 
@@ -1969,6 +1987,7 @@ function recepcionist(){
   if(player.guildMember === false){
     changeScene(story, () =>{
       criarBotaoHistoria("Começar o treinamento", guildTraining);
+      criarBotaoHistoria("'Agora não'", guildHub);
     })
   }
 }
@@ -1979,7 +1998,7 @@ function questBoard(){
 
 function guildTraining(){
   let training = ``;
-  if(trainingDay == 8){
+  if(trainingDay == 7){
      training = `Estaven te explicou, existem alguns tipos de treinamento e você escolherá que tipo receberá por dia, o total de treino é de uma semana e durará 8 horas, você pode combinar todos os tipos de treino da forma que quiser para montar suas habilidades, no fim do treino, como uma prova final, você combaterá o instrutor, e quando passar, você receberá gratuitamente um conjunto de equipamento inicial.
     
       "Olá ${player.name}! Fiquei sabendo de você, eu sou o Rudoufh, mas pode me chamar de Rudo, serei o seu treinador, eu sei de tudo um pouco então espero ser bem útil para você, sou um veterano de guerra e tenho várias expectativas em você! Não me decepcione!" diz ele e logo dá um tapa nas suas costas.`;
@@ -2075,13 +2094,27 @@ function warrior(){
       trainingDescription = `Você chega na sala de treinamento e vê rudo com uma expressão séria. "Hoje vamos simular um combate real, estamos no meio do seu treinamento e quero saber como está o seu nível real, pegue a espada"`;
       break;
     case 5:
-      trainingDescription = ``;
+      trainingDescription = `Você chega na sala de treinamento e inesperadamente vê Rudo conversando com outra pessoa, um outro aluno, quando vêem você, o instrutor da guilda logo a comprimenta "Ei ${player.name}! Quero te apresentar a Crhistine, ela está aqui para treinar junto com a gente, no fim, o teste final de vocês será uma batalha em que aquela que ganhar, será aprovada para entrar na guilda." 
+      
+      Vocês duas se entreoloham assutadas e Rudo ri alto "Então é melhor darem o melhor de vocês nesses últimos dias, conto com isso!"
+      
+      O treino continue sem problemas e sem muita mudança de dinâmica, você e Christine lutam com as espadas de treino, não é de longe tão difícil quanto Rudo, mas definitivamente também não é fácil.
+      
+      Você sente que melhorou bastante no manejo da espada.`;
       break;
     case 6:
-      trainingDescription = ``;
+      trainingDescription = `Você entra na sala de treino e se depara com a sala de treino vazia, para alguns segundos depois ver Crhistine saindo de uma sala ao lado, ela já estava aqui antes de você... Talvez você tenha ficado para trás.
+      
+      Rudo chega alguns segundos depois e manda novamente que vocês lutem com as espadas de madeira, dando dicas e corrigindo postura sempre que necessário. 
+      
+      O treino é refrescante e cansativo, mas você sente que está dando o seu melhor então se sente feliz consigo mesma. 
+      
+      Rudo manda que vocês descansem bem hoje, pois amanhã será o dia do teste final.`;
       break;
     default:
-      trainingDescription = ``
+      trainingDescription = `Você chega na sala de treino e vê várias outras pessoas da guilda, possivelmente aventureiros, o nervosismo é grande, mas você só precisa fazer o que aprendeu no treinamento. 
+      
+      Você espera alguns segundos e Christine aparece também, com o olhar determinado, seguida por Rudo, que ao entrar, todos os aventureiros na sala o aplaudem. Ele chega no meio da sala e chama você e sua oponente e começa a explicar "Vocês vão lutar com tudo que têm, sem se segurar, se eu sentir que alguém pode se machucar feio, eu vou parar a luta, então não se preocupem." ele limpa a garganta e continua "Esse combate simula um combate real, então, vocês vão usar espadas de verdade" e então vai até a caixa de armas e pega duas espadas iguais, e entrega à vocês. Crhistine pega sem exitar e vai para o meio do ringue.`
       break;
       }
 
@@ -2091,6 +2124,12 @@ function warrior(){
         changeScene(story, () =>{
           criarBotaoHistoria("Pegar a espada", fightRudo1);
         })
+      }else if(guild.warrior == 7){
+        player.equippedWeapon = weapons["Espada de aço"];
+        changeScene(story, () =>{
+          criarBotaoHistoria("Pegar a espada e ir para o ringue", fightCrhistine);
+        })
+        
       }else{
       changeScene(story, () =>{
         criarBotaoHistoria("Continuar", posTraining);
@@ -2128,6 +2167,50 @@ function loseRudo1(){
 
   forceStoryScreen();
 
+  changeScene(story, () =>{
+    criarBotaoHistoria("Continuar", posTraining);
+  })
+}
+
+function fightCrhistine(){
+    startBattle("Crhistine", (won) => {
+    if (won) {
+      winCrhistine();
+    } else {
+      loseCrhistine();
+    }
+  });
+}
+
+function winCrhistine(){
+  let story = `O combate é acirrado, as duas estão no mesmo nível de habilidade, o som das espadas é quase ensurdecedor, a cada golpe trocado os outros na sala rugem de empolgação.
+  
+  Vocês duas estão dando o seu melhor e evitam com sucesso muitos ataques, mas ainda alguns acertam, deixando cortes e ferimentos pelo corpo todo de vocês, o suor nas duas é visível, tornando o ambiente mais quente, o combate fica cada vez mais intenso.
+  
+  Vocês batem as espadas com força e sincronizdas como em uma dança recuam e se preaparam para o golpe final, afinal, nenhuma de vocês duas aguenta mais um único golpe, com um grito, as duas partem uma para cima da outra com a espada mas o cintilar de espadas não é ouvido.
+  
+  Sem nem perceber que você fechou os olhos, você vê Rudo no meio de vocês, segurando as espadas com as mãos mesmo, a sala no mais profundo silêncio, ninguém ousa respirar, até que ele fala
+  
+  "${player.name} é a vencedora!" e a sala vai a loucura, você e Crhistine caem no chão, sem forças, mas contentes por terem dado o melhor de vocês.`;
+
+  forceStoryScreen();
+  changeScene(story, () =>{
+    criarBotaoHistoria("Continuar", posTraining);
+  })
+}
+
+function loseCrhistine(){
+    let story = `O combate é acirrado, as duas estão no mesmo nível de habilidade, o som das espadas é quase ensurdecedor, a cada golpe trocado os outros na sala rugem de empolgação.
+  
+  Vocês duas estão dando o seu melhor e evitam com sucesso muitos ataques, mas ainda alguns acertam, deixando cortes e ferimentos pelo corpo todo de vocês, o suor nas duas é visível, tornando o ambiente mais quente, o combate fica cada vez mais intenso.
+  
+  Vocês batem as espadas com força e sincronizdas como em uma dança recuam e se preaparam para o golpe final, afinal, nenhuma de vocês duas aguenta mais um único golpe, com um grito, as duas partem uma para cima da outra com a espada mas o cintilar de espadas não é ouvido.
+  
+  Sem nem perceber que você fechou os olhos, você vê Rudo no meio de vocês, segurando as espadas com as mãos mesmo, a sala no mais profundo silêncio, ninguém ousa respirar, até que ele fala
+  
+  "Crhistine é a vencedora!" e a sala vai a loucura, você e Crhistine caem no chão, sem forças, mas contentes por terem dado o melhor de vocês.`;
+
+  forceStoryScreen();
   changeScene(story, () =>{
     criarBotaoHistoria("Continuar", posTraining);
   })
@@ -2338,6 +2421,24 @@ const enemies = {
 
     skillChance: 0.6, // 60% de chance de usar habilidade
     description: "Um demônio vindo do inferno"
+  },
+
+  crhistine: {
+    name: "Crhistine",
+    hp: 150,
+    maxHp: 150,
+    attack: 15,
+    defense: 10,
+    powerType: "fisic",
+    status: {},
+    skills:[
+      "corte_forte", 
+      "estocada_precisa", 
+      "corte_giratorio"
+    ],
+    
+    skillChance: 0.6,
+    description: "Rua rival de treino, ela, tanto quanto você tem motivos para vencer essa luta"
   }
 };
 
@@ -2503,7 +2604,7 @@ function updateBars() {
 }
 
 /* Narrador dinâmico + aplica efeitos visuais */
-function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, attackType = "fisico", spellText = null) {
+function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, attackType = "fisic", spellText = null) {
 
   let narration = "";
 
@@ -2546,7 +2647,7 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
     }
     hpShake("enemy");
   } else if (attacker === "player") {
-  if (attackType === "fisico") { 
+  if (attackType === "fisic") { 
     narration = `${player.name} ataca ${defenderName}, causando ${damage} de dano.`;
   } else if (attackType === "weapon_skill"){
     const weaponSkill = spellText ? spellText : attackType.toLocaleLowerCase();
@@ -2626,7 +2727,7 @@ function attack() {
 
  enemy.hp = Math.max(0, enemy.hp - damage);
 
-  narrateAttack("player", enemy.name, damage, isCrit, false, "fisico");
+  narrateAttack("player", enemy.name, damage, isCrit, false, "fisic");
 
 updateBars();
 
@@ -2810,7 +2911,7 @@ function weaponSkill(skillKey) {
   if (skill.manaCost) player.mana -= skill.manaCost;
 
   const isMagic =
-    skill.type !== "fisico" &&
+    skill.type !== "fisic" &&
     skill.type !== "weapon_skill";
 
   /* =========================
@@ -3153,6 +3254,13 @@ function getEnemyAttackDescription(enemyName) {
           "Rudo joga a espada em você e a pega no ar",
           "Rudo desfere uma sequência de golpes"
         ][Math.floor(Math.random() * 4)];
+
+      case "Crhistine":
+         return [
+          "Crhistine avança com sangue nos olhos!",
+          "Crhistine ataca com determinação!",
+          "Crhistine disfere uma sequência de golpes com sua espada"
+         ][Math.floor(Math.random() * 3)];
     default:
       return `${enemyName} ataca impiedosamente!`;
   }
