@@ -203,11 +203,6 @@ function updateFreckles() {
   const img = document.getElementById("skin-freckles");
   if (!img) return;
 
-  console.log(
-  "Freckles path:",
-  `img/faces/skin/effects/freckles/${playerFace.skin}/${playerFace.skin_color}.webp`
-);
-
   if (!playerFace.skin_effects.freckles) {
     img.src = EMPTY_IMG;
     return;
