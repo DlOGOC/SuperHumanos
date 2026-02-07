@@ -1,3 +1,5 @@
+console.log("SCRIPT CARREGADO");
+
 /* ======= script.js ======= */
 function distributeAttributePoints(player){
   const attribute = ["strength", "intelligence", "dex", "defense", "faith", "vigor", "mind"];
@@ -15,6 +17,7 @@ function distributeAttributePoints(player){
     }
   }
 }
+
 /* ===== DADOS DO JOGADOR ===== */
 
 const BASE_HP = 50;
@@ -1615,27 +1618,54 @@ function forceStoryScreen() {
   document.getElementById("power-screen").style.display = "block";
 }
 
-
 function clearButtons(containerId) {
   const btnDiv = document.getElementById(containerId);
   if (!btnDiv) return;
-  Array.from(btnDiv.children).forEach(b => { b.style.transition = "opacity 200ms"; b.style.opacity = "0"; });
-  setTimeout(() => { if (btnDiv) btnDiv.innerHTML = ""; }, 220);
+
+  // sem animaçãozinha traiçoeira
+  btnDiv.innerHTML = "";
 }
-function changeScene(text, buttonSetup, speed = 320, elementId = "powerText", buttonsContainerId = "powerChoices", min = 0, hr =0) {
+
+
+function changeScene(
+  text,
+  buttonSetup,
+  speed = 320,
+  elementId = "powerText",
+  buttonsContainerId = "powerChoices",
+  sceneName = null
+) {
+
+  // 👇 AQUI É O PONTO CRUCIAL
+  if (sceneName) {
+    gameState.currentScene = sceneName;
+    saveGame();
+  }
+
   clearButtons(buttonsContainerId);
-  advanceTime(min, hr);
+
   const textEl = document.getElementById(elementId);
+
   if (!textEl) {
     const fakeDiv = document.getElementById(buttonsContainerId);
     if (fakeDiv) buttonSetup(fakeDiv);
     return;
   }
+
   textEl.innerHTML = "";
+
   typeText(elementId, text, speed, () => {
     const btnDiv = document.getElementById(buttonsContainerId);
     if (btnDiv) buttonSetup(btnDiv);
   });
+}
+
+function startGameUI() {
+  const intro = document.getElementById("intro-screen");
+  const power = document.getElementById("power-screen");
+
+  if (intro) intro.style.display = "none";
+  if (power) power.style.display = "block";
 }
 
 function continueStory(text){
@@ -1680,34 +1710,7 @@ function adicionarEscolhasInline(opcoes, containerId = "powerChoices"){
     container.appendChild(btn);
   })
 }
-/* ========== INICIALIZAÇÃO (DOM ready) ========== */
-document.addEventListener("DOMContentLoaded", () => {
-  const startBtn = document.getElementById("startBtn");
-  if (startBtn) {
-    startBtn.addEventListener("click", () => {
-      const name = (document.getElementById("playerNameInput") || {}).value || "";
-      if (!name.trim()) return alert("Por favor, insira seu nome!");
-      player.name = name.trim();
-      document.getElementById("intro-screen").style.display = "none";
-      document.getElementById("power-screen").style.display = "block";
-      if (typeof discoverPower === "function") 
-      distributeAttributePoints(player);
-      discoverPower();
-      updateSidebar();
-      recalculateMaxStats();
-      player.hp = player.maxHp;
-      player.mana = player.maxMana;
-    });
-  }
 
-  if (toggleBtn) {
-    toggleBtn.addEventListener("click", toggleSidebar);
-    toggleBtn.addEventListener("touchstart", e => { e.preventDefault(); toggleSidebar(); });
-  }
-
-  updateSidebar();
-  updateGameTimeDisplay();
-});
 
 /* =========== MENSAGEM DE TEMPO ================ */
 
@@ -1721,6 +1724,151 @@ let timeMessage;
   }else if(gameTime.hour>18 && gameTime.hour<24){
     timeMessage = `a noite é tranquila, com algumas pessoas voltando para casa, olhando atentamente, é possível ver bêbados escondidos nos becos.`;
   }
+
+/* =========================================================
+   SISTEMA CENTRAL DE SAVE
+   ========================================================= */
+
+let gameState = {
+  // referências principais
+  player: null,
+  face: null,
+
+  // progresso
+  guild: null,
+  friendships: null,
+  mother: 0,
+  trainingDay: 7,
+
+  // tempo
+  time: null,
+
+  // história
+  currentScene: "discoverPower",
+
+  flags: {
+    joinedGuild: false,
+    finishedTraining: false,
+    metLucy: false,
+    metRudo: false,
+    metChristine: false
+  }
+};
+
+//==============================
+//========== FLAGS =============
+//==============================
+
+// CRIAR FLAGS
+function setFlag(name, value = true) {
+  gameState.flags[name] = value;
+  saveGame();
+}
+
+// TESTAR FLAGS
+function hasFlag(name) {
+  return !!gameState.flags[name];
+}
+
+// SOMAR VALOR NA FLAG
+function addFlag(name, amount = 1) {
+  if (typeof gameState.flags[name] !== "number") {
+    gameState.flags[name] = 0;
+  }
+
+  gameState.flags[name] += amount;
+  saveGame();
+}
+
+// SETAR VALOR NA FLAG
+function setFlagValue(name, value) {
+  gameState.flags[name] = value;
+  saveGame();
+}
+
+// INVERTER O VALOR BOOLEANO DA FLAG
+function toggleFlag(name) {
+  gameState.flags[name] = !gameState.flags[name];
+  saveGame();
+}
+
+function packGameState() {
+  gameState.player = player;
+  gameState.face = playerFace;
+  gameState.guild = guild;
+  gameState.friendships = friendships;
+  gameState.mother = mother;
+  gameState.trainingDay = trainingDay;
+  gameState.time = gameTime;
+}
+
+function unpackGameState() {
+  // objetos principais
+  Object.assign(player, gameState.player);
+  Object.assign(playerFace, gameState.face);
+  Object.assign(guild, gameState.guild);
+  Object.assign(friendships, gameState.friendships);
+
+  mother = gameState.mother;
+  trainingDay = gameState.trainingDay;
+
+  // tempo
+  Object.assign(gameTime, gameState.time);
+}
+
+
+function saveGame() {
+  packGameState();
+  localStorage.setItem("rpgSave", JSON.stringify(gameState));
+  log("💾 Jogo salvo.");
+}
+
+function loadGame() {
+  const data = localStorage.getItem("rpgSave");
+  if (!data) return false;
+
+  gameState = JSON.parse(data);
+  unpackGameState();
+
+  updateHair();
+  updateSidebar();
+  updateGameTimeDisplay();
+
+  log("📂 Jogo carregado.");
+  return true;
+}
+
+function manualSave() {
+  if (BattleManager.active==true) {
+    log("❌ Não é possível salvar em combate.");
+    return;
+  }
+
+  saveGame();
+}
+
+function manualLoad() {
+  if (!loadGame()) {
+    alert("Nenhum save encontrado.");
+    return;
+  }
+
+  // 🔥 ISSO É O QUE FALTAVA
+  startGameUI();
+
+  // Se houver cena salva, volta pra ela
+  if (gameState.currentScene && typeof window[gameState.currentScene] === "function") {
+    window[gameState.currentScene]();
+  } else {
+    // fallback seguro
+    discoverPower();
+  }
+
+  updateSidebar();
+}
+
+
+
 /* ========== HISTÓRIA ========== */
 function discoverPower() {
 
@@ -1734,9 +1882,17 @@ function discoverPower() {
   
   Tanto eu quanto minha mãe ficamos arrasados, mas era perceptível a mudança financeira, o que fazia com que nossos corações doessem sempre que pensavámos que agora conseguiríamos uma vida melhor.`;
 
-  changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", continueBackStory);
-  })
+  changeScene(
+    story,
+    () => {
+      criarBotaoHistoria("Continuar", "continueBackStory");
+    },
+    320,
+    "powerText",
+    "powerChoices",
+    "discoverPower"
+  );
+
 }
 
 function continueBackStory(){
@@ -1746,9 +1902,17 @@ function continueBackStory(){
   
   Nunca me arrependi tanto na minha vida, eu consegui emprego primeiro, trabalhava fazendo patrulhas a noite, algo perigoso, mas que recentemente abriu vaga pois um criminoso assassinou o meu antecessor, mas isso não me importava, pois até que o salário era bom. Minha mãe conseguiu emprego algumas semanas depois, ela seria assistente do alfaiate da nossa vila, conseguimos nos virar, mas como sempre, quando nos acostumamos com a vida boa, algo ruim aconteceu.`;
 
-  changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", continueBackStory2);
-  })
+  changeScene(
+  story,
+  () => {
+    criarBotaoHistoria("Continuar", "continueBackStory2");
+  },
+  320,
+  "powerText",
+  "powerChoices",
+  "continueBackStory"
+);
+
 }
 
 function continueBackStory2(){
@@ -1756,28 +1920,49 @@ function continueBackStory2(){
   const story = `Minha mãe adoeceu. Sua idade avançada começou a cobrar o preço, a expectativa de vida em Armenzian é de 24 anos, minha mãe chegou aos 30, seu pulmão estava com problema, ela não conseguia respirar, e novamente me vi na mesma situação de anos atrás, mas dessa vez, as coisas não iriam se repetir. Procurei um médico confiável para tratar dela em casa, seu tratamento é caro, mas eu não deixei que aquilo aconteça novamente.
   
   Preciso conseguir $500 toda semana para que ele trate dela.`;
-  changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", houseUser);
-  })
+
+  changeScene(
+    story,
+    () => {
+      criarBotaoHistoria("Continuar", "houseUser");
+    },
+    320,
+    "powerText",
+    "powerChoices",
+    "continueBackStory2"
+  );
 }
 
 function houseUser() {
 
   const story = `Você está em casa`;
 
-  changeScene(story, () =>{
-    criarBotaoHistoria("Seu quarto (00:01)", userRoom, "powerChoices", 1);
-    criarBotaoHistoria("Quarto da sua mãe (00:01)", motherRoom, "powerChoices", 1);
-    criarBotaoHistoria("Sair de casa (00:01)", leftUserHouse, "powerChoices", 1);
-  })
+  changeScene(
+    story,
+    () => {
+      criarBotaoHistoria("Seu quarto (00:01)", "userRoom", "powerChoices", 1);
+      criarBotaoHistoria("Quarto da sua mãe (00:01)", "motherRoom", "powerChoices", 1);
+      criarBotaoHistoria("Sair de casa (00:01)", "leftUserHouse", "powerChoices", 1);
+    },
+    320,
+    "powerText",
+    "powerChoices",
+    "houseUser"
+  );
 }
 
 function userRoom(){
   const story = `Você está no seu quarto, o lugar é vazio e sem graça, sua cama pequena está arrumada e convidativa para dormir`;
+
   changeScene(story, () =>{
-    criarBotaoHistoria("Dormir", sleep);
-    criarBotaoHistoria("Sair do quarto (00:01)", houseUser, "powerChoices", 1);
-  })
+    criarBotaoHistoria("Dormir", "sleep");
+    criarBotaoHistoria("Sair do quarto (00:01)", "houseUser", "powerChoices", 1);
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "userRoom"
+  );
 }
 
 function sleep(){
@@ -1791,29 +1976,44 @@ function sleep(){
     criarBotaoHistoria("3 horas", () => dormir(0, 3));
     criarBotaoHistoria("2 horas", () => dormir(0, 2));
     criarBotaoHistoria("1 hora", () => dormir(0, 1));
-  })
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "sleep"
+  )
 }
 
 function wake(min, hr){
   let sono;
-  if(player.sleep<30){
+
+  if(player.sleep < 30){
     sono = `você está muito cansado.`;
-  }else if(player.sleep>20 && player.sleep<50){
+  } else if(player.sleep < 50){
     sono = `você está cansado ainda.`;
-  }else if(player.sleep>51 && player.sleep<80){
+  } else if(player.sleep < 80){
     sono = `você está alerta.`;
-  }else if(player.sleep>80 && player.sleep<=100){
+  } else {
     sono = `você está descansado.`;
   }
+
   let story = `Você dormiu por ${hr} horas e ${min} minutos, ${sono}
-  
-  Quer dormir mais?`;
+
+  (O jogo foi salvo automaticamente)`;
+
+  saveGame();   // ← AUTO SAVE REAL
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Voltar a dormir", sleep);
-    criarBotaoHistoria("Levantar", userRoom);
-  })
-}
+    criarBotaoHistoria("Voltar a dormir", "sleep");
+    criarBotaoHistoria("Levantar", "userRoom");
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "wake"
+  );
+};
+
 
 function motherRoom(){
   const story = `Você está no quarto de Melody.
@@ -1821,9 +2021,14 @@ function motherRoom(){
   ${motherStatus()}`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Sair do quarto (00:01)", houseUser, "powerChoices", 1);
-  })
-}
+    criarBotaoHistoria("Sair do quarto (00:01)", "houseUser", "powerChoices", 1);
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "motherRoom"
+  );
+};
 
 
 
@@ -1832,37 +2037,57 @@ function leftUserHouse(){
   let story = `Você está na rua, ${timeMessage}`;
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Avenida da Guilda (00:05)", guildStreet, "powerChoices", 5);
-    criarBotaoHistoria("Rua principal (00:05)", principalStreet, "powerChoices", 5);
-    criarBotaoHistoria("Casa (00:01", houseUser, "powerChoices", 1);
-  })
-}
+    criarBotaoHistoria("Avenida da Guilda (00:05)", "guildStreet", "powerChoices", 5);
+    criarBotaoHistoria("Rua principal (00:05)", "principalStreet", "powerChoices", 5);
+    criarBotaoHistoria("Casa (00:01", "houseUser", "powerChoices", 1);
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "leftUserHouse"
+  );
+};
 
 function guildStreet(){
   const story = `Você está na rua da guilda, ${timeMessage}`;
   changeScene(story, () =>{
-    criarBotaoHistoria("Guilda (00:01)", guildHub, "powerChoices", 1);
-    criarBotaoHistoria("Rua de casa (00:05", leftUserHouse, "powerChoices", 1);
-  })
-}
+    criarBotaoHistoria("Guilda (00:01)", "guildHub", "powerChoices", 1);
+    criarBotaoHistoria("Rua de casa (00:05", "leftUserHouse", "powerChoices", 1);
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "guildStreet"
+  );
+};
 
 function principalStreet(){
   const story = `Você está na rua principal da vila, ${timeMessage}`;
   changeScene(story, () =>{
-    criarBotaoHistoria("Cabelereiro (00:01)", barber, "powerChoices", 1);
-    criarBotaoHistoria("Rua de casa (00:05", leftUserHouse, "powerChoices", 1);
-  })
-}
+    criarBotaoHistoria("Cabelereiro (00:01)", "barber", "powerChoices", 1);
+    criarBotaoHistoria("Rua de casa (00:05", "leftUserHouse", "powerChoices", 1);
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "principalStreet"
+  );
+};
 
 function barber(){
  const story = `Olá! O que você vai querer hoje?`;
 
    changeScene(story, () => {
-    criarBotaoHistoria("Cortar cabelo (50$)", barberHairCut);
-    criarBotaoHistoria("Pintar cabelo (25$)", barberHairColor);
-    criarBotaoHistoria("Sair", principalStreet);
-  });
-}
+    criarBotaoHistoria("Cortar cabelo (50$)", "barberHairCut");
+    criarBotaoHistoria("Pintar cabelo (25$)", "barberHairColor");
+    criarBotaoHistoria("Sair", "principalStreet");
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "barber"
+  );
+};
 
 function previewHairCut(hairId) {
   barberPreview.hair_front = hairId;
@@ -1872,16 +2097,16 @@ function previewHairCut(hairId) {
   playerFace.hair_back  = hairId;
 
   updateHair();
-}
+};
 
 function confirmHairCut() {
   if (player.money < 50) {
     changeScene(
       "Você não tem dinheiro suficiente para cortar o cabelo.",
-      () => criarBotaoHistoria("Voltar", barber)
+      () => criarBotaoHistoria("Voltar", "barber")
     );
     return;
-  }
+  };
 
   player.money -= 50;
 
@@ -1893,9 +2118,9 @@ function confirmHairCut() {
 
   changeScene(
     "O barbeiro termina o corte e sorri satisfeito.",
-    () => criarBotaoHistoria("Voltar", barber)
+    () => criarBotaoHistoria("Voltar", "barber")
   );
-}
+};
 
 
 function barberHairCut() {
@@ -1908,10 +2133,15 @@ function barberHairCut() {
     criarBotaoHistoria("Cabelo 2", () => previewHairCut("hair_2"));
     criarBotaoHistoria("Cabelo 3", () => previewHairCut("hair_3"));
     criarBotaoHistoria("Cabelo 4", () => previewHairCut("hair_4"));
-    criarBotaoHistoria("Confirmar", confirmHairCut);
-    criarBotaoHistoria("Cancelar", barber);
-  });
-}
+    criarBotaoHistoria("Confirmar", "confirmHairCut");
+    criarBotaoHistoria("Cancelar", "barber");
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "barberHairCut"
+  );
+};
 
 function previewHairColor(color) {
   barberPreview.hair_front_color = color;
@@ -1921,16 +2151,16 @@ function previewHairColor(color) {
   playerFace.hair_back_color  = color;
 
   updateHair();
-}
+};
 
 function confirmHairColor() {
   if (player.money < 25) {
     changeScene(
       "Você não tem dinheiro suficiente para pintar o cabelo.",
-      () => criarBotaoHistoria("Voltar", barber)
+      () => criarBotaoHistoria("Voltar", "barber")
     );
     return;
-  }
+  };
 
   player.money -= 25;
 
@@ -1942,10 +2172,9 @@ function confirmHairColor() {
 
   changeScene(
     "O barbeiro mistura as tintas e finaliza o trabalho.",
-    () => criarBotaoHistoria("Voltar", barber)
+    () => criarBotaoHistoria("Voltar", "barber")
   );
-}
-
+};
 
 function barberHairColor() {
   barberPreview = { ...playerFace };
@@ -1956,46 +2185,72 @@ function barberHairColor() {
     criarBotaoHistoria("Preto", () => previewHairColor("black"));
     criarBotaoHistoria("Loiro", () => previewHairColor("blonde"));
     criarBotaoHistoria("Ruivo", () => previewHairColor("ginger"));
-    criarBotaoHistoria("Confirmar", confirmHairColor);
-    criarBotaoHistoria("Cancelar", barber);
-  });
-}
+    criarBotaoHistoria("Confirmar", "confirmHairColor");
+    criarBotaoHistoria("Cancelar", "barber");
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "barberHairColor"
+  );
+};
 
 
 function guildHub(){
-  let guildMember;
-  if(player.guildMember === false){
-    guildMember = `Você não é um membro da guilda, você ainda precisará se registrar, olhando ao redor, aquele recepcionista está acenando para você, como se te chamasse.`
+
+  let message;
+  if(!hasFlag("joinedGuild")){
+    message = `Você não é um membro da guilda, você ainda precisará se registrar, olhando ao redor, aquele recepcionista está acenando para você, como se te chamasse.`
+  }else{
+    message = "";
   }
   const story = `Você entra no prédio da guilda, vários aventureiros estão neste local, suas armaduras reluzentes e alguns com roupas normais, o local apesar da grande diversidade de pessoas, é bem organizado, em geral, o ambiente parece bom.
   
    Você consegue ver o recepcionista em seu local de trabalho, o mural da guilda - local para aceitar suas missões.
    
-   ${guildMember}`;
+   ${message}`;
    changeScene(story, () =>{
-    criarBotaoHistoria("Ir para o recepcionista", recepcionist);
-    criarBotaoHistoria("Mural", questBoard);
-    criarBotaoHistoria("Voltar", guildStreet);
-   })
-}
+    criarBotaoHistoria("Ir para o recepcionista", "recepcionist");
+    criarBotaoHistoria("Mural", "questBoard");
+    criarBotaoHistoria("Voltar", "guildStreet");
+   },
+    320,
+    "powerText",
+    "powerChoices",
+    "guildHub"
+  );
+};
 
 function recepcionist(){
-  let guildMember;
-  if(player.guildMember === false){
-    guildMember = `"Olá jovem, você está planejando entrar na nossa guilda?" - Sem esperar você responder, ele continua - "Que bom! nós estamos sempre precisando de membros novos, afinal, muitos monstros têm aparecido em todos os lugares e não temos contingente para todas as ocorrências. Aliás, meu nome é Estevan, estou aqui para o que precisar"
+  
+  if(!hasFlag("joinedGuild")){
+    const story = `"Olá jovem, você está planejando entrar na nossa guilda?" - Sem esperar você responder, ele continua - "Que bom! nós estamos sempre precisando de membros novos, afinal, muitos monstros têm aparecido em todos os lugares e não temos contingente para todas as ocorrências. Aliás, meu nome é Estevan, estou aqui para o que precisar"
     
     Depois de alguns minutos, o registro da guilda está terminado e o recepcionista volta a falar "Antes que você entre oficialmente em nossa guilda, precisamos que você passa por um treinamento, não se preocupe, ele será apenas para que você consiga se adaptar ao rítimo dos combates que você irá enfrentar. Por favor, venha comigo, vou te levar para a área de treino."`;
     meetCharacter("Estevan");
-  }
-  let story = `${guildMember}`;
 
-  if(player.guildMember === false){
     changeScene(story, () =>{
-      criarBotaoHistoria("Começar o treinamento", guildTraining);
-      criarBotaoHistoria("'Agora não'", guildHub);
-    })
-  }
-}
+      criarBotaoHistoria("Começar o treinamento", "guildTraining");
+      criarBotaoHistoria("Agora não", "guildHub");
+    },
+    320,
+    "powerText",
+    "powerChoices",
+    "recepcionist"
+    );
+  };
+
+  const story = `Olá ${player.name}! Você veio aqui dar um oi?`;
+
+  changeScene(story, () =>{
+    criarBotaoHistoria("Voltar", "guildHub");
+  },
+  320,
+  "powerText",
+  "powerChoices",
+  "recepcionist"
+  );
+};
 
 function questBoard(){
 
@@ -2019,7 +2274,12 @@ function guildTraining(){
       criarBotaoHistoria("Conceitos da magia", () => trainClass("mage"), "powerChoices", 0, 8);
       criarBotaoHistoria("Arte da furtividade", () => trainClass("thief"), "powerChoices", 0, 8);
       criarBotaoHistoria("Arte sagrada", () => trainClass("healer"), "powerChoices", 0, 8);
-    })
+    },
+    320,
+    "powerText",
+    "powerChoices",
+    "guildTraining"
+  );
 }
 
 // =========== FUNÇÃO DAS CLASSES ===========
@@ -2028,7 +2288,7 @@ function trainClass(classe) {
   if (trainingDay <= 0) {
     changeScene(
       "Seu período de treinamento terminou.",
-      () => criarBotaoHistoria("Continuar", finalTraining)
+      () => criarBotaoHistoria("Continuar", "finalTraining")
     );
     return;
   }
@@ -2129,18 +2389,32 @@ function warrior(){
       if(guild.warrior == 4){
         player.equippedWeapon = weapons["Espada de treino"];
         changeScene(story, () =>{
-          criarBotaoHistoria("Pegar a espada", fightRudo1);
-        })
+          criarBotaoHistoria("Pegar a espada", "fightRudo1");
+        },
+        320,
+        "powerText",
+        "powerChoices",
+        "warrior"
+      )
       }else if(guild.warrior == 7){
         player.equippedWeapon = weapons["Espada de aço"];
         changeScene(story, () =>{
-          criarBotaoHistoria("Pegar a espada e ir para o ringue", fightCrhistine);
-        })
-        
+          criarBotaoHistoria("Pegar a espada e ir para o ringue", "fightCrhistine");
+        },
+        320,
+        "powerText",
+        "powerChoices",
+        "warrior"
+      )
       }else{
       changeScene(story, () =>{
-        criarBotaoHistoria("Continuar", posTraining);
-      })
+        criarBotaoHistoria("Continuar", "posTraining");
+      },
+      320,
+      "powerText",
+      "powerChoices",
+      "warrior"
+    )
     }
 }
 
@@ -2163,8 +2437,13 @@ function winRudo1(){
 
   changeFriendship("Rudo", 5);
   changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", posTraining);
-  })
+    criarBotaoHistoria("Continuar", "posTraining");
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "winRudo1"
+  )
 }
 
 function loseRudo1(){
@@ -2175,8 +2454,13 @@ function loseRudo1(){
   forceStoryScreen();
 
   changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", posTraining);
-  })
+    criarBotaoHistoria("Continuar", "posTraining");
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "loseRudo1"
+  )
 }
 
 function fightCrhistine(){
@@ -2204,8 +2488,13 @@ function winCrhistine(){
   changeFriendship("Crhistine", 5);
   forceStoryScreen();
   changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", posTraining);
-  })
+    criarBotaoHistoria("Continuar", "posTraining");
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "winCrhistine"
+  )
 }
 
 function loseCrhistine(){
@@ -2222,8 +2511,13 @@ function loseCrhistine(){
   changeFriendship("Crhistine", 5);
   forceStoryScreen();
   changeScene(story, () =>{
-    criarBotaoHistoria("Continuar", posTraining);
-  })
+    criarBotaoHistoria("Continuar", "posTraining");
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "loseCrhistine"
+  )
 }
 
 function mage(){
@@ -2288,11 +2582,22 @@ function mage(){
         player.equipWeapon = weapons ["Cajado simples"]
 
         changeScene(story, () =>{
-          "Pegar o cajado", fightRudo2})
+          criarBotaoHistoria ("Pegar o cajado", "fightRudo2");
+        },
+        320,
+        "powerText",
+        "powerChoices",
+        "mage"
+      )
       }
       changeScene(story, () =>{
-        criarBotaoHistoria("Continuar", posTraining);
-      })
+        criarBotaoHistoria("Continuar", "posTraining");
+      },
+      320,
+      "powerText",
+      "powerChoices",
+      "mage"
+    )
 }
 
 function fightRudo2(){
@@ -2315,8 +2620,13 @@ function winRudo2(){
     changeFriendship("Rudo", 5);
     forceStoryScreen();
     changeScene(story, () =>{
-      criarBotaoHistoria("Continuar", posTraining);
-    });
+      criarBotaoHistoria("Continuar", "posTraining");
+    },
+    320,
+    "powerText",
+    "powerChoices",
+    "winRudo2"
+  );
 }
 
 function loseRudo2(){
@@ -2326,8 +2636,13 @@ function loseRudo2(){
   
     forceStoryScreen();
     changeScene(story, () =>{
-      criarBotaoHistoria("Continuar", posTraining);
-    });
+      criarBotaoHistoria("Continuar", "posTraining");
+    },
+    320,
+    "powerText",
+    "powerChoices",
+    "loseRudo2"
+  );
 }
 
 function thief(){
@@ -2359,8 +2674,13 @@ function thief(){
 
       const story = `${trainingDescription}`;
       changeScene(story, () =>{
-        criarBotaoHistoria("Continuar", posTraining);
-      })
+        criarBotaoHistoria("Continuar", "posTraining");
+      },
+      320,
+      "powerText",
+      "powerChoices",
+      "thief"
+    )
 }
 
 function cleric(){
@@ -2392,8 +2712,13 @@ function cleric(){
 
       const story = `${trainingDescription}`;
       changeScene(story, () =>{
-        criarBotaoHistoria("Continuar", posTraining);
-      })
+        criarBotaoHistoria("Continuar", "posTraining");
+      },
+      320,
+      "powerText",
+      "powerChoices",
+      "cleric"
+    )
 }
 
 function posTraining(){
@@ -2403,8 +2728,13 @@ function posTraining(){
   
   Passando pelo hall da guilda, Stevan lhe comprimenta, acenando como forma de dar tchau, você espelha seu gesto e segue seu caminho.`;
   changeScene(story, () =>{
-    criarBotaoHistoria("Lobby da guilda (00:01)", guildHub, "powerChoices", 1);
-  })
+    criarBotaoHistoria("Lobby da guilda (00:01)", "guildHub", "powerChoices", 1);
+  },
+    320,
+    "powerText",
+    "powerChoices",
+    "posTraining"
+  )
 }
 
 /* ========== COMBATE ========== */
@@ -3606,3 +3936,49 @@ function updateSkills() {
 /* ========== INICIALIZAÇÃO FINAL ========== */
 updateSidebar();
 updateGameTimeDisplay();
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  console.log("DOM pronto");
+
+  // 👉 ATIVA SIDEBAR
+  const sidebar = document.getElementById("sidebar");
+  const toggleBtn = document.getElementById("toggle-sidebar");
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("expanded");
+      toggleBtn.innerText =
+        sidebar.classList.contains("expanded") ? "<" : ">";
+    });
+  }
+
+  // 👉 BOTÃO COMEÇAR
+  const btn = document.getElementById("startBtn");
+
+  if (!btn) {
+    console.log("BOTÃO NÃO ENCONTRADO");
+    return;
+  }
+
+  btn.addEventListener("click", () => {
+
+    console.log("CLICOU EM COMEÇAR");
+
+    startGameUI();
+
+    const name = document.getElementById("playerNameInput").value;
+    player.name = name.trim();
+
+    distributeAttributePoints(player);
+    recalculateMaxStats();
+
+    saveGame();
+
+    discoverPower();
+
+  });
+
+});
+
