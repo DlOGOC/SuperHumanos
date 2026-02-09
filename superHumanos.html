@@ -68,14 +68,43 @@
       </div>
 
     <div class="sidebar-section">
-      <p>Força: <span id="attr-strength"></span></p>
-      <p>Inteligência: <span id="attr-int"></span></p>
-      <p>Fé: <span id="attr-faith"></span></p>
-      <p>Mente: <span id = "attr-mind"></span></p>
-      <p>Destreza: <span id="attr-dex"></span></p>
-      <p>Defesa: <span id="attr-defense"></span></p>
-      <p>Vigor: <span id="attr-vigor"></span></p>
+      <p class="attr-row">
+        <span class="attr-label">Força: </span>
+        <span id="attr-strength"></span>
+        <button id="btn-up-str" class="btn-up">+</button>
+      </p>
+      <p class="attr-row">
+        <span class="attr-label">Inteligência: </span> 
+        <span id="attr-int"></span>
+        <button id="btn-up-int" class="btn-up">+</button>
+      </p>
+      <p class="attr-row">
+        <span class="attr-label">Fé:</span>
+        <span id="attr-faith"></span>
+        <button id="btn-up-faith" class="btn-up">+</button>
+      </p>
+      <p class="attr-row">
+        <span class="attr-label">Mente: </span>
+        <span id = "attr-mind"></span>
+        <button id="btn-up-mind" class="btn-up">+</button>
+      </p>
+      <p class="attr-row">
+        <span class="attr-label">Destreza: </span>
+        <span id="attr-dex"></span>
+        <button id="btn-up-dex" class="btn-up">+</button>
+      </p>
+      <p class="attr-row">
+        <span class="attr-label">Defesa: </span>
+        <span id="attr-defense"></span>
+        <button id="btn-up-def" class="btn-up">+</button>
+      </p>
+      <p class="attr-row">
+        <span class="attr-label">Vigor: </span>
+        <span id="attr-vigor"></span>
+        <button id="btn-up-vigor" class="btn-up">+</button>
+      </p>
       <p>$ <span id="money">00,00</span></p>
+
       <button id="friends-btn" class="sidebar-btn">Relações</button>
         <div id="friends-panel" class="hidden"><h2>Relações</h2>
           <div id="friends-list"></div>

@@ -27,41 +27,71 @@ const BASE_MANA = 20;
 const MANA_PER_MIND = 6;
 
 function recalculateMaxStats() {
-  const oldMaxHp = player.maxHp;
-  const oldMaxMana = player.maxMana;
 
-  if(player.vigor >= 10){
-    player.maxHp = BASE_HP + player.vigor * (HP_PER_VIGOR/2);
-  }else if(player.vigor >= 20){
-    player.maxHp = BASE_HP + player.vigor * (HP_PER_VIGOR/8);
-  }else{
-    player.maxHp = BASE_HP + player.vigor * HP_PER_VIGOR;
+  const oldMaxHp = player.maxHp || 1;
+  const oldMaxMana = player.maxMana || 1;
+
+  // ===== VIDA =====
+  const vigor = player.vigor;
+  let hpBonus;
+
+  if (vigor <= 10) {
+    hpBonus = vigor * HP_PER_VIGOR;
+  }
+  else if (vigor <= 20) {
+    hpBonus =
+      10 * HP_PER_VIGOR +
+      Math.floor((vigor - 10) * HP_PER_VIGOR * 0.6);
+  }
+  else {
+    hpBonus =
+      10 * HP_PER_VIGOR +
+      Math.floor(10 * HP_PER_VIGOR * 0.6) +
+      Math.floor((vigor - 20) * HP_PER_VIGOR * 0.3);
   }
 
-  if(player.mind >= 10){
-    player.maxMana = BASE_MANA + player.mind * (MANA_PER_MIND/2);
-  }else if(player.mind >= 20){
-    player.maxMana = BASE_MANA + player.mind * (MANA_PER_MIND/6);
-  }else{
-    player.maxMana = BASE_MANA + player.mind * MANA_PER_MIND;
+  player.maxHp = BASE_HP + hpBonus;
+
+
+  // ===== MANA =====
+  const mind = player.mind;
+  let manaBonus;
+
+  if (mind <= 10) {
+    manaBonus = mind * MANA_PER_MIND;
+  }
+  else if (mind <= 20) {
+    manaBonus =
+      10 * MANA_PER_MIND +
+      Math.floor((mind - 10) * MANA_PER_MIND * 0.6);
+  }
+  else {
+    manaBonus =
+      10 * MANA_PER_MIND +
+      Math.floor(10 * MANA_PER_MIND * 0.6) +
+      Math.floor((mind - 20) * MANA_PER_MIND * 0.3);
   }
 
-  // mantém proporção atual (opcional, mas elegante)
+  player.maxMana = BASE_MANA + manaBonus;
+
+
+  // ===== PRESERVAR PROPORÇÃO =====
   player.hp = Math.round(player.hp * (player.maxHp / oldMaxHp));
   player.mana = Math.round(player.mana * (player.maxMana / oldMaxMana));
 
-  // segurança
-  player.hp = Math.min(player.hp, player.maxHp);
-  player.mana = Math.min(player.mana, player.maxMana);
+  // ===== SEGURANÇA =====
+  player.hp = Math.max(1, Math.min(player.hp, player.maxHp));
+  player.mana = Math.max(0, Math.min(player.mana, player.maxMana));
 
   updateSidebar();
 }
 
-
 let player = {
   name: "",
-  level: 0,
+  level: 1,
   xp:0,
+  xpToNext:100,
+  statPoints:0,
   hp: 100, maxHp: 100,
   mana: 50, maxMana: 50,
   hunger: 100, sleep: 100, energy: 100,
@@ -76,8 +106,86 @@ let player = {
   subWeapons: 0,
   learnedSkills: [],
   isVampire: false,
+  isWarewolf: false,
   equippedArmor: null
 };
+
+function calculateXpForLevel(level) {
+  return Math.floor(90 * Math.pow(1.35, level - 1));
+}
+
+function updateLevelButtons() {
+  const show = player.statPoints > 0;
+
+  const ids = [
+    "btn-up-str",
+    "btn-up-int",
+    "btn-up-faith",
+    "btn-up-mind",
+    "btn-up-dex",
+    "btn-up-def",
+    "btn-up-vigor"
+  ];
+
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.classList.toggle("show", show);
+  });
+}
+
+
+function increaseStat(stat) {
+  if (player.statPoints <= 0) return;
+
+  player[stat] += 1;
+  player.statPoints -= 1;
+
+  recalculateMaxStats();
+
+  if (player.statPoints <= 0) {
+    document.getElementById("levelUpBox").style.display = "none";
+  }
+
+  updateSidebar();
+  saveGame();
+}
+
+function levelUp() {
+  player.level += 1;
+  player.xp -= player.xpToNext;
+  player.xpToNext = calculateXpForLevel(player.level);
+
+  player.statPoints += 1;
+
+  updateSidebar();
+  updateLevelButtons();
+}
+
+function spendPoint(stat) {
+  if (player.statPoints <= 0) return;
+
+  player[stat] += 1;
+  player.statPoints -= 1;
+
+  recalculateMaxStats();
+  updateSidebar();
+  updateLevelButtons();
+
+  saveGame();
+}
+
+function gainXP(amount) {
+  player.xp += amount;
+
+  while (player.xp >= player.xpToNext) {
+    levelUp();
+  }
+
+  updateSidebar();
+  saveGame();
+}
 
 /* ===== IMAGEM DO JOGADOR =====*/
 const playerFace = {
@@ -454,8 +562,6 @@ document
     updateFreckles();
   });
 
-let timeLocal = 0;
-let trainingDay = 7;
 /* ===== ARMAS DO JOGADOR =====*/
 
 //vantagens e desvantagens nos tipos de arams:
@@ -1278,6 +1384,8 @@ function updateSidebar() {
   setText("attr-vigor", player.vigor);
   //setText("attr-energy", Math.round(player.energy));
   setText("money", player.money.toFixed(2));
+
+  updateLevelButtons();
 }
 
 /* ===== SISTEMA DE TEMPO ===== */
@@ -1798,7 +1906,7 @@ function packGameState() {
   gameState.guild = guild;
   gameState.friendships = friendships;
   gameState.mother = mother;
-  gameState.trainingDay = trainingDay;
+  gameState.trainingDay = gameState.trainingDay;
   gameState.time = gameTime;
 }
 
@@ -2258,13 +2366,13 @@ function questBoard(){
 
 function guildTraining(){
   let training = ``;
-  if(trainingDay == 7){
+  if(gameState.trainingDay == 7){
      training = `Estaven te explicou, existem alguns tipos de treinamento e você escolherá que tipo receberá por dia, o total de treino é de uma semana e durará 8 horas, você pode combinar todos os tipos de treino da forma que quiser para montar suas habilidades, no fim do treino, como uma prova final, você combaterá o instrutor, e quando passar, você receberá gratuitamente um conjunto de equipamento inicial.
     
       "Olá ${player.name}! Fiquei sabendo de você, eu sou o Rudoufh, mas pode me chamar de Rudo, serei o seu treinador, eu sei de tudo um pouco então espero ser bem útil para você, sou um veterano de guerra e tenho várias expectativas em você! Não me decepcione!" diz ele e logo dá um tapa nas suas costas.`;
       meetCharacter("Rudo");
   }
-   let story = `Você possui ${trainingDay} dias de treino.
+   let story = `Você possui ${gameState.trainingDay} dias de treino.
    
    ${training} 
    
@@ -2285,18 +2393,21 @@ function guildTraining(){
 // =========== FUNÇÃO DAS CLASSES ===========
 
 function trainClass(classe) {
-  if (trainingDay <= 0) {
+  if (gameState.trainingDay <= 0) {
     changeScene(
       "Seu período de treinamento terminou.",
       () => criarBotaoHistoria("Continuar", "finalTraining")
-    );
-    return;
+    ),
+    320,
+    "powerText",
+    "powerChoices",
+    "trainClass"
   }
 
-  trainingDay--;
+  gameState.trainingDay--;
 
   // aplica ganho de atributo baseado no nível atual
-  classTraining(classe, 7 - trainingDay);
+  classTraining(classe, 7 - gameState.trainingDay);
 
   // chama a função narrativa específica
   switch (classe) {
@@ -2366,7 +2477,7 @@ function warrior(){
       O treino continue sem problemas e sem muita mudança de dinâmica, você e Christine lutam com as espadas de treino, não é de longe tão difícil quanto Rudo, mas definitivamente também não é fácil.
       
       Você sente que melhorou bastante no manejo da espada.`;
-
+      setFlag(meetCrhistine, true);
       meetCharacter("Christine");
       break;
     case 6:
@@ -2522,7 +2633,7 @@ function loseCrhistine(){
 
 function mage(){
   guild.mage++;
-  trainingDay--;
+  gameState.trainingDay--;
   let trainingDescription;
   switch (guild.mage) {
     case 1:
@@ -2534,6 +2645,7 @@ function mage(){
       
       Neste dia, você apenas aprendeu a teoria da magia, mas se sente mais inteligente.`;
 
+      setFlag(meetLegh);
       meetCharacter("Legh");
       break;
     case 2:
@@ -2557,6 +2669,7 @@ function mage(){
       
       Você aprendeu a conjurar bola de fogo`;
 
+      setFlag(meetLucy)
       meetCharacter("Lucy");
       learnSkill("bola_de_fogo");
       player.mana=0;
@@ -2647,7 +2760,7 @@ function loseRudo2(){
 
 function thief(){
   guild.thief++;
-  trainingDay--;
+  gameState.trainingDay--;
   let trainingDescription;
   switch (guild.thief) {
     case 1:
@@ -2685,7 +2798,7 @@ function thief(){
 
 function cleric(){
   guild.cleric++;
-  trainingDay--;
+  gameState.trainingDay--;
   let trainingDescription;
   switch (guild.cleric) {
     case 1:
@@ -3975,8 +4088,15 @@ document.addEventListener("DOMContentLoaded", () => {
     recalculateMaxStats();
 
     saveGame();
-
     discoverPower();
+
+    document.getElementById("btn-up-str").onclick = () => spendPoint("strength");
+    document.getElementById("btn-up-int").onclick = () => spendPoint("intelligence");
+    document.getElementById("btn-up-faith").onclick = () => spendPoint("faith");
+    document.getElementById("btn-up-mind").onclick = () => spendPoint("mind");
+    document.getElementById("btn-up-dex").onclick = () => spendPoint("dex");
+    document.getElementById("btn-up-def").onclick = () => spendPoint("defense");
+    document.getElementById("btn-up-vigor").onclick = () => spendPoint("vigor");
 
   });
 
