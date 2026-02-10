@@ -111,8 +111,8 @@ let player = {
   guildMember: false,
   defending: false,
   status: {}, // e.g. { burning: {turns:3, value:3}, frozen: {turns:2} }
-  mainWeapons: "Mãos nuas",
-  subWeapons: "Mãos nuas",
+  mainWeapons: "Mãos vazias",
+  subWeapons: "Mãos vazias",
   learnedSkills: [],
   isVampire: false,
   isWarewolf: false,
@@ -715,8 +715,8 @@ const shields = {
 };
 
 const weapons = {
-  "Mãos nuas": {
-    name: "Mãos nuas",
+  "Mãos vazias": {
+    name: "Mãos vazias",
     type: "fisic",
     baseDamage: 5,
     slot: "both"
@@ -811,6 +811,24 @@ const ARMORS = {
     id: "thief_no_mask",
     name: "Armadura de Ladino (Sem Máscara)",
     defense: 6
+  },
+
+  warrior_guid_no_fur:{
+    id: "warrior_guid_no_fur",
+    name: "Armadura de guerreiro da guilda",
+    defense: 6
+  },
+
+ warrior_guild_fur:{
+    id: "warrior_guild_fur",
+    name: "Armadura de guerreiro da guilda condecorado",
+    defense: 6
+  },
+
+  mage_guild:{
+    id: "mage_guild",
+    name: "Armadura de mago da guilda",
+    defense: 6
   }
 };
 
@@ -846,7 +864,7 @@ function equipShield(id) {
   if (!newShield) return;
 
     if (player.equippedWeapon?.twoHand) {
-    equipWeapon("Mãos nuas");
+    equipWeapon("Mãos vazias");
   }
   // 👉 REMOVE BÔNUS DO ESCUDO ANTIGO
   if (
@@ -1509,11 +1527,11 @@ function equipWeapon(weaponName) {
 if (player.equippedWeapon?.name === weaponName) {
     // se for twoHand, limpa subWeapon
     if (weapon.twoHand) {
-        player.equippedSubWeapon = weapons["Mãos nuas"];
+        player.equippedSubWeapon = weapons["Mãos vazias"];
     }
 
     // volta arma principal para padrão
-    player.equippedWeapon = weapons["Mãos nuas"];
+    player.equippedWeapon = weapons["Mãos vazias"];
 
     renderInventory();
     updateSidebar();
@@ -1524,8 +1542,8 @@ if (player.equippedWeapon?.name === weaponName) {
     // ===== Checagem TWO-HAND da arma principal =====
     if (player.equippedWeapon?.twoHand) {
         // Reseta os dois slots
-        player.equippedWeapon = weapons["Mãos nuas"];
-        player.equippedSubWeapon = weapons["Mãos nuas"];
+        player.equippedWeapon = weapons["Mãos vazias"];
+        player.equippedSubWeapon = weapons["Mãos vazias"];
 
         renderInventory();
         updateSidebar();
@@ -1585,7 +1603,7 @@ function equipSubWeapon(weaponName) {
 
       // Se já estiver equipada, volta para padrão
     if (player.equippedSubWeapon?.name === weaponName) {
-        player.equippedSubWeapon = weapons["Mãos nuas"];
+        player.equippedSubWeapon = weapons["Mãos vazias"];
         renderInventory();
         updateSidebar();
         saveGame();
@@ -1594,16 +1612,16 @@ function equipSubWeapon(weaponName) {
 
         // Se arma principal for two-hand → força padrão
     if (player.equippedWeapon?.twoHand) {
-        player.equippedWeapon = weapons["Mãos nuas"];
-        player.equippedSubWeapon = weapons["Mãos nuas"];
+        player.equippedWeapon = weapons["Mãos vazias"];
+        player.equippedSubWeapon = weapons["Mãos vazias"];
         renderInventory();
         updateSidebar();
         saveGame();
     }
     // Se a arma principal for TWO HAND, ninguém entra no sub
   if (player.equippedWeapon?.twoHand) {
-    equipWeapon("Mãos nuas");
-    equipSubWeapon("Mãos nuas");
+    equipWeapon("Mãos vazias");
+    equipSubWeapon("Mãos vazias");
   }
 
   // permitir two-hand fake (mesma arma nas duas mãos)
@@ -4671,8 +4689,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     distributeAttributePoints(player);
     recalculateMaxStats();
-    equipWeapon("Mãos nuas");
-    equipSubWeapon("Mãos nuas");
+    equipWeapon("Mãos vazias");
+    equipSubWeapon("Mãos vazias");
+    giveArmor("base");
+    equipArmor("base");
     saveGame();
     discoverPower();
 
