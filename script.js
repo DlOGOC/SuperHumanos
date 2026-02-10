@@ -599,6 +599,107 @@ const typeAdvantages = {
   dark:     { strong: "holy",     weak: "arcane" },
 };
 
+const books = {
+
+  "grimorio_chamas": {
+    title: "Grimório das Chamas",
+    pages: [
+
+`Eu era apenas um aprendiz quando vi o fogo pela primeira vez obedecer à minha voz.
+
+Não era como as tochas da vila.  
+Era vivo.  
+Escutava.`,
+
+`O mestre dizia:
+
+"Toda chama tem um nome,  
+mas o nome queima a língua de quem não merece."
+
+Passei noites tentando descobrir.`,
+
+`Foi no porão da torre que encontrei rabiscado:
+
+      I G N I S
+
+Desde então, o fogo me reconhece.`
+
+    ]
+  }
+};
+
+function giveBook(bookId) {
+
+  if (!books[bookId]) {
+    console.warn("Livro inexistente:", bookId);
+    return;
+  }
+
+  if (!player.inventory.books.includes(bookId)) {
+    player.inventory.books.push(bookId);
+  }
+
+  saveGame();
+  renderInventory();
+}
+
+let currentBook = null;
+let currentPage = 0;
+
+function readBook(id) {
+
+  const book = books[id];
+  if (!book) return;
+
+  currentBook = book;
+  currentPage = 0;
+
+  // fecha inventário
+  document
+    .getElementById("inventoryModal")
+    ?.classList.add("hidden");
+
+  // abre livro
+  document
+    .getElementById("book-screen")
+    .classList.remove("hidden");
+
+  renderBookPage();
+}
+
+function renderBookPage() {
+
+  document.getElementById("book-title")
+    .textContent = currentBook.title;
+
+  document.getElementById("book-page")
+    .innerText = currentBook.pages[currentPage];
+
+  document.getElementById("page-indicator")
+    .textContent =
+      `${currentPage + 1} / ${currentBook.pages.length}`;
+}
+
+function nextPage() {
+  if (currentPage < currentBook.pages.length - 1) {
+    currentPage++;
+    renderBookPage();
+  }
+}
+
+function prevPage() {
+  if (currentPage > 0) {
+    currentPage--;
+    renderBookPage();
+  }
+}
+
+function closeBook() {
+  document
+    .getElementById("book-screen")
+    .classList.add("hidden");
+}
+
 const shields = {
   "Escudo de madeira": {
     name: "Escudo de madeira",
@@ -870,14 +971,24 @@ document.getElementById("inv-weapons").innerHTML = html;
   });
 
 
-  // ===== LIVROS =====
-  bDiv.innerHTML = "";
+// ===== LIVROS =====
+bDiv.innerHTML = "<h5>Livros</h5>";
 
-  player.inventory.books.forEach(book => {
-    bDiv.innerHTML += `
-      <div>📘 ${book.name || book}</div>
-    `;
-  });
+player.inventory.books.forEach(id => {
+
+  const book = books[id];
+  if (!book) return;
+
+  bDiv.innerHTML += `
+    <div class="inv-item">
+      📘 ${book.title}
+
+      <button onclick="readBook('${id}')">
+        Ler
+      </button>
+    </div>
+  `;
+});
 
 }
 
@@ -888,6 +999,7 @@ document.getElementById("btn-inventory")
       .getElementById("inventoryModal")
       .classList.remove("hidden");
 
+    toggleSidebar();
     renderInventory();
 };
 
@@ -1420,13 +1532,6 @@ function equipSubWeapon(weaponName) {
   }
 
   if (weapon.slot === "main") {
-    return;
-  }
-
-    // se for escudo
-  if (shields[itemName]) {
-    player.equippedSubWeapon = shields[itemName];
-    renderInventory();
     return;
   }
 
@@ -2261,6 +2366,7 @@ function loadGame() {
 
   updateHair();
   updateSidebar();
+  updateCloth();
   updateGameTimeDisplay();
 
   log("📂 Jogo carregado.");

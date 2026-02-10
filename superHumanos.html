@@ -506,6 +506,32 @@
     <button id="close-inv">Fechar</button>
 
   </div>
+</div>
+
+<!-- ===== TELA DE LEITURA ===== -->
+<div id="book-screen" class="modal hidden">
+
+  <div class="book-container">
+
+    <h3 id="book-title">Título</h3>
+
+    <div id="book-page" class="book-text">
+      ...
+    </div>
+
+    <div class="book-controls">
+      <button onclick="prevPage()">⬅</button>
+
+      <span id="page-indicator">1 / 1</span>
+
+      <button onclick="nextPage()">➡</button>
+    </div>
+
+    <button onclick="closeBook()">
+      Fechar Livro
+    </button>
+
+  </div>
 
 </div>
 
