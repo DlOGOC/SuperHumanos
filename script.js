@@ -83,7 +83,16 @@ function recalculateMaxStats() {
   player.hp = Math.max(1, Math.min(player.hp, player.maxHp));
   player.mana = Math.max(0, Math.min(player.mana, player.maxMana));
 
+  applyShieldBonus();
   updateSidebar();
+}
+
+function applyShieldBonus() {
+  const sub = player.equippedSubWeapon;
+
+  if (sub && shields[sub.name]) {
+    player.defense += shields[sub.name].defenseBonus;
+  }
 }
 
 let player = {
@@ -110,6 +119,7 @@ let player = {
   equippedArmor: null,
   inventory: {
     weapons: [],
+    shields: [],
     armors: [],
     keyItems: [],
     books: []
@@ -589,6 +599,19 @@ const typeAdvantages = {
   dark:     { strong: "holy",     weak: "arcane" },
 };
 
+const shields = {
+  "Escudo de madeira": {
+    name: "Escudo de madeira",
+    defenseBonus: 4,
+    blockChance: 0.25
+  },
+
+  "Escudo de aço": {
+    name: "Escudo de aço",
+    defenseBonus: 7,
+    blockChance: 0.35
+  }
+};
 
 const weapons = {
   "Mãos nuas": {
@@ -681,6 +704,7 @@ const ARMORS = {
   }
 };
 
+
 /* ===== EQUIPAR A ARMADURA =====*/
 
 function equipArmor(armorId) {
@@ -706,6 +730,37 @@ function equipArmor(armorId) {
   updateCloth();
 }
 
+function equipShield(id) {
+
+  const newShield = shields[id];
+  if (!newShield) return;
+
+  // 👉 REMOVE BÔNUS DO ESCUDO ANTIGO
+  if (
+    player.equippedSubWeapon &&
+    shields[player.equippedSubWeapon.name]
+  ) {
+    const oldShield =
+      shields[player.equippedSubWeapon.name];
+
+    player.defense -= oldShield.defenseBonus;
+  }
+
+  // 👉 APLICA BÔNUS DO NOVO
+  player.defense += newShield.defenseBonus;
+
+  // 👉 EQUIPA DE VERDADE
+  player.equippedSubWeapon = {
+    name: newShield.name,
+    type: "shield"
+  };
+
+  updateSidebar();
+  saveGame();
+  renderInventory();
+}
+
+
 function renderInventory() {
 
   const mainSlot  = document.getElementById("slot-main");
@@ -724,6 +779,7 @@ function renderInventory() {
 
 
   const wDiv = document.getElementById("inv-weapons");
+  const sDiv = document.getElementById("inv-shields"); 
   const aDiv = document.getElementById("inv-armors");
   const kDiv = document.getElementById("inv-keys");
   const bDiv = document.getElementById("inv-books");
@@ -757,6 +813,30 @@ player.inventory.weapons.forEach(wName => {
 });
 
 document.getElementById("inv-weapons").innerHTML = html;
+
+// ===== ESCUDOS =====
+  let sHtml = "<h5>Escudos</h5>";
+
+  player.inventory.shields.forEach(id => {
+
+    const shield = shields[id];
+    if (!shield) return;
+
+    const isSub =
+      player.equippedSubWeapon?.name === shield.name;
+
+    sHtml += `
+      <div class="inv-item">
+        🛡 ${shield.name}
+
+        <button onclick="equipShield('${id}')">
+          ${isSub ? "Equipado" : "Equipar"}
+        </button>
+      </div>
+    `;
+  });
+
+  sDiv.innerHTML = sHtml;
 
   // ===== ARMADURAS =====
   aDiv.innerHTML = "";
@@ -849,6 +929,16 @@ function giveWeapon(name) {
   renderInventory();
 }
 
+function giveShield(id) {
+  if (!shields[id]) return;
+
+  if (!player.inventory.shields.includes(id)) {
+    player.inventory.shields.push(id);
+  }
+
+  saveGame();
+  renderInventory();
+}
 /* ===== SKILLS DO JOGADOR =====*/
 
 const skills = {
@@ -1330,6 +1420,13 @@ function equipSubWeapon(weaponName) {
   }
 
   if (weapon.slot === "main") {
+    return;
+  }
+
+    // se for escudo
+  if (shields[itemName]) {
+    player.equippedSubWeapon = shields[itemName];
+    renderInventory();
     return;
   }
 
@@ -4192,10 +4289,24 @@ function enemyBasicAttack() {
   let base = Math.floor(Math.random() * attackPower) + 6;
   let damage = isCrit ? base * 2 : base;
 
+// 👉 BLOQUEIO COM ESCUDO
+const sub = player.equippedSubWeapon;
+
+  if (sub && shields[sub.name]) {
+    const shield = shields[sub.name];
+
+    if (Math.random() < shield.blockChance) {
+      damage = Math.floor(damage * 0.4); // 60% redução
+      log("🛡️ Escudo bloqueou grande parte do dano!");
+    }
+  }
+
+  // 👉 DEFENDER NORMAL
   if (player.defending) {
     damage = Math.floor(damage / 2);
     player.defending = false;
   }
+
 
   player.hp = Math.max(0, player.hp - damage);
 
