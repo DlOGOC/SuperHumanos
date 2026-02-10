@@ -107,7 +107,13 @@ let player = {
   learnedSkills: [],
   isVampire: false,
   isWarewolf: false,
-  equippedArmor: null
+  equippedArmor: null,
+  inventory: {
+    weapons: [],
+    armors: [],
+    keyItems: [],
+    books: []
+  }
 };
 
 function calculateXpForLevel(level) {
@@ -585,46 +591,59 @@ const typeAdvantages = {
 
 
 const weapons = {
+  "Mãos nuas": {
+    name: "Mãos nuas",
+    type: "fisic",
+    baseDamage: 5,
+    slot: "both"
+  },
+
   "Espada de treino": {
     name: "Espada de treino",
     type: "fisic",
     baseDamage: 10,
-    skills: ["corte_forte"]
+    skills: ["corte_forte"],
+    slot: "main"
   },
 
   "Espada de aço": {
     name: "Espada de aço",
     type: "fisic",
     baseDamage: 15,
-    skills: ["corte_forte", "estocada_precisa", "corte_giratorio"]
+    skills: ["corte_forte", "estocada_precisa", "corte_giratorio"],
+    slot: "main"
   },
 
   "Cajado simples": {
     name: "Cajado simples",
     type: "magic",
     baseDamage: 6,
-    skills: ["bola_de_fogo"]
+    skills: ["bola_de_fogo"],
+    slot: "both"
   },
 
   "Espada dentada": {
     name: "Espada dentada",
     type: "dark",
     baseDamage: 15,
-    skills: ["corte_forte", "golpe_vampirico"]
+    skills: ["corte_forte", "golpe_vampirico"],
+    slot: "main"
   },
 
   "Arco do ladino": {
     name: "Arco do ladino",
     type: "distance",
     baseDamage: 15,
-    skills: ["flecha_envenenada", "flecha_perfurante"]
+    skills: ["flecha_envenenada", "flecha_perfurante"],
+    slot: "main"
   },
 
   "Clava do clérigo": {
     name: "Clava do clérigo",
     type: "fisic",
     baseDamage: 15,
-    skills: ["cura_basica", "esmagar"]
+    skills: ["cura_basica", "esmagar"],
+    slot: "main"
   }
 };
 
@@ -649,13 +668,13 @@ const ARMORS = {
     defense: 6
   },
 
-  thief:{
+  thief_mask:{
     id: "thief_mask",
     name: "Armadura de Ladino",
     defense: 6
   },
 
-  thief:{
+  thief_no_mask:{
     id: "thief_no_mask",
     name: "Armadura de Ladino (Sem Máscara)",
     defense: 6
@@ -683,7 +702,151 @@ function equipArmor(armorId) {
   player.equippedArmor = armorId;
   playerFace.cloth = armorId;
 
+  renderInventory();
   updateCloth();
+}
+
+function renderInventory() {
+
+  const mainSlot  = document.getElementById("slot-main");
+  const subSlot   = document.getElementById("slot-sub");
+  const armorSlot = document.getElementById("slot-armor");
+
+  // ===== ARMA EQUIPADA =====
+  mainSlot.textContent =
+    player.equippedWeapon?.name || "—";
+  subSlot.textContent =
+    player.equippedSubWeapon?.name || "—";
+  // ===== ARMADURA EQUIPADA =====
+  const armorObj = ARMORS[player.equippedArmor];
+  armorSlot.textContent =
+    armorObj ? armorObj.name : "—";
+
+
+  const wDiv = document.getElementById("inv-weapons");
+  const aDiv = document.getElementById("inv-armors");
+  const kDiv = document.getElementById("inv-keys");
+  const bDiv = document.getElementById("inv-books");
+
+
+  // ===== ARMAS =====
+let html = "<h5>Armas</h5>";
+
+player.inventory.weapons.forEach(wName => {
+
+  const isMain =
+    player.equippedWeapon?.name === wName;
+
+  const isSub =
+    player.equippedSubWeapon?.name === wName;
+
+  html += `
+    <div class="inv-item">
+      ⚔ ${wName}
+
+      <button onclick="equipWeapon('${wName}')">
+        ${isMain ? "Equipado (Main)" : "Main"}
+      </button>
+
+      <button onclick="equipSubWeapon('${wName}')">
+        ${isSub ? "Equipado (Sub)" : "Sub"}
+      </button>
+
+    </div>
+  `;
+});
+
+document.getElementById("inv-weapons").innerHTML = html;
+
+  // ===== ARMADURAS =====
+  aDiv.innerHTML = "";
+
+  player.inventory.armors.forEach(id => {
+
+    const armor = ARMORS[id];
+    if (!armor) return;
+
+    const isEquipped =
+      player.equippedArmor === id;
+
+    aDiv.innerHTML += `
+      <div class="inv-item">
+        🧥 ${armor.name}
+        <button onclick="equipArmor('${id}')">
+          ${isEquipped ? "Usando" : "Equipar"}
+        </button>
+      </div>
+    `;
+  });
+
+
+  // ===== KEY ITEMS =====
+  kDiv.innerHTML = "";
+
+  player.inventory.keyItems.forEach(item => {
+    kDiv.innerHTML += `
+      <div>🔑 ${item.name || item}</div>
+    `;
+  });
+
+
+  // ===== LIVROS =====
+  bDiv.innerHTML = "";
+
+  player.inventory.books.forEach(book => {
+    bDiv.innerHTML += `
+      <div>📘 ${book.name || book}</div>
+    `;
+  });
+
+}
+
+document.getElementById("btn-inventory")
+  .onclick = () => {
+
+    document
+      .getElementById("inventoryModal")
+      .classList.remove("hidden");
+
+    renderInventory();
+};
+
+document.getElementById("close-inv")
+  .onclick = () => {
+    document
+      .getElementById("inventoryModal")
+      .classList.add("hidden");
+};
+
+// fechar com ESC
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    document
+      .getElementById("inventoryModal")
+      .classList.add("hidden");
+  }
+});
+
+function giveArmor(id) {
+  if (!ARMORS[id]) return;
+
+  if (!player.inventory.armors.includes(id)) {
+    player.inventory.armors.push(id);
+  }
+
+  saveGame();
+  renderInventory();
+}
+
+function giveWeapon(name) {
+  if (!weapons[name]) return;
+
+  if (!player.inventory.weapons.includes(name)) {
+    player.inventory.weapons.push(name);
+  }
+
+  saveGame();
+  renderInventory();
 }
 
 /* ===== SKILLS DO JOGADOR =====*/
@@ -1114,15 +1277,76 @@ function learnSkill(skillKey) {
 
 
 //equipar arma
-function equipWeapon(weaponName){
-  if(!weapons[weaponName]){
-    console.warn(`Arma ${weaponName} não existe.`);
+function equipWeapon(weaponName) {
+
+  const weapon = weapons[weaponName];
+  if (!weapon) return;
+
+  if (weapon.slot === "sub") {
     return;
   }
-  player.weapon = { ...weapons[weaponName] };
-  player.type = player.weapon.type;
-  console.warn(`${weaponName} equipado com sucesso.`);
-}
+
+  player.equippedWeapon = weapon;
+
+   if (
+    player.equippedSubWeapon &&
+    player.equippedSubWeapon.name === weaponName
+  ) {
+    // ok, continua two-hand
+  }
+  else if (
+    player.equippedSubWeapon &&
+    player.equippedSubWeapon.slot === "main"
+  ) {
+    // sub era uma arma MAIN → ficou inválida
+    player.equippedSubWeapon = null;
+  }
+
+  // Dá as skills da arma
+  if (weapon.skills) {
+    weapon.skills.forEach(s => {
+      if (!player.learnedSkills.includes(s))
+        player.learnedSkills.push(s);
+    });
+  }
+
+  renderInventory();
+  updateSidebar();
+  saveGame();
+};
+
+function equipSubWeapon(weaponName) {
+
+  const weapon = weapons[weaponName];
+  if (!weapon) return;
+
+    if (
+    weapon.slot === "main" &&
+    player.equippedWeapon?.name === weaponName
+  ) {
+    player.equippedSubWeapon = weapon;
+    renderInventory();
+    return;
+  }
+
+  if (weapon.slot === "main") {
+    return;
+  }
+
+  player.equippedSubWeapon = weapon;
+
+  if (weapon.skills) {
+    weapon.skills.forEach(s => {
+      if (!player.learnedSkills.includes(s))
+        player.learnedSkills.push(s);
+    });
+  }
+
+  renderInventory();
+  updateSidebar();
+  saveGame();
+};
+
 /* ===== CLASSES DO JOGADOR =====*/
 
 let guild = {
@@ -2962,7 +3186,7 @@ const enemies = {
     ],
     
     skillChance: 0.6,
-    description: "Rua rival de treino, ela, tanto quanto você tem motivos para vencer essa luta"
+    description: "Sua rival de treino, ela, tanto quanto você tem motivos para vencer essa luta"
   }
 };
 

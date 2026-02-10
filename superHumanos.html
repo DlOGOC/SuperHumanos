@@ -103,6 +103,7 @@
         <span id="attr-vigor"></span>
         <button id="btn-up-vigor" class="btn-up">+</button>
       </p>
+
       <p>$ <span id="money">00,00</span></p>
 
       <button id="friends-btn" class="sidebar-btn">Relações</button>
@@ -110,9 +111,12 @@
           <div id="friends-list"></div>
           <button id="close-friends" class="sidebar-btn">Fechar</button>
         </div>
+      <button id="btn-inventory" class="sidebar-btn">
+        Inventário
+      </button>
       <button onclick="manualSave()">Salvar</button>
       <button onclick="manualLoad()">Carregar</button>
-        </div>
+      </div>
     </div>
 
   <!-- toggle (deve ser irmão imediato do #sidebar para alguns seletores CSS funcionarem) -->
@@ -471,10 +475,38 @@
       <div id="skill-tooltip" class="skill-tooltip hidden"></div>
       <input id="spell-input" placeholder="Digite o encantamento..." />
       <button id="cast-spell-btn" onclick="castSpellFromText()">Conjurar</button>
-
-
-
     </div>
+
+  <!-- ===== JANELA DE INVENTÁRIO ===== -->
+<div id="inventoryModal" class="inv-modal hidden">
+
+  <div class="inv-window">
+
+    <h2>Inventário</h2>
+
+    <div class="inv-equip">
+      <p>⚔ Arma Principal: <span id="slot-main">—</span></p>
+      <p>⚔ Arma Secundária: <span id="slot-sub">—</span></p>
+      <p>🧥 Armadura: <span id="slot-armor">—</span></p>
+    </div>
+
+    <h3>Armas</h3>
+    <div id="inv-weapons"></div>
+
+    <h3>Armaduras</h3>
+    <div id="inv-armors"></div>
+
+    <h3>Itens-chave</h3>
+    <div id="inv-keys"></div>
+
+    <h3>Livros</h3>
+    <div id="inv-books"></div>
+
+    <button id="close-inv">Fechar</button>
+
+  </div>
+
+</div>
 
   <script src="script.js"></script>
 </body>
