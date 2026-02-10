@@ -115,7 +115,7 @@ let player = {
   subWeapons: "Mãos vazias",
   learnedSkills: [],
   isVampire: false,
-  isWarewolf: false,
+  isWerewolf: false,
   equippedArmor: null,
   inventory: {
     weapons: [],
@@ -299,6 +299,8 @@ function updateHairFront() {
 
   document.getElementById("hair-front-color").src = `${base}_color.webp`;
   document.getElementById("hair-front-line").src  = `${base}_line.webp`;
+
+  updateWerewolfEars();
 }
 
 function updateHairBack() {
@@ -360,8 +362,57 @@ function updateEyes() {
   line.src   = `${base}/line.webp`;
   color.src  = `${base}/colors/${playerFace.eye_color}.webp`;
 
-  updateDarkCircles();
+  updateFatigueVisuals();
 
+}
+
+function updateVampireEye(){
+  const img = document.getElementById("eye-color");
+  if(!img) return;
+
+  img.src = `img/eyes/${playerFace.eye_shape}/colors/vampire.webp`;
+}
+
+function updateWerewolfEye(){
+  const img = document.getElementById("eye-color");
+  if(!img) return;
+
+  img.src = `img/eyes/${playerFace.eye_shape}/colors/purple.webp`;
+}
+
+function updateWerewolfEars(){
+
+  const lineImg = document.getElementById("ears_line");
+  const colorImg = document.getElementById("ears_color");
+
+  if(!lineImg || !colorImg) return;
+
+  if(!player?.isWerewolf){
+    lineImg.src = EMPTY_IMG;
+    colorImg.src = EMPTY_IMG;
+    return;
+  }
+
+  if(!playerFace?.hair_front || !playerFace?.hair_front_color){
+    lineImg.src = EMPTY_IMG;
+    colorImg.src = EMPTY_IMG;
+    return;
+  }
+
+  const base = `img/hair/front/${playerFace.hair_front}/ears/`;
+
+  lineImg.src = base + playerFace.hair_front_color + "_line.webp";
+  colorImg.src = base + playerFace.hair_front_color + "_color.webp";
+}
+
+function becomeWerewolf(){
+  player.isWerewolf = true;
+  updateFace();
+}
+
+function cureWerewolf(){
+  player.isWerewolf = false;
+  updateFace();
 }
 
 function updateDarkCircles() {
@@ -409,6 +460,10 @@ function updateCloth() {
   updateSidebar();
 }
 
+function getWerewolfPath(){
+  return `img/hair/front/${playerFace.hair}/ears`
+}
+
 function updateFace() {
   updateSkin();
   updateHair();
@@ -417,7 +472,8 @@ function updateFace() {
   updateMouth();
   updateCloth();
   updateSkinEffects()
-  updateDarkCircles();
+  updateFatigueVisuals();
+  updateWerewolfEars();
 }
 
 updateFace();
@@ -2149,6 +2205,12 @@ function updateFatigueVisuals() {
   if (player.isVampire) {
     playerFace.hasDarkCircles = true;
     updateDarkCircles();
+    updateVampireEye();
+    return;
+  }
+
+  if(player.isWerewolf) {
+    updateWerewolfEye();
     return;
   }
 

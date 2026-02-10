@@ -314,6 +314,8 @@ body {
 #hair-front-color   { z-index: 16; }
 #hair-front-line    { z-index: 17; }
 
+#ears_line          { z-index: 18; }
+#ears_color         { z-index: 19; }
 
 .char-creation {
   display: grid;
@@ -399,10 +401,6 @@ body {
   justify-content: center;
   gap: 12px 24px;
 }
-
-
-
-
 
 /* BARRAS DO SIDEBAR */
 .status-section { margin-bottom: 14px; }
