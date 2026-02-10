@@ -111,8 +111,8 @@ let player = {
   guildMember: false,
   defending: false,
   status: {}, // e.g. { burning: {turns:3, value:3}, frozen: {turns:2} }
-  mainWeapons: 0,
-  subWeapons: 0,
+  mainWeapons: "Mãos nuas",
+  subWeapons: "Mãos nuas",
   learnedSkills: [],
   isVampire: false,
   isWarewolf: false,
@@ -768,7 +768,16 @@ const weapons = {
     baseDamage: 15,
     skills: ["cura_basica", "esmagar"],
     slot: "main"
+  },
+
+  "Cimitarra Gigante": {
+    name: "Cimitarra Gigante",
+    type: "fisic",
+    baseDamage: 18,
+    slot: "main",
+    twoHand: true
   }
+
 };
 
 /* ===== ARMADURAS DO JOGADOR =====*/
@@ -836,6 +845,9 @@ function equipShield(id) {
   const newShield = shields[id];
   if (!newShield) return;
 
+    if (player.equippedWeapon?.twoHand) {
+    equipWeapon("Mãos nuas");
+  }
   // 👉 REMOVE BÔNUS DO ESCUDO ANTIGO
   if (
     player.equippedSubWeapon &&
@@ -871,8 +883,14 @@ function renderInventory() {
   // ===== ARMA EQUIPADA =====
   mainSlot.textContent =
     player.equippedWeapon?.name || "—";
-  subSlot.textContent =
-    player.equippedSubWeapon?.name || "—";
+  
+  if(player.equippedWeapon?.twoHand){
+    subSlot.textContent =
+      player.equippedWeapon.name;
+  }else{
+    subSlot.textContent =
+      player.equippedSubWeapon?.name || "—";
+  }
   // ===== ARMADURA EQUIPADA =====
   const armorObj = ARMORS[player.equippedArmor];
   armorSlot.textContent =
@@ -1487,6 +1505,36 @@ function equipWeapon(weaponName) {
   if (weapon.slot === "sub") {
     return;
   }
+  
+if (player.equippedWeapon?.name === weaponName) {
+    // se for twoHand, limpa subWeapon
+    if (weapon.twoHand) {
+        player.equippedSubWeapon = weapons["Mãos nuas"];
+    }
+
+    // volta arma principal para padrão
+    player.equippedWeapon = weapons["Mãos nuas"];
+
+    renderInventory();
+    updateSidebar();
+    saveGame();
+    return; // sai da função para não continuar
+}
+
+    // ===== Checagem TWO-HAND da arma principal =====
+    if (player.equippedWeapon?.twoHand) {
+        // Reseta os dois slots
+        player.equippedWeapon = weapons["Mãos nuas"];
+        player.equippedSubWeapon = weapons["Mãos nuas"];
+
+        renderInventory();
+        updateSidebar();
+        saveGame()
+    }
+
+  if (weapon.twoHand) {
+    player.equippedSubWeapon = null;
+  }
 
   player.equippedWeapon = weapon;
 
@@ -1503,6 +1551,19 @@ function equipWeapon(weaponName) {
     // sub era uma arma MAIN → ficou inválida
     player.equippedSubWeapon = null;
   }
+
+  // se a nova arma for twoHand, limpa qualquer escudo
+if (weapon.twoHand) {
+  if (
+    player.equippedSubWeapon &&
+    shields[player.equippedSubWeapon.name]
+  ) {
+    const oldShield = shields[player.equippedSubWeapon.name];
+    player.defense -= oldShield.defenseBonus;
+  }
+
+  player.equippedSubWeapon = null;
+}
 
   // Dá as skills da arma
   if (weapon.skills) {
@@ -1522,12 +1583,51 @@ function equipSubWeapon(weaponName) {
   const weapon = weapons[weaponName];
   if (!weapon) return;
 
+      // Se já estiver equipada, volta para padrão
+    if (player.equippedSubWeapon?.name === weaponName) {
+        player.equippedSubWeapon = weapons["Mãos nuas"];
+        renderInventory();
+        updateSidebar();
+        saveGame();
+        return;
+    }
+
+        // Se arma principal for two-hand → força padrão
+    if (player.equippedWeapon?.twoHand) {
+        player.equippedWeapon = weapons["Mãos nuas"];
+        player.equippedSubWeapon = weapons["Mãos nuas"];
+        renderInventory();
+        updateSidebar();
+        saveGame();
+    }
+    // Se a arma principal for TWO HAND, ninguém entra no sub
+  if (player.equippedWeapon?.twoHand) {
+    equipWeapon("Mãos nuas");
+    equipSubWeapon("Mãos nuas");
+  }
+
+  // permitir two-hand fake (mesma arma nas duas mãos)
+  if (
+    weapon.slot === "main" &&
+    player.equippedWeapon?.name === weaponName
+  ) {
+    player.equippedSubWeapon = weapon;
+    renderInventory();
+    return;
+  }
+
+  // armas TWO HAND nunca podem ir pro sub
+  if (weapon.twoHand) return;
+
     if (
     weapon.slot === "main" &&
     player.equippedWeapon?.name === weaponName
   ) {
     player.equippedSubWeapon = weapon;
     renderInventory();
+    return;
+  }
+    if (weapon.twoHand) {
     return;
   }
 
@@ -3651,56 +3751,100 @@ function applyDamage(target, damage, type) {
 
 /* ===== AÇÕES DO JOGADOR ===== */
 function attack() {
-  if (!processStatuses(player, "player")) { if (enemy.hp > 0 && player.hp > 0) setTimeout(enemyAction, 800); return; }
+
+  if (!processStatuses(player, "player")) {
+    if (enemy.hp > 0 && player.hp > 0)
+      setTimeout(enemyAction, 800);
+    return;
+  }
 
   updateMagicUI();
 
+  // ===== CEGUEIRA =====
   const blindMiss = hasStatus(player, "blinded") ? 0.35 : 0;
-  if (Math.random() < blindMiss) { log(`${player.name} tentou atacar, mas estava cego e errou!`); if (enemy.hp > 0) setTimeout(enemyAction, 800); return; }
+  if (Math.random() < blindMiss) {
+    log(`${player.name} tentou atacar, mas estava cego e errou!`);
+    if (enemy.hp > 0) setTimeout(enemyAction, 800);
+    return;
+  }
 
   const weapon = player.equippedWeapon;
-  const critChance = 0.15;
-  const isCrit = Math.random() < critChance;
-  let baseDamage
-  if(weapon.type === "fisic"){
-     baseDamage = Math.floor(Math.random() * player.strength) + weapon.baseDamage;
-  }else if(weapon.type === "distance"){
-    baseDamage = Math.floor(Math.random() * player.dex) + weapon.baseDamage;
-  }else{
-    baseDamage = Math.floor(Math.random() * 8) + weapon.baseDamage;
+  const sub    = player.equippedSubWeapon;
+
+  // ===== BASE DO DANO POR TIPO =====
+  let baseDamage = 0;
+
+  if (weapon.type === "fisic") {
+    baseDamage =
+      Math.floor(Math.random() * player.strength) +
+      weapon.baseDamage;
+
+  } else if (weapon.type === "distance") {
+    baseDamage =
+      Math.floor(Math.random() * player.dex) +
+      weapon.baseDamage;
+
+  } else {
+    // mágico / outros
+    baseDamage =
+      Math.floor(Math.random() * 8) +
+      weapon.baseDamage;
   }
 
-  if (hasStatus(player, "curse")) {
-    baseDamage = Math.floor(baseDamage * 0.7); // -30% dano
+  // ===== DUAL HAND =====
+  if (sub && sub.type === "weapon") {
+
+    // se a principal for twoHand, ignora sub
+    if (!weapon.twoHand) {
+      baseDamage += Math.floor(sub.baseDamage * 0.8);
+    }
   }
+
+  // ===== MALDIÇÃO =====
+  if (hasStatus(player, "curse")) {
+    baseDamage = Math.floor(baseDamage * 0.7);
+  }
+
+  // ===== CRÍTICO =====
+  const critChance = 0.15;
+  const isCrit = Math.random() < critChance;
 
   let damage = isCrit ? baseDamage * 2 : baseDamage;
 
+  // ===== GELO =====
   if (hasStatus(enemy, "frozen")) {
     damage *= 2;
     clearStatus(enemy, "frozen");
+
     log(`❄️ O gelo que envolvia ${enemy.name} se quebra com o impacto!`);
-    // se quebrar gelo, aplica sangramento por sinergia
+
+    // sinergia
     applyStatus(enemy, "bleeding", 3, 8);
   }
 
- enemy.hp = Math.max(0, enemy.hp - damage);
+  // ===== APLICA DANO =====
+  enemy.hp = Math.max(0, enemy.hp - damage);
 
-  narrateAttack("player", enemy.name, damage, isCrit, false, "fisic");
+  narrateAttack(
+    "player",
+    enemy.name,
+    damage,
+    isCrit,
+    false,
+    weapon.type
+  );
 
-updateBars();
+  updateBars();
 
-if (enemy.hp <= 0) {
-  log(`${enemy.name} foi derrotado!`);
-  console.log("onEnd:", BattleManager.onEnd);
-  endBattle(true);
-  return;
-} else {
+  // ===== FIM DE COMBATE =====
+  if (enemy.hp <= 0) {
+    log(`${enemy.name} foi derrotado!`);
+    endBattle(true);
+    return;
+  }
+
   setTimeout(enemyAction, 800);
 }
-
-}
-
 
 function calculateWeaponDamage(attacker, defender, skill, weapon) {
   let base =
@@ -4527,7 +4671,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     distributeAttributePoints(player);
     recalculateMaxStats();
-
+    equipWeapon("Mãos nuas");
+    equipSubWeapon("Mãos nuas");
     saveGame();
     discoverPower();
 
