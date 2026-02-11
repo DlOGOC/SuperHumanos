@@ -3538,37 +3538,80 @@ function cleric(){
   let trainingDescription;
   switch (guild.cleric) {
     case 1:
-      trainingDescription = ``;
+      trainingDescription = `Você é levada para o pequeno templo anexo à guilda. O cheiro de incenso domina o lugar. Uma mulher de voz calma te recebe com um sorriso gentil.
+
+      "Sou Irmã Selene. Se quer seguir o caminho da luz, primeiro precisa aprender a escutar."
+
+      O dia inteiro é dedicado a orações e ensinamentos sobre compaixão, fé e disciplina. Você não lança nenhuma magia, mas sente algo diferente, como se seu peito estivesse mais leve.`;
       break;
+
     case 2:
-      trainingDescription = ``;
+      trainingDescription = `Quando você retorna, encontra um garoto ajoelhado diante do altar. Ele parece tão nervoso quanto você.
+
+      "Este é Tomas. Vai trilhar o mesmo caminho que você."
+
+      Selene ensina as duas primeiras preces de cura. Você e Tomas passam horas tentando canalizar energia sagrada, falhando mais do que acertando.
+
+      No fim da tarde, você consegue fechar um pequeno corte em sua própria mão.`;
+      setFlag(meetTomas, true);
+      meetCharacter("Tomas");
+      learnSkill("cura_leve");
       break;
+
     case 3:
-      trainingDescription = ``;
+      trainingDescription = `Hoje Selene leva vocês para ajudar no bairro pobre da cidade. "Clérigos não servem só em templos", ela diz.
+
+      Você e Tomas cuidam de feridos, limpam curativos e tentam usar a magia em pessoas reais. É muito mais difícil do que no treinamento.
+
+      Quando uma criança para de chorar após sua bênção, você entende por que escolheu esse caminho.`;
+      player.mind += 1;
       break;
+
     case 4:
-      trainingDescription = ``;
+      trainingDescription = `Selene decide testar vocês de outra forma.
+
+      "Nem todo inimigo é físico. Às vezes a fé também precisa se defender."
+
+      Vocês praticam proteção e resistência espiritual. Tomas tem mais facilidade, mas você compensa com determinação.
+
+      Pela primeira vez, você sente a presença da luz respondendo de verdade às suas palavras.`;
       break;
+
     case 5:
-      trainingDescription = ``;
+      trainingDescription = `Você chega e encontra Tomas discutindo com Selene sobre o teste final.
+
+      A irmã explica: "Clérigos precisam saber curar, mas também suportar a dor do mundo. O teste de vocês será um combate ritual."
+
+      Vocês treinam o dia todo, alternando entre curas e pequenos duelos com maças de treino.
+
+      O clima entre você e Tomas fica mais tenso — ninguém quer falhar tão perto do fim.`;
       break;
+
     case 6:
-      trainingDescription = ``;
+      trainingDescription = `O templo está silencioso, com vários membros da guilda assistindo.
+
+      Selene entrega a você e a Tomas duas maças cerimoniais.
+
+      "Hoje vocês provarão não quem é mais forte, mas quem melhor compreende o equilíbrio entre misericórdia e coragem."
+
+      Tomas te olha com respeito, mas também com vontade de vencer.`;
       break;
+
     default:
       break;
-      }
+  }
 
-      const story = `${trainingDescription}`;
-      changeScene(story, () =>{
-        criarBotaoHistoria("Continuar", "posTraining");
-      },
-      320,
-      "powerText",
-      "powerChoices",
-      "cleric"
-    )
+  const story = `${trainingDescription}`;
+  changeScene(story, () =>{
+    criarBotaoHistoria("Continuar", "posTraining");
+  },
+  320,
+  "powerText",
+  "powerChoices",
+  "cleric"
+  )
 }
+
 
 function posTraining(){
   const story = `"Você se saiu bem gaorta, continue vindo, estou ansioso para amanhã."
