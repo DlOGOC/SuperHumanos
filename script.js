@@ -1234,6 +1234,18 @@ const skills = {
     description: "Fragmentos incandescentes queimam o alvo"
  },
 
+  explosao: {
+    name: "Explosão",
+    type: "fire",
+    power: 1.5,
+    manaCost: 15,
+    critChance: 0.2,
+    target: "all_enemies",
+    description: "Uma grande explosão de fogo que atinge todos os inimigos"
+  },
+
+
+
   /* ===== ICE ===== */
   congelar: {
     name: "Congelar",
@@ -1499,7 +1511,16 @@ const skills = {
     critChance: 0.1,
     manaCost: 12,
     description: "O sangue do inimigo fortalece as trevas"
+  },
+
+  ritual_sombrio: {
+    name: "Ritual Sombrio",
+    power: 0.8,
+    heal: true,
+    areaHeal: true
   }
+
+
 };
 
 /* ===== ENCANTAMENTOS =====*/
@@ -1510,10 +1531,12 @@ const spellDictionary = {
   ignis: "bola_de_fogo",
   flamma: "muralha_de_chamas",
   favilla: "brasas_vivas",
+  megu: "explosao",
 
   /* ===== ICE ===== */
   glacies: "congelar",
   hiems: "nevasca",
+  nix: "lanca_de_gelo",
 
   /* ===== ELETRIC ===== */
   fulgur: "pulso_arcano",
@@ -3610,7 +3633,8 @@ const enemies = {
     skills: [
       "silencio_arcano",
       "toque_sombrio",
-      "bola_de_fogo"
+      "bola_de_fogo",
+      "ritual_sombrio"
     ],
 
     skillChance: 0.6, // 60% de chance de usar habilidade
@@ -3976,7 +4000,7 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
         break;
       case "fire":
         narration = `🔥 ${player.name} desencadeia uma explosão de chamas — crítico! ${defenderName} é engolido pelo fogo, causando ${damage} de dano!`;
-        applyStatus(enemy, "burning", 3, Math.max(2, Math.round(target.maxHp * 0.03)));
+        applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp * 0.03)));
         break;
       case "ice":
         narration = `❄️ Um golpe gélido perfeito! ${player.name} congela partes do ${defenderName}, causando dano crítico, causando ${damage} de dano!`;
@@ -4318,6 +4342,27 @@ function getMagicScaling(player, skill) {
   }
 }
 
+function getTargets(user, skill, isEnemy) {
+
+  switch(skill.target){
+
+    case "all_enemies":
+      return isEnemy ? Battle.allies : enemiesInBattle;
+
+    case "all_allies":
+      return isEnemy ? enemiesInBattle : Battle.allies;
+
+    case "self":
+      return [user];
+
+    case "single":
+    default:
+      return [
+        isEnemy ? player : getSelectedEnemy()
+      ];
+  }
+}
+
 function weaponSkill(skillKey) {
   const enemy = getSelectedEnemy();
 if (!enemy) return;
@@ -4405,7 +4450,23 @@ if (!enemy) return;
   }
 
   damage = applyDamage(enemy, damage, skill.type);
-  enemy.hp = Math.max(0, enemy.hp - damage);
+  const targets = getTargets(player, skill, false);
+
+targets.forEach(target => {
+
+  if (!target || target.hp <= 0) return;
+
+  let finalDamage = applyDamage(target, damage, skill.type);
+
+  target.hp = Math.max(0, target.hp - finalDamage);
+
+  // status exemplo
+  if (skill.applyBurn && finalDamage > 0) {
+    applyStatus(target, "burning", 3, 6);
+  }
+
+});
+
 
   if (skill.applySilence && damage > 0) {
   applyStatus(
@@ -4756,14 +4817,32 @@ function useSkill(user, target, skillKey, isEnemy = false) {
   const skill = skills[skillKey];
   if (!skill) return;
 
-  // cura
   if (skill.heal) {
+
+  if (isEnemy && skill.areaHeal) {
+
+    enemiesInBattle.forEach(ally => {
+      if (!ally || ally.hp <= 0) return;
+
+      let heal = Math.floor(user.attack * skill.power);
+
+      ally.hp = Math.min(ally.maxHp, ally.hp + heal);
+
+      log(`✨ ${user.name} cura ${ally.name} (${heal})`);
+    });
+
+  } else {
     let heal = Math.floor(user.attack * skill.power);
     user.hp = Math.min(user.maxHp, user.hp + heal);
+
     log(`✨ ${user.name} usa ${skill.name} e se cura (${heal})`);
-    updateBars();
-    return;
   }
+
+  updateBars();
+  return;
+}
+
+
 
   // dano base
   let base = Math.floor(user.attack * skill.power);
