@@ -3464,56 +3464,73 @@ function thief(){
       break;
 
     case 2:
-      trainingDescription = `Kael te espera sentado sobre uma mesa, girando uma moeda entre os dedos. Ao lado dele está outra garota, mais baixa que você, com cabelo preso e olhar desconfiado.
+      trainingDescription = `Kael te espera sentado sobre uma mesa, girando uma moeda entre os dedos. Ao lado dele está outra garota, postura relaxada demais para alguém que deveria ser novata.
 
-      "Essa é Mira. Vai treinar com você a partir de hoje."
+      "Essa é Mira. Chegou ontem e já acha que manda no lugar."
 
-      Mira não fala muito, mas aprende rápido. Vocês passam o dia praticando furtividade entre obstáculos enquanto Kael atira pequenas pedras para testar seus reflexos. Cada erro é punido com flexões ou corrida ao redor do pátio.
+      Ela te mede de cima a baixo com um sorriso debochado. "Então você é a outra? Espero que não seja lenta."
 
-      No final, você já consegue atravessar metade do percurso sem fazer barulho.`;
+      O treino vira uma competição desde o primeiro minuto. Vocês atravessam obstáculos em silêncio enquanto Kael derruba garrafas para testar seus reflexos. Mira sempre tenta ir um passo além, como se precisasse provar algo.
+
+      No fim do dia, você está exausta… e irritada por admitir que ela é realmente boa.`;
+
       setFlag(meetMira, true);
       meetCharacter("Mira");
       break;
 
     case 3:
-      trainingDescription = `Hoje o foco são fechaduras. Kael espalha cofres velhos sobre a mesa e entrega a você e Mira um conjunto de gazuas.
+      trainingDescription = `Hoje o foco são fechaduras. Kael espalha cofres velhos e entrega as gazuas.
 
-      "Um ladino não arromba portas, ele convence elas a se abrirem."
+      Mira abre o primeiro cadeado antes mesmo de você entender o ângulo certo. Ela te olha de canto e sussurra: "Se ficar para trás, não vou te esperar."
 
-      Você quebra três ferramentas antes de conseguir abrir a primeira tranca. Mira ri da sua cara, mas logo depois sofre o mesmo destino.
+      As horas passam entre cliques metálicos e provocações. Sempre que você acerta, ela finge indiferença. Sempre que erra, ela solta um riso curto.
 
-      As horas passam entre cliques metálicos e xingamentos baixos. Quando o sol começa a cair, você finalmente abre um cadeado sem ajuda.`;
+      Quando finalmente você abre um cofre difícil, Mira para de sorrir por um segundo. É a primeira vez que ela te vê como ameaça de verdade.`;
+
       break;
 
     case 4:
-      trainingDescription = `Kael decide que vocês já estão prontas para algo mais sério. Ele leva as duas para um beco atrás da guilda e explica:
+        trainingDescription = `Kael entra com Rudo logo atrás. O guerreiro cruza os braços e observa vocês duas como se fossem presas.
 
-      "Hoje vocês vão aprender a lutar de verdade. Nada de bonecos."
+        "Hoje não vão lutar contra bonecos", diz Kael. "Rudo vai testar se vocês aguentam pressão real."
 
-      Vocês treinam esquiva e golpes rápidos com adagas cegas. Mira é ágil como um gato e te acerta mais vezes do que você gostaria de admitir.
+        Mira engole seco, mas tenta disfarçar. Antes de começar, ela se aproxima de você:
 
-      Mesmo assim, Kael diz que você melhorou — seus movimentos estão menos travados e mais instintivos.`;
+        "Não me faça passar vergonha."
+
+        O treino vira um inferno. Rudo avança sem piedade e vocês precisam se virar como podem. Em um momento, Mira te puxa pela gola para te tirar da trajetória da espada dele.
+
+        Pela primeira vez, você percebe que ela não é só rival… talvez seja parceira também.`;
+
       player.agility += 2;
       break;
 
     case 5:
-      trainingDescription = `Ao chegar, você encontra Mira treinando sozinha, repetindo movimentos na frente do espelho rachado da sala.
+      trainingDescription = `Você chega cedo e encontra Mira treinando sozinha. O sorriso dela sumiu.
 
-      Kael aparece pouco depois e anuncia: "Últimos dias. Depois disso, vem o teste."
+      "Kael disse que o teste final é entre nós duas."
 
-      O treino vira uma mistura de tudo: furtividade, arrombamento e combate. Vocês duas competem o tempo todo, às vezes em silêncio, às vezes com provocações.
+      O resto do dia é pesado. Vocês treinam em silêncio, sem provocações. Cada golpe parece mais sério que o anterior.
 
-      Você sente que, pela primeira vez, está pensando como uma ladina de verdade.`;
+      Quando estão saindo, Mira para na porta:
+
+      "Amanhã eu vou ganhar. Mas… obrigada por ter me feito melhorar."
+
+      É o máximo de carinho que você já ouviu dela.`;
+
       break;
 
-    case 6:
-      trainingDescription = `A sala está cheia de membros da guilda observando. Mira está ao seu lado, respirando fundo.
+   case 6:
+      trainingDescription = `A sala está cheia. Ladinos veteranos assistem encostados nas paredes. Kael entrega duas adagas de aço.
 
-      Kael caminha entre vocês com duas adagas de aço nas mãos.
+      Mira respira fundo ao seu lado.
 
-      "O teste final é simples: vocês duas vão lutar. Sem truques mortais, mas sem piedade também. Quem vencer prova que está pronta."
+      "Sem ressentimentos, tá?" ela sussurra.
 
-      Mira te encara com um meio sorriso nervoso. É hoje.`;
+      Kael levanta a voz: "Esse combate decide quem entra na guilda. Lutem como se a vida de vocês dependesse disso."
+
+      Mira te encara — não com deboche, mas com respeito.`;
+
       break;
 
     default:
@@ -3546,24 +3563,32 @@ function cleric(){
       break;
 
     case 2:
-      trainingDescription = `Quando você retorna, encontra um garoto ajoelhado diante do altar. Ele parece tão nervoso quanto você.
+      trainingDescription = `Você encontra um garoto ajoelhado diante do altar. Ele se levanta rápido demais e quase derruba o incenso.
 
-      "Este é Tomas. Vai trilhar o mesmo caminho que você."
+      "Sou Tomas… prazer."
 
-      Selene ensina as duas primeiras preces de cura. Você e Tomas passam horas tentando canalizar energia sagrada, falhando mais do que acertando.
+      Selene explica que vocês aprenderão juntos. Diferente de você, ele fala demais, pergunta demais e duvida de tudo.
 
-      No fim da tarde, você consegue fechar um pequeno corte em sua própria mão.`;
+      Enquanto você tenta sentir a energia sagrada, Tomas reclama: "Se isso é dom divino, podia vir com manual."
+
+      No fim do dia, você consegue fechar um pequeno corte. Tomas falha — e finge que não se importa.`;
+
       setFlag(meetTomas, true);
       meetCharacter("Tomas");
       learnSkill("cura_leve");
       break;
 
     case 3:
-      trainingDescription = `Hoje Selene leva vocês para ajudar no bairro pobre da cidade. "Clérigos não servem só em templos", ela diz.
+      trainingDescription = `No bairro pobre, Tomas trava ao ver um homem sangrando muito.
 
-      Você e Tomas cuidam de feridos, limpam curativos e tentam usar a magia em pessoas reais. É muito mais difícil do que no treinamento.
+      "Eu não consigo… e se eu errar?"
 
-      Quando uma criança para de chorar após sua bênção, você entende por que escolheu esse caminho.`;
+      Selene manda você assumir. Suas mãos tremem, mas a cura funciona. Depois, Tomas te observa em silêncio.
+
+      Mais tarde ele admite: "Entrei pra ser clérigo porque tenho medo de não conseguir proteger ninguém."
+
+      Pela primeira vez, você entende quem ele é de verdade.`;
+
       player.mind += 1;
       break;
 
@@ -3578,23 +3603,29 @@ function cleric(){
       break;
 
     case 5:
-      trainingDescription = `Você chega e encontra Tomas discutindo com Selene sobre o teste final.
+      trainingDescription = `Selene anuncia que o teste final será entre vocês dois.
 
-      A irmã explica: "Clérigos precisam saber curar, mas também suportar a dor do mundo. O teste de vocês será um combate ritual."
+      Tomas fica pálido. "Eu não queria lutar com você."
 
-      Vocês treinam o dia todo, alternando entre curas e pequenos duelos com maças de treino.
+      O treino vira estranho. Vocês se ajudam e ao mesmo tempo se estudam, como se cada gesto pudesse decidir o futuro.
 
-      O clima entre você e Tomas fica mais tenso — ninguém quer falhar tão perto do fim.`;
+      Antes de ir embora ele diz:
+
+      "Promete que, ganhe quem ganhar, a gente continua amigo?"`;
+
       break;
 
     case 6:
-      trainingDescription = `O templo está silencioso, com vários membros da guilda assistindo.
+      trainingDescription = `O templo está lotado. Selene entrega as maças cerimoniais.
 
-      Selene entrega a você e a Tomas duas maças cerimoniais.
+      Tomas segura a dele com força.
 
-      "Hoje vocês provarão não quem é mais forte, mas quem melhor compreende o equilíbrio entre misericórdia e coragem."
+      "Se eu apanhar, pega leve nas piadas depois."
 
-      Tomas te olha com respeito, mas também com vontade de vencer.`;
+      Selene ergue a voz: "Que a luz julgue seus corações."
+
+      Você sente que não é só uma luta — é a despedida do treinamento de vocês dois.`;
+
       break;
 
     default:
