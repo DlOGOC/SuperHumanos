@@ -2350,7 +2350,6 @@ function changeScene(
   sceneName = null
 ) {
 
-  // 👇 AQUI É O PONTO CRUCIAL
   if (sceneName) {
     gameState.currentScene = sceneName;
     saveGame();
@@ -2534,7 +2533,6 @@ function unpackGameState() {
 function saveGame() {
   packGameState();
   localStorage.setItem("rpgSave", JSON.stringify(gameState));
-  log("💾 Jogo salvo.");
 }
 
 function loadGame() {
@@ -2548,8 +2546,6 @@ function loadGame() {
   updateSidebar();
   updateCloth();
   updateGameTimeDisplay();
-
-  log("📂 Jogo carregado.");
   return true;
 }
 
@@ -4498,7 +4494,7 @@ if (!enemy) return;
 if (enemy.hp <= 0) {
 
   log(`${enemy.name} foi derrotado!`);
-
+gainXP(enemy.xp||0);
   enemiesInBattle.splice(selectedEnemyIndex, 1);
 
   if (enemiesInBattle.length === 0) {
@@ -4680,7 +4676,7 @@ if (enemy.hp > 0) {
 if (enemy.hp <= 0) {
 
   log(`${enemy.name} foi derrotado!`);
-
+gainXP(enemy.xp||0);
   enemiesInBattle.splice(selectedEnemyIndex, 1);
 
   if (enemiesInBattle.length === 0) {
