@@ -3305,10 +3305,17 @@ function mage(){
 
       break;
     case 5:
-      trainingDescription = ``;
+      trainingDescription = `Você chega no salão e Lucy está treinando sozinha, quando te vê, ela para "Nenhum deles chegou ainda, aparentemente, Legh está doente, pelo menos foi o que eu ouvi do recepcionista" você assente e começam a praticar os fundamentos da magia que já aprenderam até Rudo chegar que parece orgulhoso ao ver vocês duas próximas "A regra mais importante do nosso mundo: sempre tenha amigos, pois ninguém consegue lidar com tudo sozinho"
+      
+      Vocês continuam o treinamento, agora sob o olhar atento de Rudo que ajuda em situações pontuais,  Depois de algumas horas, vocês são interrompidas e o professor encerra o dia. Vocês duas estão cansadas, porém se sentem melhores.
+      
+      Quando vocês estão saindo, ele as para "Descansem bastante, amanhã será o dia do seu teste final, aqui na guilda, nós temos o costume de fazer esse teste no último dia de treinamento, como são duas de vocês no mesmo nível, será um combate. Então se preparem, amanhã será um dia importante"`;
+      player.mind+=1;
       break;
     case 6:
-      trainingDescription = ``;
+      trainingDescription = `Você chega na sala de treinamento, muitas outras pessoas estão sentadas esperando, quando você entra, Lucy está sentada e a cumprimenta, se levantando.
+      
+      Rudo avista você e pede para vocês duas se prepararem.`;
       break;
     default:
       break;
@@ -3328,6 +3335,17 @@ function mage(){
         "mage"
       )
       }
+
+      if(guild.mage == 6){
+        changeScene(story, () =>{
+          criarBotaoHistoria("Lutar", "fightLucy");
+        },
+      320,
+      "powerText",
+      "powerChoices",
+      "mage"
+      )
+    }
       changeScene(story, () =>{
         criarBotaoHistoria("Continuar", "posTraining");
       },
@@ -3380,6 +3398,52 @@ function loseRudo2(){
     "powerText",
     "powerChoices",
     "loseRudo2"
+  );
+}
+
+function fightLucy(){
+      startBattle("Lucy", (won) => {
+    if (won) {
+      winLucy();
+    } else {
+      loseLucy();
+    }
+  });
+}
+
+function winLucy(){
+  let story = `O combate é acirrado, vocês duas usando suas magias ao limite, quase esgotadas restando apenas para uma última bola de fogo, o suor caindo, molhando todo o chão, quanco percebem o estado de vocês mesmas, como uma dança, as duas param uma de frente para outra, conjurando uma bola de fogo, os ecantamentos ecoando pela sala, duas bolas de fogo gigante e completamente esgotadas, vocês duas lançam as magias.
+  
+  A luz é cegante, as duas magias se misturando em um vórtice de chamas, e quando Lucy cai sobre os joelhos Legh rápidamente assume o comando e com a ajuda de outros magos, fazem o vórtice desaparecer, declarando você como vencedora antes que vocês desmaiem de exaustão.
+  
+  Vocês duas acordam algumas horas depois, rodeadas dos outros aventureiros que parabenizam as duas pelos seus feitos.`;
+
+  forceStoryScreen();
+    changeScene(story, () =>{
+      criarBotaoHistoria("Continuar", "posTraining");
+    },
+    320,
+    "powerText",
+    "powerChoices",
+    "winLucy"
+  );
+}
+
+function loseLucy(){
+  let story = `O combate é acirrado, vocês duas usando suas magias ao limite, quase esgotadas restando apenas para uma última bola de fogo, o suor caindo, molhando todo o chão, quanco percebem o estado de vocês mesmas, como uma dança, as duas param uma de frente para outra, conjurando uma bola de fogo, os ecantamentos ecoando pela sala, duas bolas de fogo gigante e completamente esgotadas, vocês duas lançam as magias.
+  
+  A luz é cegante, as duas magias se misturando em um vórtice de chamas, e quando você cai sobre os joelhos Legh rápidamente assume o comando e com a ajuda de outros magos, fazem o vórtice desaparecer, declarando Lucy como vencedora antes que vocês desmaiem de exaustão.
+  
+  Vocês duas acordam algumas horas depois, rodeadas dos outros aventureiros que parabenizam as duas pelos seus feitos.`;
+
+  forceStoryScreen();
+    changeScene(story, () =>{
+      criarBotaoHistoria("Continuar", "posTraining");
+    },
+    320,
+    "powerText",
+    "powerChoices",
+    "winLucy"
   );
 }
 
@@ -3615,6 +3679,25 @@ const enemies = {
     description: "O treinador da guilda."
   },
 
+  lucy:{
+    name: "Lucy",
+    hp: 150,
+    maxHp: 150,
+    maxMana: 150,
+    attack: 20,
+    defense: 25,
+    powerType: "fire",
+    status: {},
+    skills: [
+      "bola_de_fogo",
+      "lanca_de_gelo",
+      "grande_bola_de_fogo"
+    ],
+    xp: 300,
+    skillChance: 0.8,
+    description: "Sua rival da guilda, seus olhos são determinados"
+  },
+
   demon: {
     name: "Demônio Abissal",
     hp: 220,
@@ -3654,7 +3737,7 @@ const enemies = {
       "estocada_precisa", 
       "corte_giratorio"
     ],
-    
+    xp: 300,
     skillChance: 0.6,
     description: "Sua rival de treino, ela, tanto quanto você tem motivos para vencer essa luta"
   }
