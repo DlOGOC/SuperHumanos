@@ -767,6 +767,15 @@ button:hover { background: rgba(255,255,255,0.12); }
   border-left-color: #586e31;
 }
 
+.enemy-target-btn {
+  margin: 4px;
+  padding: 6px 10px;
+}
+
+.enemy-target-btn.selected {
+  border: 2px solid #fff;
+}
+
 /* ==== Barra de rolagem estilizada ==== */
 .battle-log-box::-webkit-scrollbar {
   width: 6px;

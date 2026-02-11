@@ -3459,6 +3459,67 @@ function posTraining(){
 
 /* ========== COMBATE ========== */
 
+let selectedEnemyIndex = 0;
+function getSelectedEnemy() {
+  return enemiesInBattle[selectedEnemyIndex] || null;
+}
+
+function nextEnemyTarget() {
+  if (enemiesInBattle.length <= 1) return;
+
+  currentEnemyIndex++;
+
+  if (currentEnemyIndex >= enemiesInBattle.length)
+    currentEnemyIndex = 0;
+
+  const enemy = getCurrentEnemy();
+
+  document.getElementById("enemy-name").innerText = enemy.name;
+
+  updateBars();
+}
+
+
+function createCombatant(baseData, team) {
+  return {
+    id: crypto.randomUUID(),
+
+    team,
+
+    name: baseData.name,
+
+    hp: baseData.hp,
+    maxHp: baseData.maxHp,
+
+    mana: baseData.mana || 0,
+    maxMana: baseData.maxMana || 0,
+
+    attack: baseData.attack || 0,
+    defense: baseData.defense || 0,
+
+    dex: baseData.dex || 5,
+
+    status: structuredClone(baseData.status || {}),
+    skills: structuredClone(baseData.skills || []),
+
+    isPlayer: baseData.isPlayer || false
+  };
+}
+
+const Battle = {
+  active: false,
+
+  allies: [],
+  enemies: [],
+
+  turnQueue: [],
+  turnIndex: 0,
+
+  state: "idle",
+
+  onEnd: null
+};
+
 let BattleManager = {
   active: false,
   enemy: null,
@@ -3487,7 +3548,12 @@ function endBattle(result) {
 /* =========================
    LISTA DE INIMIGOS
 ========================= */
-let enemy = {};
+let enemiesInBattle = [];
+let currentEnemyIndex = 0;
+
+function getCurrentEnemy() {
+  return enemiesInBattle[currentEnemyIndex];
+}
 
 const enemies = {
   drone: {
@@ -3498,6 +3564,7 @@ const enemies = {
     defense: 5,
     powerType: "Elétrico",
     status: {},
+    xp: 100,
     description: "Um drone enviado pelo governo para caçar supers.",
   },
 
@@ -3525,6 +3592,7 @@ const enemies = {
       "corte_giratorio",
       "corte_forte"
     ],
+    xp: 250,
     skillChance: 0.6,
     description: "O treinador da guilda."
   },
@@ -3628,6 +3696,91 @@ function bindSkillTooltip(btn, skill) {
 /* =========================
    INÍCIO DO COMBATE
 ========================= */
+function StartBattle(config, onEnd) {
+
+  Battle.active = true;
+  Battle.onEnd = onEnd;
+
+  Battle.allies = config.allies.map(a =>
+    createCombatant(a, "ally")
+  );
+
+  Battle.enemies = config.enemies.map(name => {
+    const base = Object.values(enemies)
+      .find(e => e.name === name);
+
+    return createCombatant(base, "enemy");
+  });
+
+  buildTurnQueue();
+
+  Battle.turnIndex = 0;
+
+  nextTurn();
+}
+
+function buildTurnQueue() {
+
+  Battle.turnQueue = [
+    ...Battle.allies,
+    ...Battle.enemies
+  ].filter(c => c.hp > 0);
+
+  Battle.turnQueue.sort(
+    (a,b)=> b.dex - a.dex
+  );
+}
+
+function nextTurn() {
+
+  if (checkBattleEnd()) return;
+
+  if (Battle.turnIndex >= Battle.turnQueue.length)
+    Battle.turnIndex = 0;
+
+  const actor = Battle.turnQueue[Battle.turnIndex];
+
+  if (actor.hp <= 0) {
+    Battle.turnIndex++;
+    nextTurn();
+    return;
+  }
+
+  if (actor.isPlayer) {
+    startPlayerTurn(actor);
+  } else {
+    setTimeout(()=> enemyTurn(actor), 600);
+  }
+}
+
+function endTurn() {
+
+  Battle.turnIndex++;
+
+  buildTurnQueue();
+
+  setTimeout(nextTurn, 400);
+}
+
+function checkBattleEnd() {
+
+  const alliesAlive = Battle.allies.some(a => a.hp > 0);
+  const enemiesAlive = Battle.enemies.some(e => e.hp > 0);
+
+  if (!alliesAlive) {
+    endBattle(false);
+    return true;
+  }
+
+  if (!enemiesAlive) {
+    endBattle(true);
+    return true;
+  }
+
+  return false;
+}
+
+
 function startBattle(enemyName, onEndCallback) {
   if (typeof onEndCallback !== "function") {
     console.error("startBattle chamado SEM callback:", enemyName);
@@ -3659,17 +3812,35 @@ if (logBox) logBox.innerHTML = "";
 
 
   // procura o inimigo na lista
+enemiesInBattle = [];
+
+selectedEnemyIndex = 0;
+
+if (Array.isArray(enemyName)) {
+
+  enemyName.forEach(name => {
+    const foundEnemy = Object.values(enemies).find(e => e.name === name);
+    if (foundEnemy) {
+      enemiesInBattle.push(structuredClone(foundEnemy));
+    }
+  });
+
+} else {
+
   const foundEnemy = Object.values(enemies).find(e => e.name === enemyName);
   if (foundEnemy) {
-    enemy = structuredClone(foundEnemy);
-  } else {
-    enemy = { name: enemyName, hp: 50, maxHp: 50, attack: 8, defense: 5, powerType: "Físico", status: {} };
+    enemiesInBattle.push(structuredClone(foundEnemy));
   }
+
+}
 
   document.getElementById("story-screen").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
   const pn = document.getElementById("playerName"); if (pn) pn.innerText = player.name;
-  const en = document.getElementById("enemy-name"); if (en) en.innerText = enemy.name;
+  const en = document.getElementById("enemy-name"); 
+  const firstEnemy = getCurrentEnemy();
+    if (en && firstEnemy) en.innerText = firstEnemy.name;
+
 
   player.hp = Math.min(player.hp, player.maxHp);
   player.mana = Math.min(player.mana, player.maxMana);
@@ -3677,10 +3848,59 @@ if (logBox) logBox.innerHTML = "";
 
   updateBars();
   updateSkills();
-  log(`⚔️ ${enemy.description || "Um inimigo apareceu!"}`);
+
+  
+if (en && firstEnemy) en.innerText = firstEnemy.name;
+log(`⚔️ ${firstEnemy?.description || "Um inimigo apareceu!"}`);
+
+renderEnemyTargets();
+updateEnemyHUD();
+
+}
+
+function renderEnemyTargets() {
+  const container = document.getElementById("enemy-targets");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  enemiesInBattle.forEach((enemy, index) => {
+
+    const btn = document.createElement("button");
+
+    btn.innerText = enemy.name;
+    btn.className = "enemy-target-btn";
+
+    if (index === selectedEnemyIndex) {
+      btn.classList.add("selected");
+    }
+
+btn.onclick = () => {
+  selectedEnemyIndex = index;
+  renderEnemyTargets();
+  updateEnemyHUD();
+};
+
+
+    container.appendChild(btn);
+  });
+}
+
+function updateEnemyHUD() {
+
+  const enemy = getSelectedEnemy();
+  if (!enemy) return;
+
+  const en = document.getElementById("enemy-name");
+  if (en) en.innerText = enemy.name;
+
+  updateBars();
 }
 
 function updateStatusIcons() {
+  const enemy = getCurrentEnemy();
+if (!enemy) return;
+
   const playerStatusEl = document.getElementById("player-status");
   const enemyStatusEl = document.getElementById("enemy-status");
   if (!playerStatusEl || !enemyStatusEl) return;
@@ -3722,6 +3942,7 @@ function updateStatusIcons() {
 
   playerStatusEl.innerHTML = makeIcons(player);
   enemyStatusEl.innerHTML = makeIcons(enemy);
+
 }
 
 /* Chame updateStatusIcons() sempre que atualizar turnos ou barras */
@@ -3729,13 +3950,22 @@ function updateBars() {
   const pct = (v,m) => Math.max(0, Math.min(100, (v/m)*100));
   document.getElementById("player-hp-fill").style.width = pct(player.hp, player.maxHp) + "%";
   document.getElementById("player-mana-fill").style.width = pct(player.mana, player.maxMana) + "%";
-  document.getElementById("enemy-hp-fill").style.width = pct(enemy.hp, enemy.maxHp) + "%";
+  const enemy = getSelectedEnemy();
+if (enemy) {
+  document.getElementById("enemy-hp-fill").style.width =
+    pct(enemy.hp, enemy.maxHp) + "%";
+}
+
   updateSidebar();
   updateStatusIcons(); 
 }
 
 /* Narrador dinâmico + aplica efeitos visuais */
-function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, attackType = "fisic", spellText = null) {
+function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, attackType = "fisic", spellText = null, enemy = null) {
+
+  if (!enemy && attacker === "player") {
+  enemy = getSelectedEnemy();
+}
 
   let narration = "";
 
@@ -3832,6 +4062,9 @@ function applyDamage(target, damage, type) {
 /* ===== AÇÕES DO JOGADOR ===== */
 function attack() {
 
+  const enemy = getSelectedEnemy();
+if (!enemy) return;
+
   if (!processStatuses(player, "player")) {
     if (enemy.hp > 0 && player.hp > 0)
       setTimeout(enemyAction, 800);
@@ -3917,11 +4150,34 @@ function attack() {
   updateBars();
 
   // ===== FIM DE COMBATE =====
-  if (enemy.hp <= 0) {
-    log(`${enemy.name} foi derrotado!`);
+if (enemy.hp <= 0) {
+
+  log(`${enemy.name} foi derrotado!`);
+  gainXP(enemy.xp||0);
+enemiesInBattle.splice(selectedEnemyIndex, 1);
+
+if (enemiesInBattle.length === 0) {
+  endBattle(true);
+  return;
+}
+
+if (selectedEnemyIndex >= enemiesInBattle.length) {
+  selectedEnemyIndex = 0;
+}
+
+renderEnemyTargets();
+updateEnemyHUD();
+
+
+
+  if (enemiesInBattle.length === 0) {
     endBattle(true);
     return;
   }
+
+  currentEnemyIndex = 0;
+}
+
 
   setTimeout(enemyAction, 800);
 }
@@ -4060,8 +4316,10 @@ function getMagicScaling(player, skill) {
   }
 }
 
-
 function weaponSkill(skillKey) {
+  const enemy = getSelectedEnemy();
+if (!enemy) return;
+
   if (!processStatuses(player, "player")) {
     if (enemy.hp > 0) setTimeout(enemyAction, 900);
     return;
@@ -4079,7 +4337,8 @@ function weaponSkill(skillKey) {
   if (!skill) return;
 
   if (
-    !weapon.skills.includes(skillKey) &&
+    !(weapon.skills || []).includes(skillKey)
+ &&
     !player.learnedSkills?.includes(skillKey)
   ) {
     log("Você não sabe usar essa habilidade.");
@@ -4236,12 +4495,23 @@ function weaponSkill(skillKey) {
 
   updateBars();
 
-  if (enemy.hp <= 0) {
-    log(`${enemy.name} foi derrotado!`);
+if (enemy.hp <= 0) {
+
+  log(`${enemy.name} foi derrotado!`);
+
+  enemiesInBattle.splice(selectedEnemyIndex, 1);
+
+  if (enemiesInBattle.length === 0) {
     endBattle(true);
-  } else {
-    setTimeout(enemyAction, 1000);
+    return;
   }
+
+  currentEnemyIndex = 0;
+}else {
+  setTimeout(enemyAction, 900);
+}
+
+
 }
 
 function defend() {
@@ -4276,6 +4546,9 @@ function updateMagicUI() {
 }
 
 function castSpellFromText() {
+  const enemy = getSelectedEnemy();
+if (!enemy) return;
+
   const input = document.getElementById("spell-input");
   if (!input) return;
 
@@ -4374,7 +4647,8 @@ narrateAttack(
   isCrit,
   false,
   skill.type,
-  skill.name
+  skill.name,
+  enemy
 );
 
 /* =========================
@@ -4399,11 +4673,27 @@ if (skill.applyCurse) {
 
 updateBars();
 
-if (enemy.hp <= 0) {
-  log(`${enemy.name} foi derrotado!`);
-  endBattle(true);
-} else {
+if (enemy.hp > 0) {
   setTimeout(enemyAction, 900);
+}
+
+if (enemy.hp <= 0) {
+
+  log(`${enemy.name} foi derrotado!`);
+
+  enemiesInBattle.splice(selectedEnemyIndex, 1);
+
+  if (enemiesInBattle.length === 0) {
+    endBattle(true);
+    return;
+  }
+
+  if (selectedEnemyIndex >= enemiesInBattle.length) {
+    selectedEnemyIndex = 0;
+  }
+
+  renderEnemyTargets();
+  updateEnemyHUD();
 }
 
 }
@@ -4580,6 +4870,10 @@ if (target.hp <= 0) {
 }
 
 function enemyAction() {
+
+  const enemy = enemiesInBattle[currentEnemyIndex];
+  if (!enemy) return;
+
   if (!processStatuses(enemy, "enemy")) {
     updateBars();
     return;
@@ -4597,9 +4891,21 @@ function enemyAction() {
   } else {
     enemyBasicAttack();
   }
+  currentEnemyIndex++;
+
+if (currentEnemyIndex >= enemiesInBattle.length) {
+  currentEnemyIndex = 0;
+  playerTurn();
+} else {
+  setTimeout(enemyAction, 900);
+}
+
 }
 
 function enemyBasicAttack() {
+  const enemy = enemiesInBattle[currentEnemyIndex];
+  if (!enemy) return;
+
   const blindMiss = hasStatus(enemy, "blinded") ? 0.25 : 0;
   const missChance = 0.1 + blindMiss;
 
@@ -4654,7 +4960,11 @@ const sub = player.equippedSubWeapon;
 
 /* ========== CONTROLE DE TURNOS ========== */
 function playerTurn(action) {
-  action();
+
+  if (typeof action === "function") {
+    action();
+  }
+
 }
 
 /* ========== LOG / NARRAÇÃO (com histórico colorido e scroll automático) ========== */
