@@ -1529,6 +1529,7 @@ const spellDictionary = {
 
   /* ===== FIRE ===== */
   ignis: "bola_de_fogo",
+  spour: "grande_bola_de_fogo",
   flamma: "muralha_de_chamas",
   favilla: "brasas_vivas",
   megu: "explosao",
@@ -3453,37 +3454,83 @@ function thief(){
   let trainingDescription;
   switch (guild.thief) {
     case 1:
-      trainingDescription = ``;
+      trainingDescription = `Você é levada para os fundos da guilda, um lugar apertado cheio de cordas, alvos riscados e mesas com fechaduras desmontadas. Um homem magro, de olhos cansados e sorriso torto, te observa encostado na parede.
+
+      "Sou Kael. Não ensino a lutar bonito, ensino a sobreviver", ele diz jogando uma adaga de treino para você.
+
+      As primeiras horas são humilhantes. Você tenta golpear um boneco de palha e ele corrige cada passo, cada movimento dos seus dedos. Kael explica que um ladino não vence pela força, mas pela precisão, pelo silêncio e pelo momento certo.
+
+      No fim do dia, suas mãos estão doloridas, mas você sente que começou a entender como se mover sem desperdiçar energia.`;
       break;
+
     case 2:
-      trainingDescription = ``;
+      trainingDescription = `Kael te espera sentado sobre uma mesa, girando uma moeda entre os dedos. Ao lado dele está outra garota, mais baixa que você, com cabelo preso e olhar desconfiado.
+
+      "Essa é Mira. Vai treinar com você a partir de hoje."
+
+      Mira não fala muito, mas aprende rápido. Vocês passam o dia praticando furtividade entre obstáculos enquanto Kael atira pequenas pedras para testar seus reflexos. Cada erro é punido com flexões ou corrida ao redor do pátio.
+
+      No final, você já consegue atravessar metade do percurso sem fazer barulho.`;
+      setFlag(meetMira, true);
+      meetCharacter("Mira");
       break;
+
     case 3:
-      trainingDescription = ``;
+      trainingDescription = `Hoje o foco são fechaduras. Kael espalha cofres velhos sobre a mesa e entrega a você e Mira um conjunto de gazuas.
+
+      "Um ladino não arromba portas, ele convence elas a se abrirem."
+
+      Você quebra três ferramentas antes de conseguir abrir a primeira tranca. Mira ri da sua cara, mas logo depois sofre o mesmo destino.
+
+      As horas passam entre cliques metálicos e xingamentos baixos. Quando o sol começa a cair, você finalmente abre um cadeado sem ajuda.`;
       break;
+
     case 4:
-      trainingDescription = ``;
+      trainingDescription = `Kael decide que vocês já estão prontas para algo mais sério. Ele leva as duas para um beco atrás da guilda e explica:
+
+      "Hoje vocês vão aprender a lutar de verdade. Nada de bonecos."
+
+      Vocês treinam esquiva e golpes rápidos com adagas cegas. Mira é ágil como um gato e te acerta mais vezes do que você gostaria de admitir.
+
+      Mesmo assim, Kael diz que você melhorou — seus movimentos estão menos travados e mais instintivos.`;
+      player.agility += 2;
       break;
+
     case 5:
-      trainingDescription = ``;
+      trainingDescription = `Ao chegar, você encontra Mira treinando sozinha, repetindo movimentos na frente do espelho rachado da sala.
+
+      Kael aparece pouco depois e anuncia: "Últimos dias. Depois disso, vem o teste."
+
+      O treino vira uma mistura de tudo: furtividade, arrombamento e combate. Vocês duas competem o tempo todo, às vezes em silêncio, às vezes com provocações.
+
+      Você sente que, pela primeira vez, está pensando como uma ladina de verdade.`;
       break;
+
     case 6:
-      trainingDescription = ``;
+      trainingDescription = `A sala está cheia de membros da guilda observando. Mira está ao seu lado, respirando fundo.
+
+      Kael caminha entre vocês com duas adagas de aço nas mãos.
+
+      "O teste final é simples: vocês duas vão lutar. Sem truques mortais, mas sem piedade também. Quem vencer prova que está pronta."
+
+      Mira te encara com um meio sorriso nervoso. É hoje.`;
       break;
+
     default:
       break;
-      }
+  }
 
-      const story = `${trainingDescription}`;
-      changeScene(story, () =>{
-        criarBotaoHistoria("Continuar", "posTraining");
-      },
-      320,
-      "powerText",
-      "powerChoices",
-      "thief"
-    )
+  const story = `${trainingDescription}`;
+  changeScene(story, () =>{
+    criarBotaoHistoria("Continuar", "posTraining");
+  },
+  320,
+  "powerText",
+  "powerChoices",
+  "thief"
+  )
 }
+
 
 function cleric(){
   guild.cleric++;
@@ -3683,7 +3730,7 @@ const enemies = {
     name: "Lucy",
     hp: 150,
     maxHp: 150,
-    maxMana: 150,
+    maxMana: 250,
     attack: 20,
     defense: 25,
     powerType: "fire",
