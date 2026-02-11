@@ -759,13 +759,13 @@ function closeBook() {
 const shields = {
   "Escudo de madeira": {
     name: "Escudo de madeira",
-    defenseBonus: 4,
+    defenseBonus: 2,
     blockChance: 0.25
   },
 
   "Escudo de aço": {
     name: "Escudo de aço",
-    defenseBonus: 7,
+    defenseBonus: 4,
     blockChance: 0.35
   }
 };
@@ -848,31 +848,31 @@ const ARMORS = {
   full_thief: {
     id: "full_thief",
     name: "Armadura de Ladino Completa",
-    defense: 6
+    defense: 4
   },
 
   full_thief_no_mask:{
     id: "full_thief_no_mask",
     name: "Armadura de Ladino Completa (Sem Máscara)",
-    defense: 6
+    defense: 4
   },
 
   thief_mask:{
     id: "thief_mask",
     name: "Armadura de Ladino",
-    defense: 6
+    defense: 3
   },
 
   thief_no_mask:{
     id: "thief_no_mask",
     name: "Armadura de Ladino (Sem Máscara)",
-    defense: 6
+    defense: 3
   },
 
   warrior_guid_no_fur:{
     id: "warrior_guid_no_fur",
     name: "Armadura de guerreiro da guilda",
-    defense: 6
+    defense: 4
   },
 
  warrior_guild_fur:{
@@ -884,7 +884,7 @@ const ARMORS = {
   mage_guild:{
     id: "mage_guild",
     name: "Armadura de mago da guilda",
-    defense: 6
+    defense: 3
   }
 };
 
@@ -1513,7 +1513,6 @@ const spellDictionary = {
 
   /* ===== ICE ===== */
   glacies: "congelar",
-  nix: "prisao_de_gelo",
   hiems: "nevasca",
 
   /* ===== ELETRIC ===== */
@@ -3622,8 +3621,8 @@ const enemies = {
     name: "Crhistine",
     hp: 150,
     maxHp: 150,
-    attack: 15,
-    defense: 10,
+    attack: 20,
+    defense: 20,
     powerType: "fisic",
     status: {},
     skills:[
@@ -3977,7 +3976,7 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
         break;
       case "fire":
         narration = `🔥 ${player.name} desencadeia uma explosão de chamas — crítico! ${defenderName} é engolido pelo fogo, causando ${damage} de dano!`;
-        applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp*0.03)));
+        applyStatus(enemy, "burning", 3, Math.max(2, Math.round(target.maxHp * 0.03)));
         break;
       case "ice":
         narration = `❄️ Um golpe gélido perfeito! ${player.name} congela partes do ${defenderName}, causando dano crítico, causando ${damage} de dano!`;
@@ -4036,8 +4035,15 @@ function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, atta
   } else if (attacker === "enemy" && wasDefended) {
     narration = `${defenderName} atacou, mas ${player.name} defendeu parcialmente, reduzindo o dano.`;
   } else if (attacker === "enemy" && !isCrit && !wasDefended) {
-    narration = `${defenderName} atacou e causou ${damage} de dano em ${player.name}.`;
-  }
+
+  const special = getEnemyAttackDescription(defenderName);
+
+  narration = special
+    ? `${special} e causou ${damage} de dano`
+    : `${defenderName} atacou e causou ${damage} de dano em ${player.name}.`;
+
+}
+
 
   if (narration) log(narration);
 }
@@ -4474,7 +4480,7 @@ if (!enemy) return;
     ========================= */
     
     if(skill.applyBurn){
-      applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp*0.03)));
+      applyStatus(enemy, "burning", 3, Math.max(2, Math.round(target.maxHp * 0.03)));
       log(`🔥 ${enemy.name} está queimando.`)
     }
 
@@ -4779,6 +4785,17 @@ function useSkill(user, target, skillKey, isEnemy = false) {
   // aplica dano
   target.hp = Math.max(0, target.hp - base);
 
+  narrateAttack(
+  isEnemy ? "enemy" : "player",
+  isEnemy ? user.name : target.name,
+  base,
+  isCrit,
+  false,
+  skill.type,
+  skill.name,
+  target
+);
+
   // lifesteal
   if (skill.lifesteal) {
     const heal = Math.floor(base * skill.lifesteal);
@@ -4814,7 +4831,7 @@ if (skill.applySilence && base > 0) {
 
   // ===== QUEIMADURA =====
     else if (skill.type == "fire" && isCrit){
-      applyStatus(target, "burning", 3, Math.max(2, Math.round(enemy.maxHp*0.03)));
+      applyStatus(target, "burning", 3, Math.max(2, Math.round(target.maxHp * 0.03)));
       log(`🔥 ${user.name} causa um crítico encendeador!`)      
     }
   // ===== CONGELAMENTO =====
@@ -4942,7 +4959,6 @@ const sub = player.equippedSubWeapon;
 
   player.hp = Math.max(0, player.hp - damage);
 
-  log(getEnemyAttackDescription(enemy.name));
   narrateAttack("enemy", enemy.name, damage, isCrit, false);
 
   if (player.hp <= 0) {
@@ -4973,8 +4989,8 @@ function log(msg) {
 
   // Define uma classe CSS com base no tipo da mensagem
   if (/💀|☠️/i.test(msg)) p.classList.add("log-death");
-  else if (/🔥|queim|Pirocinese|fogo|ignis/i.test(msg)) p.classList.add("log-fire");
-  else if (/❄️|gelo|Criogenese|frio|congel/i.test(msg)) p.classList.add("log-ice");
+  else if (/🔥|queim|Pirocinese|fogo|ignis|chamas|brasas/i.test(msg)) p.classList.add("log-fire");
+  else if (/❄️|gelo|Criogenese|frio|congel|nevasca/i.test(msg)) p.classList.add("log-ice");
   else if (/🌀|Telecinese|impacto/i.test(msg)) p.classList.add("log-tele");
   else if (/⚡|paralis|eletrocinese|faísca|elétric|choque|raio/i.test(msg)) p.classList.add("log-eletric");
   else if (/💥|crítico|critico/i.test(msg)) p.classList.add("log-crit");
