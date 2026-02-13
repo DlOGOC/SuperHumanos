@@ -324,8 +324,14 @@ function updateVitiligo() {
     return;
   }
 
-  img.src =
+  if(!player?.isVampire){
+      img.src =
     `img/faces/skin/effects/vitiligo/${playerFace.skin}/${playerFace.skin_color}.webp`;
+  } else{
+    img.src = `img/faces/skin/effects/vitiligo/${playerFace.skin}/ears_${playerFace.skin_color}.webp`;
+    img.classList.add("flip");
+  }
+
 }
 
 function updateFreckles() {
@@ -336,9 +342,13 @@ function updateFreckles() {
     img.src = EMPTY_IMG;
     return;
   }
-
-  img.src =
-    `img/faces/skin/effects/freckles/${playerFace.skin}/${playerFace.skin_color}.webp`;
+  
+  if(!player?.isVampire){
+    img.src = `img/faces/skin/effects/freckles/${playerFace.skin}/${playerFace.skin_color}.webp`;
+  }else{
+    img.src = `img/faces/skin/effects/freckles/${playerFace.skin}/ears_${playerFace.skin_color}.webp`;
+  }
+  
 }
 
 function updateSkin() {
@@ -347,6 +357,7 @@ function updateSkin() {
   document.getElementById("skin-color").src = `${base}_color.webp`;
   document.getElementById("skin-line").src  = `${base}_line.webp`;
   updateVitiligo();
+  updateVampireEars();
 }
 
 function updateEyes() {
@@ -371,7 +382,33 @@ function updateVampireEye(){
   if(!img) return;
 
   img.src = `img/eyes/${playerFace.eye_shape}/colors/vampire.webp`;
+
 }
+
+function updateVampireEars(){
+  const lineImg  = document.getElementById("vampire-ears-line");
+  const colorImg = document.getElementById("vampire-ears-color");
+
+  if (!lineImg || !colorImg) return;
+
+  if (!player?.isVampire){
+    lineImg.src  = EMPTY_IMG;
+    colorImg.src = EMPTY_IMG;
+    return;
+  }
+
+  if (!playerFace?.skin || !playerFace?.skin_color){
+    lineImg.src  = EMPTY_IMG;
+    colorImg.src = EMPTY_IMG;
+    return;  
+  }
+
+  const base = `img/skin/base/${playerFace.skin}/`;
+
+  colorImg.src = `${base}ears_${playerFace.skin_color}_color.webp`;
+  lineImg.src  = `${base}ears_${playerFace.skin_color}_line.webp`;
+}
+
 
 function updateWerewolfEye(){
   const img = document.getElementById("eye-color");
@@ -403,6 +440,16 @@ function updateWerewolfEars(){
 
   lineImg.src = base + playerFace.hair_front_color + "_line.webp";
   colorImg.src = base + playerFace.hair_front_color + "_color.webp";
+}
+
+function becomeVampire(){
+  player.isVampire = true;
+  updateFace();
+}
+
+function cureVampire(){
+  player.isVampire = false;
+  updateFace();
 }
 
 function becomeWerewolf(){
@@ -474,6 +521,7 @@ function updateFace() {
   updateSkinEffects()
   updateFatigueVisuals();
   updateWerewolfEars();
+  updateVampireEars();
 }
 
 updateFace();

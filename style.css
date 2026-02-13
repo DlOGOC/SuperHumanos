@@ -250,72 +250,52 @@ body {
 }
 
  
-#hair-back-color    { z-index: 0; }
-#hair-back-line     { z-index: 1; }
+/* CABELO DE TRÁS */
+#hair-back-color    { position: absolute; z-index: 0; }
+#hair-back-line     { position: absolute; z-index: 1; }
 
-#skin-color         { z-index: 2; }
-#skin-line          { z-index: 3; }
+/* PELE */
+#skin-color         { position: absolute; z-index: 2; }
+#skin-line          { position: absolute; z-index: 3; }
 
-.skin-effect {
-  position: absolute;
-  z-index: 4;
-  pointer-events: none;
+/* ORELHA DE VAMPIRO (anatomia normal) */
+#vampire-ears-color { position: absolute; z-index: 4; }
+#vampire-ears-line  { position: absolute; z-index: 5; }
+
+/* EFEITOS DE PELE */
+#skin-vitiligo      { position: absolute; z-index: 6; }
+#skin-freckles      { position: absolute; z-index: 7; }
+
+/* BOCA */
+#mouth-color        { position: absolute; z-index: 8; }
+#mouth-line         { position: absolute; z-index: 9; }
+
+/* SOBRANCELHA */
+#eyebrow-color      { position: absolute; z-index: 10; }
+#eyebrow-line       { position: absolute; z-index: 11; }
+
+/* OLHOS */
+#eye-darkcircles    { position: absolute; z-index: 12; }
+#eye-sclera         { position: absolute; z-index: 13; }
+#eye-color          { position: absolute; z-index: 14; }
+#eye-line           { position: absolute; z-index: 15; }
+
+/* ROUPA */
+#cloth-color        { position: absolute; z-index: 16; }
+#cloth-line         { position: absolute; z-index: 17; }
+
+/* CABELO FRONTAL */
+#hair-front-color   { position: absolute; z-index: 18; }
+#hair-front-line    { position: absolute; z-index: 19; }
+
+/* ORELHA DE LOBISOMEM (transformação agressiva) */
+#ears_color         { position: absolute; z-index: 20; }
+#ears_line          { position: absolute; z-index: 21; }
+
+.flip {
+  transform: scaleX(-1);
 }
 
-#skin-vitiligo      { z-index: 4; }
-#skin-freckles      { z-index: 5; }
-
-#mouth-color {
-  position: absolute;
-  z-index: 6;
-}
-
-#mouth-line {
-  position: absolute;
-  z-index: 7;
-  pointer-events: none;
-}
-
-
-#eyebrow-color { 
-  position: absolute;
-  z-index: 8; 
-}
-
-#eyebrow-line { 
-  position: absolute;
-  z-index: 9; 
-  pointer-events: none;
-}
-
-#eye-darkcircles {
-  position: absolute;
-  z-index: 10;
-  pointer-events: none;
-}
-
-#eye-sclera         { z-index: 11; }
-
-#eye-color          { z-index: 12; }
-#eye-line           { z-index: 13; }
-
-#cloth-color {
-  position: absolute;
-  z-index: 14;
-}
-
-#cloth-line {
-  position: absolute;
-  z-index: 15;
-  pointer-events: none;
-}
-
-
-#hair-front-color   { z-index: 16; }
-#hair-front-line    { z-index: 17; }
-
-#ears_line          { z-index: 18; }
-#ears_color         { z-index: 19; }
 
 .char-creation {
   display: grid;
