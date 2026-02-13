@@ -709,24 +709,30 @@ const books = {
     title: "Grimório das Chamas",
     pages: [
 
-`Eu era apenas um aprendiz quando vi o fogo pela primeira vez obedecer à minha voz.
+`O fogo começa pequeno.
+  Sempre pequeno.
 
-Não era como as tochas da vila.  
-Era vivo.  
-Escutava.`,
+  Um homem certa vez observou a própria cidade queimar.
+  Não foi acidente.
+  Não foi guerra.
 
-`O mestre dizia:
+  Foi escolha.
 
-"Toda chama tem um nome,  
-mas o nome queima a língua de quem não merece."
+  Ele ergueu a mão e murmurou algo quase inaudível —
+  não como quem ordena,
+  mas como quem aceita.
 
-Passei noites tentando descobrir.`,
+  As chamas não explodiram.
+  Elas surgiram das próprias cinzas.
+  favilla... ele disse, enquanto o primeiro telhado desabava.
 
-`Foi no porão da torre que encontrei rabiscado:
+  O curioso é que o fogo não obedecia à voz,
+  mas à convicção.
+  Só quando ele compreendeu que destruir também é criar,
+  as brasas ganharam forma.
 
-      I G N I S
-
-Desde então, o fogo me reconhece.`
+  E então a cidade virou memória.
+  `
 
     ]
   }
@@ -4793,7 +4799,7 @@ targets.forEach(target => {
     ========================= */
     
     if(skill.applyBurn){
-      applyStatus(enemy, "burning", 3, Math.max(2, Math.round(target.maxHp * 0.03)));
+      applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp * 0.03)));
       log(`🔥 ${enemy.name} está queimando.`)
     }
 
