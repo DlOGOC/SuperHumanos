@@ -444,6 +444,8 @@ function updateWerewolfEars(){
 
 function becomeVampire(){
   player.isVampire = true;
+  playerFace.hair_front_color = "white";
+  playerFace.hair_back_color = "white";
   updateFace();
 }
 
@@ -864,6 +866,16 @@ const weapons = {
     slot: "main"
   },
 
+  "Adaga": {
+    name: "Adaga",
+    type: "fisic",
+    baseDamage: 6,
+    skills: [
+      "apunhalar", "estocada_precisa"
+    ],
+    slot: "both"
+  },
+
   "Arco do ladino": {
     name: "Arco do ladino",
     type: "distance",
@@ -1219,6 +1231,15 @@ const skills = {
     manaCost: 10,
     applyBleed: true,
     description: "Um golpe rápido e preciso visando pontos vitais"
+  },
+
+  apunhalar: {
+    name: "Apunhalar",
+    type: "weapon_skill",
+    power: 1.5,
+    critChance: 0.40,
+    manaCost: 15,
+    description: "Uma apunhalada visando um ataque crítico"
   },
 
   esmagar: {
@@ -2641,7 +2662,6 @@ function manualLoad() {
     return;
   }
 
-  // 🔥 ISSO É O QUE FALTAVA
   startGameUI();
 
   // Se houver cena salva, volta pra ela
@@ -3220,9 +3240,41 @@ function fightRudo1() {
 }
 
 function winRudo1(){
-  let story = `O combate estava acirrado e quando você ia dar o golpe final, Stevan para a luta.
-  
-  Você sente que venceu.`;
+  let story = `O aço já canta há minutos.
+
+    Cada golpe seu encontra o de Rudo com força brutal. O impacto reverbera pelos braços, pelo ombro, pela coluna. Ele não pega leve. Cada ataque dele é preciso, pesado, calculado para quebrar sua defesa.
+
+    Você sangra. Ele também.
+
+    Mas você continua avançando.
+
+    Rudo sorri ao perceber que você não recua nem quando a lâmina dele quase parte sua guarda ao meio.
+
+    Ele gira, ataca pela lateral — você bloqueia.
+
+    Ele avança — você responde com um golpe direto no peitoral.
+
+    O impacto o faz recuar meio passo.
+
+    É o suficiente.
+
+    Você gira o corpo, usa o peso inteiro do seu torso e desce a lâmina com tudo.
+
+    Antes que o golpe atinja, Stevan entra no meio.
+
+    "O suficiente!"
+
+    O silêncio toma conta do campo.
+
+    Sua lâmina estava a centímetros do pescoço de Rudo.
+
+    Ele respira fundo… e sorri.
+
+    "Bem feito."
+
+    Você não sente que apenas venceu.
+
+    Você sente que foi reconhecido.`;
 
   forceStoryScreen();
 
@@ -3238,9 +3290,39 @@ function winRudo1(){
 }
 
 function loseRudo1(){
-  let story = `O combate estava acirado, mas com um movimento surpresa, Rudo ataca seu estômago e começa um ataque sobre sua cabeça, você não vai conseguir desviar...
-  
-  Mas antes que o ataque o atinja, Stevan para a luta. Mesmo sem um final definitivo, você sente que perdeu.`;
+  let story = `O combate começa equilibrado.
+
+    Mas Rudo luta como alguém que já viu campos de batalha reais.
+
+    Ele começa a pressionar.
+
+    Seus golpes ficam mais pesados. Mais rápidos. Mais difíceis de ler.
+
+    Você bloqueia. Aguenta. Responde.
+
+    Até errar.
+
+    Por um segundo, sua guarda abre.
+
+    Rudo não hesita.
+
+    A lâmina dele para contra seu pescoço.
+
+    Você nem viu o movimento completo.
+
+    Stevan ergue a mão.
+
+    "Vitória de Rudo."
+
+    Você tenta respirar normalmente, mas o peito arde.
+
+    Rudo se afasta.
+
+    "Você é forte. Mas ainda pensa demais antes de agir."
+
+    Não é humilhação.
+
+    É um aviso.`;
 
   forceStoryScreen();
 
@@ -3265,15 +3347,77 @@ function fightCrhistine(){
 }
 
 function winCrhistine(){
-  let story = `O combate é acirrado, as duas estão no mesmo nível de habilidade, o som das espadas é quase ensurdecedor, a cada golpe trocado os outros na sala rugem de empolgação.
-  
-  Vocês duas estão dando o seu melhor e evitam com sucesso muitos ataques, mas ainda alguns acertam, deixando cortes e ferimentos pelo corpo todo de vocês, o suor nas duas é visível, tornando o ambiente mais quente, o combate fica cada vez mais intenso.
-  
-  Vocês batem as espadas com força e sincronizdas como em uma dança recuam e se preaparam para o golpe final, afinal, nenhuma de vocês duas aguenta mais um único golpe, com um grito, as duas partem uma para cima da outra com a espada mas o cintilar de espadas não é ouvido.
-  
-  Sem nem perceber que você fechou os olhos, você vê Rudo no meio de vocês, segurando as espadas com as mãos mesmo, a sala no mais profundo silêncio, ninguém ousa respirar, até que ele fala
-  
-  "${player.name} é a vencedora!" e a sala vai a loucura, você e Crhistine caem no chão, sem forças, mas contentes por terem dado o melhor de vocês.`;
+  let story = `O combate já deixou de ser técnica há muito tempo.
+
+    Agora é instinto.
+
+    O som das espadas se chocando ecoa pela sala como trovões metálicos. Cada impacto vibra nos ossos. Cada bloqueio arranca força dos braços já exaustos. A plateia ruge, mas o som parece distante — como se o mundo tivesse se reduzido apenas a você e Christine.
+
+    Vocês estão no mesmo nível.
+
+    E isso é o problema.
+
+    Golpes são desviados por centímetros. Lâminas raspam pele. O cheiro de ferro começa a se misturar ao suor. Pequenos cortes ardem nos braços, no rosto, nas costelas. Nenhuma das duas recua.
+
+    Nenhuma cede.
+
+    Vocês giram, avançam, bloqueiam — é quase belo. Uma dança violenta, sincronizada, mortal.
+
+    Até que as espadas se chocam com força total.
+
+    O impacto faz as duas recuarem.
+
+    Respiração pesada. Visão turva. Pernas tremendo.
+
+    Vocês sabem.
+
+    Mais um golpe.
+
+    Só mais um.
+
+    Em silêncio, se encaram. Não há ódio ali — apenas reconhecimento. Respeito. Determinação.
+
+    Com um grito que rasga o ar, vocês avançam ao mesmo tempo.
+
+    Mas o som do choque nunca vem.
+
+    Quando você abre os olhos — sem perceber que os havia fechado — ele está ali.
+
+    Rudo.
+
+    No meio das duas.
+
+    Segurando as duas lâminas com as próprias mãos.
+
+    Sangue escorre entre seus dedos, mas ele não demonstra dor.
+
+    A sala mergulha em um silêncio absoluto.
+
+    Ninguém respira.
+
+    Ninguém se move.
+
+    A voz dele ecoa firme, incontestável:
+
+    — ${player.name} é a vencedora!
+
+    Por um segundo, nada acontece.
+
+    Então a sala explode.
+
+    Gritos. Aplausos. O chão treme.
+
+    Você sente as pernas falharem. Christine também cai. As duas atingem o chão quase ao mesmo tempo, olhando para o teto, ofegantes, incapazes de sequer levantar a espada.
+
+    Exaustas.
+
+    Feridas.
+
+    Orgulhosas.
+
+    Vocês deram tudo.
+
+    E sobreviveram.`;
 
   changeFriendship("Rudo", 5);
   changeFriendship("Crhistine", 5);
@@ -3289,15 +3433,75 @@ function winCrhistine(){
 }
 
 function loseCrhistine(){
-    let story = `O combate é acirrado, as duas estão no mesmo nível de habilidade, o som das espadas é quase ensurdecedor, a cada golpe trocado os outros na sala rugem de empolgação.
-  
-  Vocês duas estão dando o seu melhor e evitam com sucesso muitos ataques, mas ainda alguns acertam, deixando cortes e ferimentos pelo corpo todo de vocês, o suor nas duas é visível, tornando o ambiente mais quente, o combate fica cada vez mais intenso.
-  
-  Vocês batem as espadas com força e sincronizdas como em uma dança recuam e se preaparam para o golpe final, afinal, nenhuma de vocês duas aguenta mais um único golpe, com um grito, as duas partem uma para cima da outra com a espada mas o cintilar de espadas não é ouvido.
-  
-  Sem nem perceber que você fechou os olhos, você vê Rudo no meio de vocês, segurando as espadas com as mãos mesmo, a sala no mais profundo silêncio, ninguém ousa respirar, até que ele fala
-  
-  "Crhistine é a vencedora!" e a sala vai a loucura, você e Crhistine caem no chão, sem forças, mas contentes por terem dado o melhor de vocês.`;
+    let story = `O combate já não é sobre vencer.
+
+    É sobre quem cai primeiro.
+
+    As espadas se chocam tantas vezes que o som vira parte do próprio ar. Cada bloqueio é mais lento. Cada ataque exige esforço que o corpo já não tem. Christine sangra. Você também.
+
+    Nenhuma está inteira.
+
+    Nenhuma está disposta a parar.
+
+    O suor arde nos olhos. A respiração sai irregular. As mãos doem ao segurar a espada.
+
+    Vocês batem as lâminas com força e se afastam pela última vez.
+
+    Mais um golpe decidirá.
+
+    A plateia prende o fôlego.
+
+    Vocês avançam.
+
+    O mundo desacelera.
+
+    Mas desta vez você sente.
+
+    Um pequeno atraso no seu movimento. Um reflexo que falha por um segundo.
+
+    É o suficiente.
+
+    A lâmina de Christine passa pela sua defesa e para a poucos centímetros do seu pescoço.
+
+    Ao mesmo tempo, você sente sua própria espada sendo travada.
+
+    Rudo está ali.
+
+    No meio.
+
+    Segurando as duas lâminas com as mãos nuas.
+
+    O sangue escorre, mas ele não desvia o olhar.
+
+    Silêncio absoluto.
+
+    Ele observa as posições. A vantagem. A diferença mínima que decidiu tudo.
+
+    Então declara:
+
+    — Christine é a vencedora!
+
+    A sala explode em gritos.
+
+    Mas você não escuta direito.
+
+    Seu braço cede. A espada escorrega dos dedos. Você cai de joelhos primeiro.
+
+    Christine também cai instantes depois, completamente esgotada.
+
+    Não há zombaria.
+
+    Ela olha para você.
+
+    E naquele olhar não existe superioridade.
+
+    Existe respeito.
+
+    Você perdeu.
+
+    Mas ninguém ali ousaria dizer que foi fraca.
+
+    Porque, por um instante, a diferença entre vitória e derrota foi menor que um piscar de olhos.`;
 
   changeFriendship("Crhistine", 5);
   forceStoryScreen();
@@ -3362,17 +3566,72 @@ function mage(){
     case 5:
       trainingDescription = `Você chega no salão e Lucy está treinando sozinha, quando te vê, ela para "Nenhum deles chegou ainda, aparentemente, Legh está doente, pelo menos foi o que eu ouvi do recepcionista" você assente e começam a praticar os fundamentos da magia que já aprenderam até Rudo chegar que parece orgulhoso ao ver vocês duas próximas "A regra mais importante do nosso mundo: sempre tenha amigos, pois ninguém consegue lidar com tudo sozinho"
       
-      Vocês continuam o treinamento, agora sob o olhar atento de Rudo que ajuda em situações pontuais,  Depois de algumas horas, vocês são interrompidas e o professor encerra o dia. Vocês duas estão cansadas, porém se sentem melhores.
-      
-      Quando vocês estão saindo, ele as para "Descansem bastante, amanhã será o dia do seu teste final, aqui na guilda, nós temos o costume de fazer esse teste no último dia de treinamento, como são duas de vocês no mesmo nível, será um combate. Então se preparem, amanhã será um dia importante"`;
+      Vocês continuam o treinamento, agora sob o olhar atento de Rudo que ajuda em situações pontuais,  Depois de algumas horas, vocês são interrompidas e o professor encerra o dia. Vocês duas estão cansadas, porém se sentem melhores.`;
       player.mind+=1;
       break;
     case 6:
+      trainingDescription = `Quando vocês estão saindo do salão, exaustas após mais um dia de prática, a voz de Rudo ecoa atrás de vocês.
+
+      "Esperem."
+
+      O tom dele não é alto, mas é sério o suficiente para fazer as duas pararem imediatamente.
+
+      Ele caminha até ficar à frente de vocês. Não há sorriso dessa vez.
+
+      "Descansem bastante. Amanhã será o teste final."
+
+      O ar parece ficar mais pesado.
+
+      Lucy olha para você por um instante, e você percebe que ela também já entendeu o que isso significa.
+
+      Rudo continua:
+
+      "Aqui na guilda, o último dia não é sobre teoria. Não é sobre acertar um boneco parado. É sobre pressão. É sobre medo. É sobre controle."
+
+      Ele cruza os braços.
+
+      "Vocês duas estão no mesmo nível. Aprenderam juntas. Cresceram juntas. Então não faz sentido colocá-las contra alguém mais forte."
+
+      Um pequeno silêncio.
+
+      "Será um combate entre vocês."
+
+      Não há plateia mencionada. Não há regras explicadas. Apenas a declaração.
+
+      Lucy engole seco, mas não desvia o olhar. Pelo contrário — ela estende a mão para você.
+
+      "Sem pegar leve."
+
+      Não é um desafio. É um pedido.
+
+      Rudo observa a cena, satisfeito.
+
+      "Mana total. Equipamento padrão. Vitória por incapacitação. Eu estarei lá para impedir qualquer fatalidade."
+
+      Ele se aproxima um pouco mais, o olhar firme em você.
+
+      "${player.name}... amanhã não é só sobre vencer. É sobre provar que você consegue manter a cabeça fria quando tudo estiver desmoronando."
+
+      O silêncio que fica depois pesa mais que qualquer encantamento.
+
+      Vocês se despedem.
+
+      Pela primeira vez desde que começou o treinamento, você sente algo diferente da empolgação.
+
+      Expectativa.
+
+      Ansiedade.
+
+      E uma pontada de medo.
+
+      Amanhã, uma de vocês sairá vencedora.`;
+      
+      break;
+
+    default:
       trainingDescription = `Você chega na sala de treinamento, muitas outras pessoas estão sentadas esperando, quando você entra, Lucy está sentada e a cumprimenta, se levantando.
       
       Rudo avista você e pede para vocês duas se prepararem.`;
-      break;
-    default:
       break;
       }
 
@@ -3467,11 +3726,63 @@ function fightLucy(){
 }
 
 function winLucy(){
-  let story = `O combate é acirrado, vocês duas usando suas magias ao limite, quase esgotadas restando apenas para uma última bola de fogo, o suor caindo, molhando todo o chão, quanco percebem o estado de vocês mesmas, como uma dança, as duas param uma de frente para outra, conjurando uma bola de fogo, os ecantamentos ecoando pela sala, duas bolas de fogo gigante e completamente esgotadas, vocês duas lançam as magias.
-  
-  A luz é cegante, as duas magias se misturando em um vórtice de chamas, e quando Lucy cai sobre os joelhos Legh rápidamente assume o comando e com a ajuda de outros magos, fazem o vórtice desaparecer, declarando você como vencedora antes que vocês desmaiem de exaustão.
-  
-  Vocês duas acordam algumas horas depois, rodeadas dos outros aventureiros que parabenizam as duas pelos seus feitos.`;
+  let story = `O combate já não é mais técnica — é pura sobrevivência.
+
+    O ar da sala queima nos pulmões. Cada feitiço lançado deixa o corpo mais leve e mais pesado ao mesmo tempo, como se a própria alma estivesse sendo arrancada junto com o mana. O chão está encharcado de suor e fuligem. As paredes tremem a cada impacto.
+
+    Vocês duas estão no limite.
+
+    Os braços tremem. A visão falha nas bordas. Restam forças apenas para uma última magia.
+
+    E vocês sabem disso.
+
+    Quando percebem o estado uma da outra — roupas chamuscadas, respiração irregular, mãos queimadas pela própria conjuração — algo quase belo acontece. Como se fosse ensaiado. Como se fosse uma dança silenciosa que só duas magas exaustas poderiam entender.
+
+    Vocês param.
+
+    Frente a frente.
+
+    O silêncio que antecede o fim.
+
+    Os encantamentos começam quase como sussurros roucos, mas ganham força à medida que a última centelha de poder é arrancada do fundo do peito. O ar vibra. O chão racha. Duas esferas de fogo surgem — não são apenas bolas de fogo… são tudo o que restou de vocês.
+
+    Gigantes. Instáveis. Furiosas.
+
+    Vocês lançam.
+
+    A colisão não é uma explosão — é um colapso. A luz engole a sala. Um vórtice de chamas nasce no impacto, rugindo como uma criatura viva, puxando ar, poeira e magia para seu núcleo ardente. O calor é insuportável. O som é ensurdecedor.
+
+    E então...
+
+    Lucy cai de joelhos.
+
+    O corpo não responde mais.
+
+    Legh assume o comando antes que o vórtice consuma tudo. Grita ordens. Outros magos entram em ação, canalizando energia para estabilizar o caos. O turbilhão de fogo é comprimido, forçado a se desfazer em faíscas que evaporam no ar.
+
+    Quando a claridade se dissipa, resta apenas fumaça… e vocês duas quase inconscientes.
+
+    A voz de Legh ecoa pela sala, firme apesar da tensão:
+
+    "Vitória declarada."
+
+    Mas você mal escuta.
+
+    O mundo escurece.
+
+    Algumas horas depois, você desperta.
+
+    O cheiro de ervas medicinais substitui o da fumaça. O corpo dói como se tivesse sido esmagado, mas está inteiro. Ao redor, os outros aventureiros observam em silêncio respeitoso — não é euforia que preenche o ambiente, é admiração.
+
+    Lucy também está acordada.
+
+    Exausta. Viva.
+
+    Os parabéns vêm, mas são quase secundários. O que realmente ficou foi a sensação de ter atravessado o próprio limite… e voltado.
+
+    Vocês não saem desse duelo apenas como vencedora e derrotada.
+
+    Saem marcadas.`;
 
   forceStoryScreen();
     changeScene(story, () =>{
@@ -3485,11 +3796,95 @@ function winLucy(){
 }
 
 function loseLucy(){
-  let story = `O combate é acirrado, vocês duas usando suas magias ao limite, quase esgotadas restando apenas para uma última bola de fogo, o suor caindo, molhando todo o chão, quanco percebem o estado de vocês mesmas, como uma dança, as duas param uma de frente para outra, conjurando uma bola de fogo, os ecantamentos ecoando pela sala, duas bolas de fogo gigante e completamente esgotadas, vocês duas lançam as magias.
-  
-  A luz é cegante, as duas magias se misturando em um vórtice de chamas, e quando você cai sobre os joelhos Legh rápidamente assume o comando e com a ajuda de outros magos, fazem o vórtice desaparecer, declarando Lucy como vencedora antes que vocês desmaiem de exaustão.
-  
-  Vocês duas acordam algumas horas depois, rodeadas dos outros aventureiros que parabenizam as duas pelos seus feitos.`;
+  let story = `O combate já ultrapassou o limite do treino.
+
+    O ar está quente demais para respirar direito. Cada conjuração arranca algo de dentro de vocês. O chão está marcado por explosões anteriores, fuligem espalhada por todos os lados.
+
+    Vocês duas estão no fim.
+
+    Restam forças apenas para uma última bola de fogo.
+
+    O suor escorre pelo seu rosto, queimando ao tocar pequenos cortes. Seus braços tremem. A mana restante pulsa de forma instável dentro do peito.
+
+    Quando vocês se encaram, percebem o mesmo estado na outra.
+
+    Exaustas.
+    Feridas.
+    Determinadas.
+
+    Sem dizer uma palavra, como se fosse ensaiado, vocês se afastam alguns passos.
+
+    Os encantamentos começam.
+
+    As vozes saem roucas, mas firmes. O ar vibra. O calor aumenta. Duas esferas de fogo surgem — maiores do que qualquer uma que já conjuraram antes.
+
+    Não são apenas feitiços.
+
+    É tudo o que restou.
+
+    Vocês lançam.
+
+    A colisão é brutal. A luz explode pela sala, formando um vórtice de chamas que gira descontrolado, puxando ar e energia ao redor. O barulho é ensurdecedor.
+
+    Você tenta se manter de pé.
+
+    Tenta.
+
+    Mas sente primeiro.
+
+    Sua magia começa a falhar.
+
+    Por uma fração de segundo, a chama de Lucy se sobrepõe à sua.
+
+    É o suficiente.
+
+    A pressão atinge seu corpo como um impacto físico. O ar é arrancado dos seus pulmões. Seus joelhos cedem.
+
+    Você cai.
+
+    Ainda consciente o bastante para ver sua própria bola de fogo ser engolida pelo vórtice dominante.
+
+    Legh assume o comando imediatamente, junto de outros magos, dissipando o turbilhão antes que saia do controle.
+
+    O calor diminui.
+
+    A luz some.
+
+    E a voz firme ecoa pela sala:
+
+    "Lucy é a vencedora."
+
+    Você tenta se levantar.
+
+    Não consegue.
+
+    O mundo escurece antes mesmo de ouvir a reação da plateia.
+
+    Quando acorda, horas depois, o cheiro de ervas e pomadas substitui o da fumaça.
+
+    Seu corpo dói.
+
+    Mas está inteiro.
+
+    Ao seu lado, Lucy também está deitada, igualmente exausta. Ela percebe que você despertou e, apesar do cansaço, estende a mão em sua direção.
+
+    "Você quase me venceu."
+
+    Não há arrogância na voz dela.
+
+    Só respeito.
+
+    Os outros aventureiros parabenizam vocês duas. Não como vencedora e derrotada.
+
+    Mas como magas que ultrapassaram o próprio limite.
+
+    Você perdeu.
+
+    Mas sabe de uma coisa:
+
+    Não foi fraqueza.
+
+    Foi detalhe.`;
 
   forceStoryScreen();
     changeScene(story, () =>{
@@ -3550,11 +3945,7 @@ function thief(){
 
         Mira engole seco, mas tenta disfarçar. Antes de começar, ela se aproxima de você:
 
-        "Não me faça passar vergonha."
-
-        O treino vira um inferno. Rudo avança sem piedade e vocês precisam se virar como podem. Em um momento, Mira te puxa pela gola para te tirar da trajetória da espada dele.
-
-        Pela primeira vez, você percebe que ela não é só rival… talvez seja parceira também.`;
+        "Não me faça passar vergonha."`;
 
       player.agility += 2;
       break;
@@ -3592,6 +3983,19 @@ function thief(){
   }
 
   const story = `${trainingDescription}`;
+
+      if(guild.thief == 4){
+        player.equippedWeapon = weapons["Adaga"];
+        player.equippedSubWeapon = weapons["Adaga"];
+        changeScene(story, () =>{
+          criarBotaoHistoria("Se preparar", "fightRudo3");
+        },
+        320,
+        "powerText",
+        "powerChoices",
+        "thief"
+      )
+    }
   changeScene(story, () =>{
     criarBotaoHistoria("Continuar", "posTraining");
   },
@@ -3602,6 +4006,127 @@ function thief(){
   )
 }
 
+function fightRudo3(){
+    startBattle("Rudo", (won) => {
+    if (won) {
+      winRudo3();
+    } else {
+      loseRudo3();
+    }
+  });
+}
+
+function winRudo3(){
+  const story =`Rudo tenta manter você à vista.
+
+    Você não permite.
+
+    Passos leves. Mudanças de direção. Fintas.
+
+    Ele ataca onde você estava.
+
+    Você já não está mais lá.
+
+    Você testa. Provoca. Some.
+
+    Até que ele erra o tempo de um golpe.
+
+    Você surge atrás.
+
+    A lâmina para na lateral do pescoço dele.
+
+    Silêncio.
+
+    Kael ergue a mão.
+
+    "Vitória."
+
+    Rudo solta uma risada curta.
+
+    "Finalmente alguém que entende que luta não é espetáculo… é eficiência.
+    
+    Agora é a vez de Mira. O combate é completamente diferente, ela parece estar dançando com Rudo, mesmo que não acerte nenum golpe nele, ele também não acerta nada nela. até que ela arremessa suas facas em Rudo que se defende fácilmente e nem você conseguiu enxergar como ou quando, mas Mira está com os pés nos ombros do treinador, agachada e com as duas láminas se crusando no pescoço dele "venci" diz ela como se não fosse muita coisa e com um pulo para trás sai de cima das suas costas.
+    
+    O dia vai chegando ao fim, e você é liberada, você sente que aprendeu muito hoje."`;
+
+    forceStoryScreen();
+
+    changeScene(story, () =>{
+    criarBotaoHistoria("Continuar", "posTraining");
+  },
+  320,
+  "powerText",
+  "powerChoices",
+  "winRudo3"
+  )
+}
+
+function loseRudo3(){
+  const story =`Desde o primeiro movimento, fica claro que nenhum dos dois pretende encerrar aquilo rapidamente.
+
+    Você circula Rudo, leve, medindo distância, buscando ângulos. Ele mantém a postura firme, espada à frente, acompanhando cada passo seu com os olhos atentos de alguém que já enfrentou dezenas como você. O primeiro avanço é seu.
+
+    Você surge pela lateral, adaga mirando a abertura sob o braço dele. Rudo gira a lâmina no último segundo e o metal encontra metal, arrancando faíscas. Você recua antes do contra-ataque, sentindo o vento da espada passar pelo seu rosto.
+
+    O combate segue assim por minutos.
+
+    Você testa a guarda dele. Ataca alto, corta baixo, força movimentação. Em duas ocasiões consegue arranhar sua armadura. Em outra, sente a ponta da espada dele rasgar sua manga e marcar sua pele.
+
+    Nenhum golpe decisivo. Apenas desgaste. Rudo começa a pressionar.
+
+    Ele diminui o espaço, obrigando você a usar mais energia para escapar. Cada esquiva exige mais das suas pernas. Cada salto cobra fôlego.
+
+    Você tenta inverter o ritmo.
+
+    Finge um erro.
+
+    Deixa a guarda aberta de propósito.
+
+    Ele morde a isca.
+
+    A espada desce forte — você gira por baixo e consegue tocar as costelas dele com a ponta da adaga. Um golpe limpo. Mas não foi profundo o bastante.
+
+    Rudo aprende.
+
+    A partir dali, ele para de reagir.
+
+    Ele começa a antecipar.
+
+    Você percebe tarde demais.
+
+    Quando tenta flanquear novamente, ele não gira atrás de você — ele avança para onde você vai estar.
+
+    As lâminas se chocam de frente dessa vez.
+
+    Força contra agilidade.
+
+    Você tenta escorregar para o lado, mas o braço já está cansado. Sua troca de base é meio segundo mais lenta do que antes.
+
+    É o suficiente.
+
+    Rudo trava uma de suas adagas com a espada e, com a outra mão, segura seu pulso com força. Você ainda tenta se soltar. Gira o corpo. Usa o peso. Ele segura. A ponta da lâmina dele encosta no seu abdômen. Kael ergue a mão e encerra o combate.
+
+    Você está ofegante. Suado. Ferido.
+
+    Mas não derrotado por falta de habilidade.
+
+    Derrotado por desgaste.
+
+    Rudo solta seu pulso devagar.
+
+    "Excelente mobilidade," ele diz, respirando pesado também. "Mas você deixou eu ditar o ritmo no final."`
+
+    forceStoryScreen();
+
+    changeScene(story, () =>{
+    criarBotaoHistoria("Continuar", "posTraining");
+  },
+  320,
+  "powerText",
+  "powerChoices",
+  "loseRudo3"
+  )
+}
 
 function cleric(){
   guild.cleric++;
@@ -3617,55 +4142,33 @@ function cleric(){
       break;
 
     case 2:
-      trainingDescription = `Você encontra um garoto ajoelhado diante do altar. Ele se levanta rápido demais e quase derruba o incenso.
+      trainingDescription = `Você encontra uma garota ajoelhada diante do altar. Ela se levanta rápido demais e quase derruba o incenso.
 
-      "Sou Tomas… prazer."
+      "Sou Petra... prazer."
 
-      Selene explica que vocês aprenderão juntos. Diferente de você, ele fala demais, pergunta demais e duvida de tudo.
+      Selene explica que vocês aprenderão juntos. Diferente de você, ela fala demais, pergunta demais e duvida de tudo.
 
-      Enquanto você tenta sentir a energia sagrada, Tomas reclama: "Se isso é dom divino, podia vir com manual."
+      Enquanto você tenta sentir a energia sagrada, Petra reclama: "Se isso é dom divino, podia vir com manual."
 
-      No fim do dia, você consegue fechar um pequeno corte. Tomas falha — e finge que não se importa.`;
+      No fim do dia, você consegue fechar um pequeno corte. Petra falha — e finge que não se importa.`;
 
-      setFlag(meetTomas, true);
-      meetCharacter("Tomas");
+      setFlag(meetPetra, true);
+      meetCharacter("Petra");
       learnSkill("cura_leve");
       break;
 
     case 3:
-      trainingDescription = `No bairro pobre, Tomas trava ao ver um homem sangrando muito.
+      trainingDescription = ``;
 
-      "Eu não consigo… e se eu errar?"
-
-      Selene manda você assumir. Suas mãos tremem, mas a cura funciona. Depois, Tomas te observa em silêncio.
-
-      Mais tarde ele admite: "Entrei pra ser clérigo porque tenho medo de não conseguir proteger ninguém."
-
-      Pela primeira vez, você entende quem ele é de verdade.`;
-
-      player.mind += 1;
+      player.faith += 1;
       break;
 
     case 4:
-      trainingDescription = `Selene decide testar vocês de outra forma.
-
-      "Nem todo inimigo é físico. Às vezes a fé também precisa se defender."
-
-      Vocês praticam proteção e resistência espiritual. Tomas tem mais facilidade, mas você compensa com determinação.
-
-      Pela primeira vez, você sente a presença da luz respondendo de verdade às suas palavras.`;
+      trainingDescription = ``;
       break;
 
     case 5:
-      trainingDescription = `Selene anuncia que o teste final será entre vocês dois.
-
-      Tomas fica pálido. "Eu não queria lutar com você."
-
-      O treino vira estranho. Vocês se ajudam e ao mesmo tempo se estudam, como se cada gesto pudesse decidir o futuro.
-
-      Antes de ir embora ele diz:
-
-      "Promete que, ganhe quem ganhar, a gente continua amigo?"`;
+      trainingDescription = ``;
 
       break;
 
