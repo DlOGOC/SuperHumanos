@@ -50,8 +50,7 @@ function recalculateMaxStats() {
       Math.floor((vigor - 20) * HP_PER_VIGOR * 0.3);
   }
 
-  player.maxHp = BASE_HP + hpBonus;
-
+  player.maxHp = BASE_HP + hpBonus + (player.werewolfBonusVigor || 0);
 
   // ===== MANA =====
   const mind = player.mind;
@@ -72,7 +71,7 @@ function recalculateMaxStats() {
       Math.floor((mind - 20) * MANA_PER_MIND * 0.3);
   }
 
-  player.maxMana = BASE_MANA + manaBonus;
+  player.maxMana = BASE_MANA + manaBonus + (player.vampireBonusMind || 0);
 
 
   // ===== PRESERVAR PROPORÇÃO =====
@@ -129,8 +128,9 @@ let player = {
     turns: 0,
     previousMain: null,
     previousSub: null
-}
-
+},
+  vampireBonusMind: 0,
+  werewolfBonusVigor: 0
 };
 
 function calculateXpForLevel(level) {
@@ -453,21 +453,46 @@ function becomeVampire(){
   player.isVampire = true;
   playerFace.hair_front_color = "white";
   playerFace.hair_back_color = "white";
-  updateFace();
-}
+  learnSkill("forma_vampirica");
+  learnSkill("drenar_sangue");
 
-function cureVampire(){
-  player.isVampire = false;
+  const currentHpPercent = player.hp / player.maxHp;
+  if(player.vigor<10){
+  player.vigor = 1;
+  }else{
+    player.vigor -= 10;
+  }
+  player.hp = Math.round(player.maxHp * currentHpPercent);
+
+  player.vampireBonusMind = 5;
+  
+  recalculateMaxStats();
   updateFace();
+  updateSidebar();
 }
 
 function becomeWerewolf(){
   player.isWerewolf = true;
-  updateFace();
-}
-
-function cureWerewolf(){
-  player.isWerewolf = false;
+  player.werewolfBonusVigor = 5;
+  player.defense += 5;
+  player.strength += 10;
+  player.dex += 10;
+  if(player.mind <10){
+    player.mind = 1;
+  }else{
+    player.mind -= 10;
+  };
+  if(player.intelligence <10){
+    player.intelligence = 1;
+  }else{
+    player.intelligence -= 10;
+  };
+    if(player.faith <10){
+    player.faith = 1;
+  }else{
+    player.faith -= 10;
+  };
+  recalculateMaxStats();
   updateFace();
 }
 
@@ -1623,10 +1648,17 @@ const skills = {
     target: "self",
     duration: 4,
     description: "Invoca garras vampíricas por 3 turnos, drenando vida a cada ataque."
-}
+},
 
-
-
+  drenar_sangue:{
+    name: "Drenar Sangue",
+    type: "dark",
+    manaCost: 10,
+    power: 0.5,
+    critChance: 0.4,
+    lifesteal: 0.5,
+    description: "Drena o sangue do inimigo, curando a si e saciando a fome."
+  }
 };
 
 /* ===== ENCANTAMENTOS =====*/
