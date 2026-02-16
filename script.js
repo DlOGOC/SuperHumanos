@@ -123,7 +123,14 @@ let player = {
     armors: [],
     keyItems: [],
     books: []
-  }
+  },
+  vampireClaws: {
+    active: false,
+    turns: 0,
+    previousMain: null,
+    previousSub: null
+}
+
 };
 
 function calculateXpForLevel(level) {
@@ -482,7 +489,12 @@ function updateMouth() {
 
   if (!colorImg || !lineImg) return;
 
-  const base = `img/mouths/${playerFace.mouth}`;
+  // Se estiver na Forma Vampírica, força sorriso
+  const mouthToUse = player.vampireClaws?.active
+    ? "mouth_2"   // sorriso
+    : playerFace.mouth;
+
+  const base = `img/mouths/${mouthToUse}`;
 
   safeSetImage(colorImg, `${base}/color.webp`);
   safeSetImage(lineImg,  `${base}/line.webp`);
@@ -831,6 +843,13 @@ const weapons = {
     name: "Mãos vazias",
     type: "fisic",
     baseDamage: 5,
+    slot: "both"
+  },
+
+  "Garras de vampiro": {
+    name: "Garras de vampiro",
+    type: "fisic",
+    baseDamage: 25,
     slot: "both"
   },
 
@@ -1593,7 +1612,19 @@ const skills = {
     power: 0.8,
     heal: true,
     areaHeal: true
-  }
+  },
+
+  forma_vampirica:{
+    name: "Forma Vampírica",
+    type: "dark",
+    manaCost: 40,
+    power: 0,
+    critChance: 0.01,
+    target: "self",
+    duration: 4,
+    description: "Invoca garras vampíricas por 3 turnos, drenando vida a cada ataque."
+}
+
 
 
 };
@@ -4158,17 +4189,105 @@ function cleric(){
       break;
 
     case 3:
-      trainingDescription = ``;
+      trainingDescription = `O terceiro dia não começa com orações.
+
+      Selene leva vocês para fora do templo, até o pátio da guilda, onde alguns aventureiros retornam feridos de uma missão. O cheiro de sangue substitui o incenso.
+
+      "Hoje vocês vão aprender que fé não existe no silêncio do altar", ela diz. "Ela existe quando suas mãos tremem."
+
+      Você é colocado diante de um homem com um corte profundo no ombro. O sangue escorre rápido demais. Petra está ao seu lado, pálida, mas tentando parecer firme.
+
+      Você começa a oração.
+
+      Diferente do primeiro feitiço simples, agora a luz demora a responder. Sua mente vacila ao ver a dor real diante de você.
+
+      Petra tenta antes de você terminar — a energia dela surge instável, falha, desaparece.
+
+      O homem geme.
+
+      Você respira fundo e decide não pedir força.
+
+      Decide oferecer a sua.
+
+      A luz responde.
+
+      Não de forma explosiva, mas constante. O ferimento começa a se fechar lentamente sob seus dedos.
+
+      Quando termina, você está suada, esgotada… mas conseguiu.
+
+      Petra observa em silêncio dessa vez.
+
+      Pela primeira vez, ela não faz piada.`;
 
       player.faith += 1;
       break;
 
     case 4:
-      trainingDescription = ``;
+      trainingDescription = `Selene posiciona vocês dois frente a frente no centro do templo.
+
+      "Clérigos não existem apenas para curar", ela diz com calma. "Existem para permanecer de pé."
+
+      Vocês recebem maças de treino.
+
+      O primeiro golpe de Petra é desajeitado, mas forte. Você bloqueia por instinto, sentindo o impacto vibrar pelo braço inteiro.
+
+      A luta não é sobre velocidade.
+
+      É sobre resistência.
+
+      Vocês trocam golpes por longos minutos. Sempre que um acerta com força demais, o outro recua, ativa uma cura rápida, volta para a posição.
+
+      Não há plateia gritando.
+
+      Apenas o som seco de metal contra metal e respirações pesadas.
+
+      Petra começa a pressionar, atacando em sequência, tentando quebrar sua defesa na insistência.
+
+      Você aguenta.
+
+      Aguenta mais.
+
+      Quando ela finalmente recua para recuperar fôlego, você percebe algo:
+
+      Ela luta com raiva.
+
+      Você luta com propósito.
+
+      Selene encerra antes que alguém caia.
+
+      "Força sem serenidade é ruído", ela diz, olhando diretamente para Petra.`;
       break;
 
     case 5:
-      trainingDescription = ``;
+      trainingDescription = `O penúltimo dia é silencioso.
+
+      Selene não ensina um novo feitiço.
+
+      Ela apenas observa.
+
+      Você e Petra se revezam entre atacar e sustentar defesas sagradas, criando barreiras de luz que se chocam e se dissipam no ar.
+
+      A energia consome mais do que vocês esperavam.
+
+      No meio do treino, Petra erra o tempo de uma oração e a barreira dela se parte antes de se formar completamente. Você quase atinge o ombro dela, mas interrompe o golpe no último segundo.
+
+      Ela te encara.
+
+      "Por que parou?"
+
+      Você poderia dizer que foi misericórdia.
+
+      Mas não foi.
+
+      Foi controle.
+
+      No fim do dia, Selene se aproxima.
+
+      "Amanhã vocês não lutarão para provar fé", ela diz suavemente. "Lutarão para provar decisão."
+
+      O templo parece menor ao sair.
+
+      Amanhã será diferente.`;
 
       break;
 
@@ -4846,6 +4965,38 @@ function applyDamage(target, damage, type) {
   return Math.max(0, damage);
 }
 
+function activateVampireClaws(duration) {
+
+  player.vampireClaws.previousMain = player.equippedWeapon;
+  player.vampireClaws.previousSub  = player.equippedSubWeapon;
+
+  player.vampireClaws.active = true;
+  player.vampireClaws.turns = duration;
+
+  const claws = weapons["Garras de vampiro"];
+
+  player.equippedWeapon = claws;
+  player.equippedSubWeapon = claws;
+
+  log("🩸 Seu corpo se contorce... garras emergem de seus dedos.");
+  updateSkills();
+  updateFace();
+}
+
+function deactivateVampireClaws() {
+
+  player.equippedWeapon = player.vampireClaws.previousMain;
+  player.equippedSubWeapon = player.vampireClaws.previousSub;
+
+  player.vampireClaws.active = false;
+  player.vampireClaws.turns = 0;
+
+  log("As garras se retraem lentamente.");
+
+  updateSkills();
+  updateFace();
+}
+
 /* ===== AÇÕES DO JOGADOR ===== */
 function attack() {
 
@@ -4924,6 +5075,15 @@ if (!enemy) return;
 
   // ===== APLICA DANO =====
   enemy.hp = Math.max(0, enemy.hp - damage);
+
+  if (player.vampireClaws?.active && damage > 0) {
+  const steal = Math.floor(damage * 0.4);
+  const before = player.hp;
+
+  player.hp = Math.min(player.maxHp, player.hp + steal);
+
+  log(`🩸 ${player.name} drena ${player.hp - before} de vida.`);
+}
 
   narrateAttack(
     "player",
@@ -5163,6 +5323,20 @@ if (!enemy) return;
   const isMagic =
     skill.type !== "fisic" &&
     skill.type !== "weapon_skill";
+
+  // ===== TRANSFORMAÇÃO VAMPÍRICA =====
+  if (skillKey === "forma_vampirica") {
+
+    if (player.vampireClaws?.active) {
+      log("Você já está na Forma Vampírica.");
+      return;
+    }
+
+    activateVampireClaws(skill.duration || 3);
+
+    setTimeout(enemyAction, 900);
+    return;
+  }
 
   /* =========================
      CURA PURA
@@ -5747,11 +5921,23 @@ function enemyAction() {
   currentEnemyIndex++;
 
 if (currentEnemyIndex >= enemiesInBattle.length) {
+
   currentEnemyIndex = 0;
+
+  if (player.vampireClaws?.active) {
+    player.vampireClaws.turns--;
+
+    if (player.vampireClaws.turns <= 0) {
+      deactivateVampireClaws();
+    }
+  }
+
   playerTurn();
+
 } else {
   setTimeout(enemyAction, 900);
 }
+
 
 }
 
@@ -5816,8 +6002,8 @@ function playerTurn(action) {
   if (typeof action === "function") {
     action();
   }
-
 }
+
 
 /* ========== LOG / NARRAÇÃO (com histórico colorido e scroll automático) ========== */
 function log(msg) {
@@ -5837,7 +6023,7 @@ function log(msg) {
   else if (/divin|sagrad|luz|julgamento|celestial/i.test(msg)) p.classList.add("log-divine");
   else if (/cura|recupera/i.test(msg)) p.classList.add("log-heal");
   else if (/absorve|rouba/i.test(msg)) p.classList.add("log-life-steal");
-  else if (/🌑|sombr|dark|trevas|maldi|maldicao|amaldi|demoniac|infern/i.test(msg)) p.classList.add("log-dark");
+  else if (/🌑|sombr|dark|trevas|maldi|maldicao|amaldi|demoniac|infern|garras/i.test(msg)) p.classList.add("log-dark");
   else if (/arcan|mana|ritual|encantamento/i.test(msg)) p.classList.add("log-arcane");
   else if (/defendeu|reduzido|bloque/i.test(msg)) p.classList.add("log-defense");
   else if (/errou|falhou|confuso/i.test(msg)) p.classList.add("log-miss");
