@@ -2621,11 +2621,7 @@ let gameState = {
   currentScene: "discoverPower",
 
   flags: {
-    joinedGuild: false,
-    finishedTraining: false,
-    metLucy: false,
-    metRudo: false,
-    metChristine: false
+
   }
 };
 
@@ -3109,6 +3105,8 @@ function recepcionist(){
     "powerChoices",
     "recepcionist"
     );
+
+    return;
   };
 
   const story = `Olá ${player.name}! Você veio aqui dar um oi?`;
@@ -3240,7 +3238,7 @@ function warrior(){
       O treino continue sem problemas e sem muita mudança de dinâmica, você e Christine lutam com as espadas de treino, não é de longe tão difícil quanto Rudo, mas definitivamente também não é fácil.
       
       Você sente que melhorou bastante no manejo da espada.`;
-      setFlag(meetCrhistine, true);
+      setFlag("meetCrhistine", true);
       meetCharacter("Christine");
       break;
     case 6:
@@ -3793,19 +3791,11 @@ function winLucy(){
 
     O ar da sala queima nos pulmões. Cada feitiço lançado deixa o corpo mais leve e mais pesado ao mesmo tempo, como se a própria alma estivesse sendo arrancada junto com o mana. O chão está encharcado de suor e fuligem. As paredes tremem a cada impacto.
 
-    Vocês duas estão no limite.
-
-    Os braços tremem. A visão falha nas bordas. Restam forças apenas para uma última magia.
-
-    E vocês sabem disso.
+    Vocês duas estão no limite. Os braços tremem. A visão falha nas bordas. Restam forças apenas para uma última magia. E vocês sabem disso.
 
     Quando percebem o estado uma da outra — roupas chamuscadas, respiração irregular, mãos queimadas pela própria conjuração — algo quase belo acontece. Como se fosse ensaiado. Como se fosse uma dança silenciosa que só duas magas exaustas poderiam entender.
 
-    Vocês param.
-
-    Frente a frente.
-
-    O silêncio que antecede o fim.
+    Vocês param. Frente a frente. O silêncio que antecede o fim.
 
     Os encantamentos começam quase como sussurros roucos, mas ganham força à medida que a última centelha de poder é arrancada do fundo do peito. O ar vibra. O chão racha. Duas esferas de fogo surgem — não são apenas bolas de fogo… são tudo o que restou de vocês.
 
@@ -3815,37 +3805,23 @@ function winLucy(){
 
     A colisão não é uma explosão — é um colapso. A luz engole a sala. Um vórtice de chamas nasce no impacto, rugindo como uma criatura viva, puxando ar, poeira e magia para seu núcleo ardente. O calor é insuportável. O som é ensurdecedor.
 
-    E então...
-
-    Lucy cai de joelhos.
-
-    O corpo não responde mais.
+    E então... Lucy cai de joelhos. O corpo não responde mais.
 
     Legh assume o comando antes que o vórtice consuma tudo. Grita ordens. Outros magos entram em ação, canalizando energia para estabilizar o caos. O turbilhão de fogo é comprimido, forçado a se desfazer em faíscas que evaporam no ar.
 
     Quando a claridade se dissipa, resta apenas fumaça… e vocês duas quase inconscientes.
 
-    A voz de Legh ecoa pela sala, firme apesar da tensão:
+    A voz de Legh ecoa pela sala, firme apesar da tensão: "Vitória declarada."
 
-    "Vitória declarada."
-
-    Mas você mal escuta.
-
-    O mundo escurece.
-
-    Algumas horas depois, você desperta.
+    Mas você mal escuta. O mundo escurece. Algumas horas depois, você desperta.
 
     O cheiro de ervas medicinais substitui o da fumaça. O corpo dói como se tivesse sido esmagado, mas está inteiro. Ao redor, os outros aventureiros observam em silêncio respeitoso — não é euforia que preenche o ambiente, é admiração.
 
-    Lucy também está acordada.
-
-    Exausta. Viva.
+    Lucy também está acordada. Exausta. Viva.
 
     Os parabéns vêm, mas são quase secundários. O que realmente ficou foi a sensação de ter atravessado o próprio limite… e voltado.
 
-    Vocês não saem desse duelo apenas como vencedora e derrotada.
-
-    Saem marcadas.`;
+    Vocês não saem desse duelo apenas como vencedora e derrotada. Saem marcadas.`;
 
   forceStoryScreen();
     changeScene(story, () =>{
@@ -3863,27 +3839,17 @@ function loseLucy(){
 
     O ar está quente demais para respirar direito. Cada conjuração arranca algo de dentro de vocês. O chão está marcado por explosões anteriores, fuligem espalhada por todos os lados.
 
-    Vocês duas estão no fim.
+    Vocês duas estão no fim. Restam forças apenas para uma última bola de fogo.
 
-    Restam forças apenas para uma última bola de fogo.
+    O suor escorre pelo seu rosto, queimando ao tocar pequenos cortes. Seus braços tremem. A mana restante pulsa de forma instável dentro do peito. Quando vocês se encaram, percebem o mesmo estado na outra.
 
-    O suor escorre pelo seu rosto, queimando ao tocar pequenos cortes. Seus braços tremem. A mana restante pulsa de forma instável dentro do peito.
+    Exaustas. Feridas. Determinadas.
 
-    Quando vocês se encaram, percebem o mesmo estado na outra.
-
-    Exaustas.
-    Feridas.
-    Determinadas.
-
-    Sem dizer uma palavra, como se fosse ensaiado, vocês se afastam alguns passos.
-
-    Os encantamentos começam.
+    Sem dizer uma palavra, como se fosse ensaiado, vocês se afastam alguns passos. Os encantamentos começam.
 
     As vozes saem roucas, mas firmes. O ar vibra. O calor aumenta. Duas esferas de fogo surgem — maiores do que qualquer uma que já conjuraram antes.
 
-    Não são apenas feitiços.
-
-    É tudo o que restou.
+    Não são apenas feitiços. É tudo o que restou.
 
     Vocês lançam.
 
@@ -3901,53 +3867,25 @@ function loseLucy(){
 
     É o suficiente.
 
-    A pressão atinge seu corpo como um impacto físico. O ar é arrancado dos seus pulmões. Seus joelhos cedem.
+    A pressão atinge seu corpo como um impacto físico. O ar é arrancado dos seus pulmões. Seus joelhos cedem. Você cai. Ainda consciente o bastante para ver sua própria bola de fogo ser engolida pelo vórtice dominante. Legh assume o comando imediatamente, junto de outros magos, dissipando o turbilhão antes que saia do controle.
 
-    Você cai.
+    O calor diminui. A luz some. E a voz firme ecoa pela sala: "Lucy é a vencedora."
 
-    Ainda consciente o bastante para ver sua própria bola de fogo ser engolida pelo vórtice dominante.
+    Você tenta se levantar mas não consegue.
 
-    Legh assume o comando imediatamente, junto de outros magos, dissipando o turbilhão antes que saia do controle.
+    O mundo escurece antes mesmo de ouvir a reação da plateia. Quando acorda, horas depois, o cheiro de ervas e pomadas substitui o da fumaça.
 
-    O calor diminui.
-
-    A luz some.
-
-    E a voz firme ecoa pela sala:
-
-    "Lucy é a vencedora."
-
-    Você tenta se levantar.
-
-    Não consegue.
-
-    O mundo escurece antes mesmo de ouvir a reação da plateia.
-
-    Quando acorda, horas depois, o cheiro de ervas e pomadas substitui o da fumaça.
-
-    Seu corpo dói.
-
-    Mas está inteiro.
+    Seu corpo dói. Mas está inteiro.
 
     Ao seu lado, Lucy também está deitada, igualmente exausta. Ela percebe que você despertou e, apesar do cansaço, estende a mão em sua direção.
 
     "Você quase me venceu."
 
-    Não há arrogância na voz dela.
+    Não há arrogância na voz dela. Só respeito. Os outros aventureiros parabenizam vocês duas. Não como vencedora e derrotada.
 
-    Só respeito.
+    Mas como magas que ultrapassaram o próprio limite. Você perdeu.
 
-    Os outros aventureiros parabenizam vocês duas. Não como vencedora e derrotada.
-
-    Mas como magas que ultrapassaram o próprio limite.
-
-    Você perdeu.
-
-    Mas sabe de uma coisa:
-
-    Não foi fraqueza.
-
-    Foi detalhe.`;
+    Mas sabe de uma coisa: Não foi fraqueza.`;
 
   forceStoryScreen();
     changeScene(story, () =>{
@@ -4037,7 +3975,7 @@ function thief(){
 
       Kael levanta a voz: "Esse combate decide quem entra na guilda. Lutem como se a vida de vocês dependesse disso."
 
-      Mira te encara — não com deboche, mas com respeito.`;
+      Mira te encara com deboche.`;
 
       break;
 
@@ -4058,6 +3996,15 @@ function thief(){
         "powerChoices",
         "thief"
       )
+    }
+    if(guild.thief == 6){
+      changeScene(story, () =>{
+        criarBotaoHistoria("Começar a batalha", "fightMira");
+      },
+    320,
+    "powerText",
+    "powerChoices",
+    "thief")
     }
   changeScene(story, () =>{
     criarBotaoHistoria("Continuar", "posTraining");
@@ -4080,33 +4027,13 @@ function fightRudo3(){
 }
 
 function winRudo3(){
-  const story =`Rudo tenta manter você à vista.
-
-    Você não permite.
-
-    Passos leves. Mudanças de direção. Fintas.
-
-    Ele ataca onde você estava.
-
-    Você já não está mais lá.
+  const story =`Rudo tenta manter você à vista. Você não permite. Passos leves. Mudanças de direção. Fintas. Ele ataca onde você estava. Você já não está mais lá.
 
     Você testa. Provoca. Some.
 
-    Até que ele erra o tempo de um golpe.
+    Até que ele erra o tempo de um golpe. Você surge atrás. A lâmina para na lateral do pescoço dele. Silêncio. Kael ergue a mão. "Vitória."
 
-    Você surge atrás.
-
-    A lâmina para na lateral do pescoço dele.
-
-    Silêncio.
-
-    Kael ergue a mão.
-
-    "Vitória."
-
-    Rudo solta uma risada curta.
-
-    "Finalmente alguém que entende que luta não é espetáculo… é eficiência.
+    Rudo solta uma risada curta. "Finalmente alguém que entende que luta não é espetáculo… é eficiência.
     
     Agora é a vez de Mira. O combate é completamente diferente, ela parece estar dançando com Rudo, mesmo que não acerte nenum golpe nele, ele também não acerta nada nela. até que ela arremessa suas facas em Rudo que se defende fácilmente e nem você conseguiu enxergar como ou quando, mas Mira está com os pés nos ombros do treinador, agachada e com as duas láminas se crusando no pescoço dele "venci" diz ela como se não fosse muita coisa e com um pulo para trás sai de cima das suas costas.
     
@@ -4189,6 +4116,40 @@ function loseRudo3(){
   "powerChoices",
   "loseRudo3"
   )
+};
+
+function fightMira(){
+      startBattle("Mira", (won) => {
+    if (won) {
+      winMira();
+    } else {
+      loseMira();
+    }
+  });
+}
+
+function winMira(){
+
+  changeScene(story, () =>{
+    criarBotaoHistoria("Continuar", "posTraining");
+  },
+  "320",
+  "powerText",
+  "powerChoices",
+  "winMira")
+  forceStoryScreen();
+}
+
+function loseMira(){
+
+    changeScene(story, () =>{
+    criarBotaoHistoria("Continuar", "posTraining");
+  },
+  "320",
+  "powerText",
+  "powerChoices",
+  "loseMira")
+  forceStoryScreen();
 }
 
 function cleric(){
@@ -4569,6 +4530,23 @@ const enemies = {
     xp: 300,
     skillChance: 0.6,
     description: "Sua rival de treino, ela, tanto quanto você tem motivos para vencer essa luta"
+  },
+
+  mira: {
+    name: "Mira",
+    hp: 150,
+    maxHp: 150,
+    attack: 25,
+    defense: 15,
+    powerType: "fisic",
+    stats: {},
+    skills: [
+      "apunhalada",
+      "estocada_precisa"
+    ],
+    xp: 300,
+    skillChance: 0.5,
+    description: "Sua rival da guilda, ela te olha com arrogância e desdém"
   }
 };
 
