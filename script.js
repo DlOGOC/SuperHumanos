@@ -453,6 +453,8 @@ function becomeVampire(){
   player.isVampire = true;
   playerFace.hair_front_color = "white";
   playerFace.hair_back_color = "white";
+  playerFace.eyebrow_color = "white";
+  playerFace.eyebrow_color = "white";
   learnSkill("forma_vampirica");
   learnSkill("drenar_sangue");
 
