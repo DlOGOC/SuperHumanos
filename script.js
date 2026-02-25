@@ -114,7 +114,11 @@ let player = {
   subWeapons: "Mãos vazias",
   learnedSkills: [],
   isVampire: false,
+  blood: 0,
+  maxBlood: 100,
   isWerewolf: false,
+  rage: 0,
+  maxRage: 100,
   equippedArmor: null,
   inventory: {
     weapons: [],
@@ -495,6 +499,7 @@ function becomeWerewolf(){
     player.faith -= 10;
   };
   recalculateMaxStats();
+  learnSkill("frenesi_bestial");
   updateFace();
 }
 
@@ -1660,7 +1665,19 @@ const skills = {
     critChance: 0.4,
     lifesteal: 0.5,
     description: "Drena o sangue do inimigo, curando a si e saciando a fome."
-  }
+},
+
+/* ===== LOBISOMEN ===== */
+
+  frenesi_bestial: {
+    name: "Frenesi Bestial",
+    type: "werewolf",
+    power: 1, 
+    critChance: 0.1,
+    consumeAllRage: true,
+    description: "Consome toda a fúria e causa um golpe extremamente poderoso."
+}
+
 };
 
 /* ===== ENCANTAMENTOS =====*/
@@ -2114,7 +2131,7 @@ function updateSidebar() {
   if (document.getElementById("bar-mana")) setWidth("bar-mana", (player.mana / player.maxMana) * 100);
   if (document.getElementById("bar-hunger")) setWidth("bar-hunger", player.hunger);
   if (document.getElementById("bar-sleep")) setWidth("bar-sleep", player.sleep);
-  if (document.getElementById("attr-talent")) setWidth("attr-talent"), player.powerType;
+  if (document.getElementById("attr-talent")) setWidth("attr-talent", player.powerType);
   
   const hpBar = document.getElementById("hp-bar");
   if(hpBar){
@@ -2134,6 +2151,34 @@ function updateSidebar() {
   if(sleepBar){
     sleepBar.dataset.tooltip = `${Math.floor(player.sleep)} / 100`;
   }
+
+// ===== SANGUE =====
+const bloodSection = document.getElementById("blood-section");
+const bloodWrapper = document.getElementById("blood-bar");
+
+if (bloodSection && bloodWrapper) {
+  if (player.isVampire) {
+    bloodSection.style.display = "block";
+    setWidth("bar-blood", (player.blood / player.maxBlood) * 100);
+    bloodWrapper.dataset.tooltip = `${player.blood} / ${player.maxBlood}`;
+  } else {
+    bloodSection.style.display = "none";
+  }
+}
+
+// ===== FÚRIA =====
+const rageSection = document.getElementById("rage-section");
+const rageWrapper = document.getElementById("rage-bar");
+
+if (rageSection && rageWrapper) {
+  if (player.isWerewolf) {
+    rageSection.style.display = "block";
+    setWidth("bar-rage", (player.rage / player.maxRage) * 100);
+    rageWrapper.dataset.tooltip = `${player.rage} / ${player.maxRage}`;
+  } else {
+    rageSection.style.display = "none";
+  }
+}
 
   const setText = (id, v) => { const e = document.getElementById(id); if (e) e.innerText = v; };
   setText("sidebar-name", player.name || "Jogador");
@@ -4993,7 +5038,7 @@ function activateVampireClaws(duration) {
   log("🩸 Seu corpo se contorce... garras emergem de seus dedos.");
   updateSkills();
   updateFace();
-}
+};
 
 function deactivateVampireClaws() {
 
@@ -5007,7 +5052,43 @@ function deactivateVampireClaws() {
 
   updateSkills();
   updateFace();
-}
+};
+
+function gainBlood(amount) {
+  if (!player.isVampire) return;
+
+  player.blood += amount;
+  if (player.blood > player.maxBlood)
+    player.blood = player.maxBlood;
+
+  updateSidebar();
+};
+
+function spendBlood(amount) {
+  if (player.blood < amount) return false;
+
+  player.blood -= amount;
+  updateSidebar();
+  return true;
+};
+
+function gainRage(amount) {
+  if (!player.isWerewolf) return;
+
+  player.rage += amount;
+  if (player.rage > player.maxRage)
+    player.rage = player.maxRage;
+
+  updateSidebar();
+};
+
+function spendRage(amount) {
+  if (player.rage < amount) return false;
+
+  player.rage -= amount;
+  updateSidebar();
+  return true;
+};
 
 /* ===== AÇÕES DO JOGADOR ===== */
 function attack() {
@@ -5088,12 +5169,19 @@ if (!enemy) return;
   // ===== APLICA DANO =====
   enemy.hp = Math.max(0, enemy.hp - damage);
 
+  if (player.isWerewolf && damage > 0) {
+    gainRage(Math.floor(damage * 0.25));
+  };
+
   if (player.vampireClaws?.active && damage > 0) {
   const steal = Math.floor(damage * 0.4);
   const before = player.hp;
 
   player.hp = Math.min(player.maxHp, player.hp + steal);
 
+  if (player.isVampire && damage > 0) {
+    gainBlood(Math.floor(damage * 0.2));
+  };
   log(`🩸 ${player.name} drena ${player.hp - before} de vida.`);
 }
 
@@ -5176,6 +5264,8 @@ const skillTypeColors = {
   arcane:       "#9b59b6", // roxo
   holy:         "#f5e960", // dourado
   dark:         "#2c2c2c", // preto
+  vampire:      "#6e1d14", // vinho
+  werewolf:     "#d88d2b"  // laranja
 };
 
 function applySkillColor(btn, skill) {
@@ -5323,11 +5413,42 @@ if (!enemy) return;
   ) {
     log("Você não sabe usar essa habilidade.");
     return;
+  };
+
+let rageConsumed = 0;
+
+if (skill.consumeAllRage) {
+  if (!player.isWerewolf) {
+    log("Apenas lobisomens podem usar essa habilidade.");
+    return;
   }
+
+  if (player.rage <= 0) {
+    log("Você não tem Fúria suficiente.");
+    return;
+  }
+
+  rageConsumed = player.rage;
+  player.rage = 0; // zera depois
+}
 
   if (skill.manaCost && player.mana < skill.manaCost) {
     log("Mana insuficiente.");
     return;
+  };
+
+  if (skill.bloodCost) {
+    if (!spendBlood(skill.bloodCost)) {
+      log("Sangue insuficiente.");
+      return;
+    };
+  };
+
+  if (skill.rageCost) {
+    if (!spendRage(skill.rageCost)) {
+      log("Fúria insuficiente.");
+      return;
+    }
   }
 
   if (skill.manaCost) player.mana -= skill.manaCost;
@@ -5394,9 +5515,22 @@ if (!enemy) return;
   } else {
     ({ damage, isCrit } =
       calculateWeaponDamage(player, enemy, skill, weapon));
-  }
+  };
 
   damage = applyDamage(enemy, damage, skill.type);
+
+  ({ damage, isCrit } =
+  calculateWeaponDamage(player, enemy, skill, weapon));
+
+if (skill.consumeAllRage) {
+
+  const strengthScaling = player.strength * 0.7;
+  const rageScaling = rageConsumed * 1.5;
+
+  damage += Math.floor(strengthScaling + rageScaling);
+
+  log(`🐺 Você libera ${rageConsumed} de Fúria em um ataque devastador!`);
+}
   const targets = getTargets(player, skill, false);
 
 targets.forEach(target => {
@@ -5446,6 +5580,10 @@ targets.forEach(target => {
     log(
       `${player.name} absorve ${player.hp - before} de vida do inimigo.`
     );
+    if (player.isVampire && damage > 0) {
+      const bloodGain = Math.floor(damage * 0.9);
+      gainBlood(bloodGain);
+    }
   }
 
   /* =========================
@@ -5810,6 +5948,9 @@ function useSkill(user, target, skillKey, isEnemy = false) {
 
   // aplica dano
   target.hp = Math.max(0, target.hp - base);
+  if (player.isWerewolf) {
+    gainRage(Math.floor(base * 0.4));
+  }
 
   narrateAttack(
   isEnemy ? "enemy" : "player",

@@ -398,6 +398,15 @@ body {
 .fill.orange { background: linear-gradient(90deg,#ffb86b,#ff7a2b); }
 .fill.purple { background: linear-gradient(90deg,#b48aff,#7b3bff); }
 .fill.enemy { background: linear-gradient(90deg,#8b1c1c,#3a0000); }
+/* ===== BARRA VAMPIRO - SANGUE ===== */
+.fill.blood {
+  background: linear-gradient(90deg, #5a0000, #c10000);
+}
+
+/* ===== BARRA LOBISOMEM - FÚRIA ===== */
+.fill.rage {
+  background: linear-gradient(90deg, #5a1e00, #ff4d00);
+}
 
 .bar{
   position: relative;
