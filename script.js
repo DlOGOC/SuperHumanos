@@ -2113,11 +2113,25 @@ function processStatuses(entity, who) {
   return entity.hp > 0;
 }
 
-/* ===== EFEITO VISUAL ===== */
-function hpShake(targetStr) {
-  const id = targetStr === "player" ? "player-hp-fill" : "enemy-hp-fill";
+function hpShake(target) {
+
+  let id = null;
+
+  if (target === player) {
+    id = "player-hp-fill";
+  } 
+  else if (alliesInBattle.includes(target)) {
+    id = `ally-hp-fill-${target.id}`;
+  } 
+  else if (enemiesInBattle.includes(target)) {
+    id = `enemy-hp-fill-${target.id}`;
+  }
+
+  if (!id) return;
+
   const el = document.getElementById(id);
   if (!el) return;
+
   el.classList.add("hp-shake");
   setTimeout(() => el.classList.remove("hp-shake"), 350);
 }
@@ -3339,7 +3353,7 @@ function warrior(){
 }
 
 function fightRudo1() {
-  startBattle("Rudo", (won) => {
+  startBattle(["Rudo", "Mira", "Lucy"], (won) => {
     if (won) {
       winRudo1();
     } else {
@@ -4702,8 +4716,15 @@ function bindSkillTooltip(btn, skill) {
 
 function checkBattleEnd() {
 
+  // Remove inimigos mortos
+  enemiesInBattle = enemiesInBattle.filter(e => e.hp > 0);
+
+  if (currentEnemyIndex >= enemiesInBattle.length) {
+    currentEnemyIndex = 0;
+  }
+
   const alliesAlive = alliesInBattle.some(a => a.hp > 0);
-  const enemiesAlive = enemiesInBattle.some(e => e.hp > 0);
+  const enemiesAlive = enemiesInBattle.length > 0;
 
   if (!alliesAlive) {
     endBattle(false);
@@ -4715,6 +4736,8 @@ function checkBattleEnd() {
     return true;
   }
 
+  renderEnemyTargets();
+  updateEnemyHUD();
   return false;
 }
 
@@ -4834,7 +4857,11 @@ function renderAlliesStatus() {
       ${makeStatusIcons(ally)}
     </div>
     <div class="ally-bar">
-      <div class="ally-hp-fill" style="width:${percent}%"></div>
+      <div 
+      id="ally-hp-fill-${index}"
+      class="ally-hp-fill" 
+      style="width:${percent}%">
+    </div>
     </div>
   `;
     // Caso especial: 3 aliados → último ocupa linha inteira
@@ -4861,7 +4888,7 @@ function renderEnemyTargets() {
 
   container.innerHTML = "";
 
-  enemiesInBattle.forEach((enemy) => {
+  enemiesInBattle.forEach((enemy, index) => {
 
     const btn = document.createElement("button");
     btn.innerText = enemy.name;
@@ -4873,6 +4900,7 @@ function renderEnemyTargets() {
 
     btn.onclick = () => {
       selectedTarget = enemy;
+      selectedEnemyIndex = index;
       renderEnemyTargets();
       renderAlliesStatus();
       updateEnemyHUD();
@@ -5033,7 +5061,7 @@ function narrateAttack(
           applyStatus(defender, "confused", 2);
       }
 
-      hpShake("enemy");
+      hpShake(defender);
 
     } else { // inimigo crítico
 
@@ -5047,7 +5075,7 @@ function narrateAttack(
         applyStatus(defender, "bleeding", 3, 8);
       }
 
-      hpShake("player");
+      hpShake(defender);
     }
 
   }
@@ -5175,8 +5203,12 @@ function spendRage(amount) {
 /* ===== AÇÕES DO JOGADOR ===== */
 function attack() {
 
-const target = selectedTarget;
-if (!target) return;
+  if (player.hp <= 0) {
+  log("Você está inconsciente.");
+  return;
+}
+  const target = selectedTarget;
+  if (!target) return;
 
   if (!processStatuses(player, "player")) {
     if (target.hp > 0 && player.hp > 0)
@@ -5472,8 +5504,12 @@ function getTargets(user, skill, isEnemy) {
 }
 
 function weaponSkill(skillKey) {
-const target = selectedTarget;
-if (!target) return;
+  if (player.hp <= 0) {
+  log("Você está inconsciente.");
+  return;
+}
+  const target = selectedTarget;
+  if (!target) return;
 
   if (!processStatuses(player, "player")) {
     if (enemy.hp > 0) setTimeout(enemyAction, 900);
@@ -5779,8 +5815,13 @@ function updateMagicUI() {
 }
 
 function castSpellFromText() {
-const target = selectedTarget;
-if (!target) return;
+  if (player.hp <= 0) {
+  log("Você está inconsciente.");
+  return;
+  }
+
+  const target = selectedTarget;
+  if (!target) return;
 
   const input = document.getElementById("spell-input");
   if (!input) return;
@@ -5807,7 +5848,7 @@ if (!target) return;
 
 
   if (!processStatuses(player, "player")) {
-    if (enemy.hp > 0) setTimeout(companionsTurn, 800);
+    setTimeout(companionsTurn, 800);
     return;
   }
 
@@ -6122,13 +6163,39 @@ function enemyAction() {
   if (!enemy) return;
 
   if (!processStatuses(enemy, "enemy")) {
+
     updateBars();
+
+    currentEnemyIndex++;
+
+    if (currentEnemyIndex >= enemiesInBattle.length) {
+
+      currentEnemyIndex = 0;
+
+      if (player.vampireClaws?.active) {
+        player.vampireClaws.turns--;
+        if (player.vampireClaws.turns <= 0) {
+          deactivateVampireClaws();
+        }
+      }
+
+      if (player.hp > 0) {
+        playerTurn();
+      } else {
+        setTimeout(companionsTurn, 900);
+      }
+
+    } else {
+      setTimeout(enemyAction, 900);
+    }
+
     return;
   }
 
   const canUseSkill =
     enemy.skills &&
-    enemy.skills.length > 0 && Math.random() < (enemy.skillChance || 0.3);
+    enemy.skills.length > 0 &&
+    Math.random() < (enemy.skillChance || 0.3);
 
   if (canUseSkill) {
     const skillKey =
@@ -6141,27 +6208,29 @@ function enemyAction() {
   } else {
     enemyBasicAttack(enemy);
   }
+
   currentEnemyIndex++;
 
-if (currentEnemyIndex >= enemiesInBattle.length) {
+  if (currentEnemyIndex >= enemiesInBattle.length) {
 
-  currentEnemyIndex = 0;
+    currentEnemyIndex = 0;
 
-  if (player.vampireClaws?.active) {
-    player.vampireClaws.turns--;
-
-    if (player.vampireClaws.turns <= 0) {
-      deactivateVampireClaws();
+    if (player.vampireClaws?.active) {
+      player.vampireClaws.turns--;
+      if (player.vampireClaws.turns <= 0) {
+        deactivateVampireClaws();
+      }
     }
+
+    if (player.hp > 0) {
+      playerTurn();
+    } else {
+      setTimeout(companionsTurn, 900);
+    }
+
+  } else {
+    setTimeout(enemyAction, 900);
   }
-
-  playerTurn();
-
-} else {
-  setTimeout(enemyAction, 900);
-}
-
-
 }
 
 function getRandomAllyTarget() {
