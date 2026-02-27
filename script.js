@@ -134,7 +134,8 @@ let player = {
     previousSub: null
 },
   vampireBonusMind: 0,
-  werewolfBonusVigor: 0
+  werewolfBonusVigor: 0,
+  companions: []
 };
 
 function calculateXpForLevel(level) {
@@ -500,6 +501,7 @@ function becomeWerewolf(){
   };
   recalculateMaxStats();
   learnSkill("frenesi_bestial");
+  updateSidebar();
   updateFace();
 }
 
@@ -1996,7 +1998,6 @@ function applyStatus(entity, statusName, turns, value = null) {
   }
 
   entity.status[statusName] = { turns, value };
-  log(`${entity.name} sofre ${getStatusName(statusName)}.`);
   if (entity === player) updateMagicUI();
   return true;
 }
@@ -4225,7 +4226,7 @@ function cleric(){
 
       setFlag(meetPetra, true);
       meetCharacter("Petra");
-      learnSkill("cura_leve");
+      learnSkill("cura_basica");
       break;
 
     case 3:
@@ -4379,6 +4380,9 @@ function posTraining(){
 /* ========== COMBATE ========== */
 
 let selectedEnemyIndex = 0;
+
+let selectedTarget = null; // pode ser aliado OU inimigo
+
 function getSelectedEnemy() {
   return enemiesInBattle[selectedEnemyIndex] || null;
 }
@@ -4402,7 +4406,6 @@ function nextEnemyTarget() {
 function createCombatant(baseData, team) {
   return {
     id: crypto.randomUUID(),
-
     team,
 
     name: baseData.name,
@@ -4415,29 +4418,42 @@ function createCombatant(baseData, team) {
 
     attack: baseData.attack || 0,
     defense: baseData.defense || 0,
-
     dex: baseData.dex || 5,
 
     status: structuredClone(baseData.status || {}),
     skills: structuredClone(baseData.skills || []),
 
-    isPlayer: baseData.isPlayer || false
+    isPlayer: baseData.isPlayer || false,
+    isCompanion: baseData.isCompanion || false
   };
 }
 
-const Battle = {
-  active: false,
-
-  allies: [],
-  enemies: [],
-
-  turnQueue: [],
-  turnIndex: 0,
-
-  state: "idle",
-
-  onEnd: null
+function createCompanion(baseData) {
+  return {
+    ...structuredClone(baseData),
+    isPlayer: false,
+    isCompanion: true,
+    defending: false,
+    status: {},
+  };
 };
+
+function hireCompanion(companionKey) {
+
+  if (player.companions.length >= 4) {
+    log("Você já tem o máximo de 4 companheiros.");
+    return;
+  }
+
+  const base = companionsDatabase[companionKey];
+  if (!base) return;
+
+  const newCompanion = createCompanion(base);
+
+  player.companions.push(newCompanion);
+
+  log(`${newCompanion.name} agora luta ao seu lado.`);
+}
 
 let BattleManager = {
   active: false,
@@ -4469,11 +4485,13 @@ function endBattle(result) {
 ========================= */
 let enemiesInBattle = [];
 let currentEnemyIndex = 0;
+let alliesInBattle = [];
 
 function getCurrentEnemy() {
   return enemiesInBattle[currentEnemyIndex];
 }
 
+/* INIMIGOS */
 const enemies = {
   drone: {
     name: "Drone de Captura",
@@ -4597,6 +4615,35 @@ const enemies = {
   }
 };
 
+/* ALIADOS */
+const companionsDatabase = {
+
+  elena: {
+    name: "Elena",
+    maxHp: 120,
+    hp: 120,
+    maxMana: 80,
+    mana: 80,
+    attack: 12,
+    defense: 8,
+    dex: 7,
+    skills: ["cura_basica", "julgamento"],
+    description: "Uma clériga gentil, mas determinada."
+  },
+
+  kael: {
+    name: "Kael",
+    maxHp: 150,
+    hp: 150,
+    attack: 18,
+    defense: 10,
+    dex: 9,
+    skills: ["corte_forte"],
+    description: "Um espadachim impulsivo."
+  }
+
+};
+
 let tooltipTimeout = null;
 
 function showSkillTooltip(skill, x, y) {
@@ -4652,76 +4699,11 @@ function bindSkillTooltip(btn, skill) {
 /* =========================
    INÍCIO DO COMBATE
 ========================= */
-function StartBattle(config, onEnd) {
-
-  Battle.active = true;
-  Battle.onEnd = onEnd;
-
-  Battle.allies = config.allies.map(a =>
-    createCombatant(a, "ally")
-  );
-
-  Battle.enemies = config.enemies.map(name => {
-    const base = Object.values(enemies)
-      .find(e => e.name === name);
-
-    return createCombatant(base, "enemy");
-  });
-
-  buildTurnQueue();
-
-  Battle.turnIndex = 0;
-
-  nextTurn();
-}
-
-function buildTurnQueue() {
-
-  Battle.turnQueue = [
-    ...Battle.allies,
-    ...Battle.enemies
-  ].filter(c => c.hp > 0);
-
-  Battle.turnQueue.sort(
-    (a,b)=> b.dex - a.dex
-  );
-}
-
-function nextTurn() {
-
-  if (checkBattleEnd()) return;
-
-  if (Battle.turnIndex >= Battle.turnQueue.length)
-    Battle.turnIndex = 0;
-
-  const actor = Battle.turnQueue[Battle.turnIndex];
-
-  if (actor.hp <= 0) {
-    Battle.turnIndex++;
-    nextTurn();
-    return;
-  }
-
-  if (actor.isPlayer) {
-    startPlayerTurn(actor);
-  } else {
-    setTimeout(()=> enemyTurn(actor), 600);
-  }
-}
-
-function endTurn() {
-
-  Battle.turnIndex++;
-
-  buildTurnQueue();
-
-  setTimeout(nextTurn, 400);
-}
 
 function checkBattleEnd() {
 
-  const alliesAlive = Battle.allies.some(a => a.hp > 0);
-  const enemiesAlive = Battle.enemies.some(e => e.hp > 0);
+  const alliesAlive = alliesInBattle.some(a => a.hp > 0);
+  const enemiesAlive = enemiesInBattle.some(e => e.hp > 0);
 
   if (!alliesAlive) {
     endBattle(false);
@@ -4770,7 +4752,14 @@ if (logBox) logBox.innerHTML = "";
   // procura o inimigo na lista
 enemiesInBattle = [];
 
+  // procura aliados na lista
+alliesInBattle = [player, ...player.companions];
+
+currentEnemyIndex = 0;
+
 selectedEnemyIndex = 0;
+
+selectedTarget = enemiesInBattle[0]; // padrão começa em inimigo
 
 if (Array.isArray(enemyName)) {
 
@@ -4814,29 +4803,80 @@ updateEnemyHUD();
 
 }
 
+function renderAlliesStatus() {
+
+  const container = document.getElementById("allies-status");
+  container.innerHTML = "";
+
+  if (!alliesInBattle) return;
+
+  const allies = alliesInBattle.filter(a => a !== player);
+
+  const count = allies.length;
+
+  // Controle de layout
+  if (count <= 2) {
+    container.style.gridTemplateColumns = "1fr";
+  } else {
+    container.style.gridTemplateColumns = "1fr 1fr";
+  }
+
+  allies.forEach((ally, index) => {
+
+    const percent = Math.max(0, (ally.hp / ally.maxHp) * 100);
+
+    const card = document.createElement("div");
+    card.className = "ally-card";
+
+  card.innerHTML = `
+    <div class="ally-name">${ally.name}</div>
+    <div class="ally-status">
+      ${makeStatusIcons(ally)}
+    </div>
+    <div class="ally-bar">
+      <div class="ally-hp-fill" style="width:${percent}%"></div>
+    </div>
+  `;
+    // Caso especial: 3 aliados → último ocupa linha inteira
+    if (count === 3 && index === 2) {
+      card.style.gridColumn = "1 / -1";
+    }
+
+    card.onclick = () => {
+  selectedTarget = ally;
+  renderAlliesStatus();
+  renderEnemyTargets();
+};
+
+if (selectedTarget === ally) {
+  card.classList.add("selected");
+}
+    container.appendChild(card);
+  });
+}
+
 function renderEnemyTargets() {
   const container = document.getElementById("enemy-targets");
   if (!container) return;
 
   container.innerHTML = "";
 
-  enemiesInBattle.forEach((enemy, index) => {
+  enemiesInBattle.forEach((enemy) => {
 
     const btn = document.createElement("button");
-
     btn.innerText = enemy.name;
     btn.className = "enemy-target-btn";
 
-    if (index === selectedEnemyIndex) {
+    if (selectedTarget === enemy) {
       btn.classList.add("selected");
     }
 
-btn.onclick = () => {
-  selectedEnemyIndex = index;
-  renderEnemyTargets();
-  updateEnemyHUD();
-};
-
+    btn.onclick = () => {
+      selectedTarget = enemy;
+      renderEnemyTargets();
+      renderAlliesStatus();
+      updateEnemyHUD();
+    };
 
     container.appendChild(btn);
   });
@@ -4854,12 +4894,20 @@ function updateEnemyHUD() {
 }
 
 function updateStatusIcons() {
-  const enemy = getCurrentEnemy();
-if (!enemy) return;
+  const enemy = getSelectedEnemy();
+  if (!enemy) return;
 
   const playerStatusEl = document.getElementById("player-status");
-  const enemyStatusEl = document.getElementById("enemy-status");
+  const enemyStatusEl  = document.getElementById("enemy-status");
+
   if (!playerStatusEl || !enemyStatusEl) return;
+
+  playerStatusEl.innerHTML = makeStatusIcons(player);
+  enemyStatusEl.innerHTML  = makeStatusIcons(enemy);
+}
+
+function makeStatusIcons(entity) {
+  if (!entity.status) return "";
 
   const emojiMap = {
     burning: "🔥",
@@ -4872,6 +4920,7 @@ if (!enemy) return;
     silence: "🤐",
     poisoning: "🧪"
   };
+
   const descMap = {
     burning: "Queimando — perde HP a cada turno.",
     frozen: "Congelado — ataque para causar muito dano.",
@@ -4879,26 +4928,19 @@ if (!enemy) return;
     confused: "Confuso — chance de perder o turno.",
     blinded: "Cego — ataques têm chance de errar.",
     paralizado: "Paralizado — perde um turno.",
-    curse: "Maldição — ataque e defesa reduzidos, perde vida por turno.",
+    curse: "Maldição — ataque e defesa reduzidos.",
     silence: "Silêncio — não pode conjurar magias.",
-    poisoning: "Envenenamento — sofre dano contínuo"
+    poisoning: "Envenenamento — sofre dano contínuo."
   };
 
-  const makeIcons = (entity) => {
-    if (!entity.status) return "";
-    return Object.keys(entity.status)
-      .filter(s => entity.status[s].turns > 0)
-      .map(s => {
-        const emoji = emojiMap[s] || "?";
-        const desc = descMap[s] || s;
-        return `<span class="status-icon" data-tip="${desc}">${emoji}</span>`;
-      })
-      .join("");
-  };
-
-  playerStatusEl.innerHTML = makeIcons(player);
-  enemyStatusEl.innerHTML = makeIcons(enemy);
-
+  return Object.keys(entity.status)
+    .filter(s => entity.status[s].turns > 0)
+    .map(s => {
+      const emoji = emojiMap[s] || "?";
+      const desc = descMap[s] || s;
+      return `<span class="status-icon" data-tip="${desc}">${emoji}</span>`;
+    })
+    .join("");
 }
 
 /* Chame updateStatusIcons() sempre que atualizar turnos ou barras */
@@ -4912,99 +4954,139 @@ if (enemy) {
     pct(enemy.hp, enemy.maxHp) + "%";
 }
 
+  renderAlliesStatus();
   updateSidebar();
   updateStatusIcons(); 
 }
 
 /* Narrador dinâmico + aplica efeitos visuais */
-function narrateAttack(attacker, defenderName, damage, isCrit, wasDefended, attackType = "fisic", spellText = null, enemy = null) {
+function narrateAttack(
+  attacker,
+  defender,
+  damage,
+  isCrit,
+  wasDefended,
+  attackType = "fisic",
+  spellText = null
+) {
 
-  if (!enemy && attacker === "player") {
-  enemy = getSelectedEnemy();
-}
+  const attackerName = attacker.name;
+  const defenderName = defender.name;
+
+  const isPlayer = attacker === player;
+  const isEnemy = enemiesInBattle.includes(attacker);
+  const isAlly = alliesInBattle.includes(attacker) && attacker !== player;
 
   let narration = "";
 
-  if (attacker === "player" && isCrit) {
-    switch (attackType) {
-      case "weapon_skill":
-        narration = `💥 ${player.name} executa um golpe com precisão brutal — um golpe crítico que faz ${defenderName} vacilar, causando ${damage} de dano!`;
-        applyStatus(enemy, "confused", 2);
-        break;
-      case "distance":
-        narration = `🏹 ${player.name} acerta um disparo perfeito! O projétil atinge ${defenderName} em cheio, causando ${damage} de dano — crítico!`;
-        applyStatus(enemy, "bleeding", 3, 8);
-        break;
-      case "fire":
-        narration = `🔥 ${player.name} desencadeia uma explosão de chamas — crítico! ${defenderName} é engolido pelo fogo, causando ${damage} de dano!`;
-        applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp * 0.03)));
-        break;
-      case "ice":
-        narration = `❄️ Um golpe gélido perfeito! ${player.name} congela partes do ${defenderName}, causando dano crítico, causando ${damage} de dano!`;
-        applyStatus(enemy, "frozen", 2);
-        break;
-      case "holy":
-        narration = `✨ A fé de ${player.name} responde, o julgamento divino cai sobre ${defenderName} com força total — causando ${damage} de dano crítico sagrado!`;
-        applyStatus(enemy, "confused", 2);
-        break;
-      case "eletric":
-        narration = `⚡ ${player.name} atinge ${defenderName} com um raio intenso — causando uma descarga neural, causando ${damage} de dano!`;
-        applyStatus(enemy, "paralizado", 1);
-        break;
-      case "dark":
-        narration = `🌑 Um sussurro maldito antecede o impacto. As trevas se fecham sobre ${defenderName}, causando ${damage} de dano!`;
-        applyStatus(enemy, "blinded", 2);
-        break;
-      case "arcane":
-        narration = `🌀 A magia se distorce e rasga a realidade — energia arcana explode contra ${defenderName}, causando ${damage} de dano!`;
-        break;
-      default:
-        narration = `💥 ${player.name} desfere um ataque devastador, um crítico que faz o ${defenderName} cambalear, causando ${damage} de dano!`;
-        applyStatus(enemy, "confused", 2);
+  /* =========================
+     ATAQUES CRÍTICOS
+  ========================== */
+
+  if (isCrit) {
+
+    if (!isEnemy) { // player OU companion
+
+      switch (attackType) {
+
+        case "weapon_skill":
+          narration = `💥 ${attackerName} executa um golpe com precisão brutal contra ${defenderName}, causando ${damage} de dano crítico!`;
+          applyStatus(defender, "confused", 2);
+          break;
+
+        case "distance":
+          narration = `🏹 ${attackerName} acerta um disparo perfeito em ${defenderName}, causando ${damage} de dano crítico!`;
+          applyStatus(defender, "bleeding", 3, 8);
+          break;
+
+        case "fire":
+          narration = `🔥 ${attackerName} libera chamas intensas que engolem ${defenderName}, causando ${damage} de dano crítico!`;
+          applyStatus(defender, "burning", 3, Math.max(2, Math.round(defender.maxHp * 0.03)));
+          break;
+
+        case "ice":
+          narration = `❄️ O frio absoluto de ${attackerName} congela ${defenderName}, causando ${damage} de dano crítico!`;
+          applyStatus(defender, "frozen", 2);
+          break;
+
+        case "holy":
+          narration = `✨ A fé de ${attackerName} invoca julgamento divino sobre ${defenderName}, causando ${damage} de dano crítico sagrado!`;
+          applyStatus(defender, "confused", 2);
+          break;
+
+        case "eletric":
+          narration = `⚡ ${attackerName} lança uma descarga elétrica devastadora contra ${defenderName}, causando ${damage} de dano crítico!`;
+          applyStatus(defender, "paralizado", 1);
+          break;
+
+        case "dark":
+          narration = `🌑 As sombras respondem a ${attackerName} e envolvem ${defenderName}, causando ${damage} de dano crítico!`;
+          applyStatus(defender, "blinded", 2);
+          break;
+
+        case "arcane":
+          narration = `🌀 A energia arcana se distorce e explode contra ${defenderName}, causando ${damage} de dano crítico!`;
+          break;
+
+        default:
+          narration = `💥 ${attackerName} desfere um golpe devastador em ${defenderName}, causando ${damage} de dano crítico!`;
+          applyStatus(defender, "confused", 2);
+      }
+
+      hpShake("enemy");
+
+    } else { // inimigo crítico
+
+      narration = `💥 ${attackerName} acerta um golpe crítico em ${defenderName}!`;
+      applyStatus(defender, "confused", 2);
+
+      if (hasStatus(defender, "frozen")) {
+        damage *= 2;
+        clearStatus(defender, "frozen");
+        log(`❄️ O gelo que envolvia ${defenderName} se quebra com o impacto!`);
+        applyStatus(defender, "bleeding", 3, 8);
+      }
+
+      hpShake("player");
     }
-    hpShake("enemy");
-  } else if (attacker === "player") {
-  if (attackType === "fisic") { 
-    narration = `${player.name} ataca ${defenderName}, causando ${damage} de dano.`;
-  } else if (attackType === "weapon_skill"){
-    const weaponSkill = spellText ? spellText : attackType.toLocaleLowerCase();
-    narration = `${player.name} realiza um ${weaponSkill} e causa ${damage} de dano em ${defenderName}`;
-  }else {
-    const spellName = spellText ? spellText : attackType.toLowerCase();
-    narration = `✨ ${player.name} conjura ${spellName} e causa ${damage} de dano ao ${defenderName}.`;
+
   }
-}
 
-  if (attacker === "enemy" && isCrit) {
-    switch (defenderName) {
-      case "Drone de Captura":
-        narration = `💥 O ${defenderName} dispara uma rajada concentrada! ${player.name} sente o impacto percorrer o corpo!`;
-        applyStatus(player, "confused", 2);
-        break;
-      default:
-        narration = `💥 ${defenderName} acerta um golpe crítico em ${player.name}!`;
-        applyStatus(player, "confused", 2);
-        if (hasStatus(player, "frozen")) {
-          damage *= 2;
-          clearStatus(player, "frozen");
-          log(`❄️ O gelo que envolvia ${player.name} se quebra com o impacto!`);
-          // se quebrar gelo, aplica sangramento por sinergia
-          applyStatus(player, "bleeding", 3, 8);
-        }
+  /* =========================
+     ATAQUES NORMAIS
+  ========================== */
+
+  else {
+
+    if (!isEnemy) { // player ou companion
+
+      if (attackType === "fisic") {
+        narration = `${attackerName} ataca ${defenderName}, causando ${damage} de dano.`;
+
+      } else if (attackType === "weapon_skill") {
+        const skillName = spellText || attackType.toLowerCase();
+        narration = `${attackerName} executa ${skillName} em ${defenderName}, causando ${damage} de dano.`;
+
+      } else {
+        const spellName = spellText || attackType.toLowerCase();
+        narration = `✨ ${attackerName} conjura ${spellName} em ${defenderName}, causando ${damage} de dano.`;
+      }
+
     }
-    hpShake("player");
-  } else if (attacker === "enemy" && wasDefended) {
-    narration = `${defenderName} atacou, mas ${player.name} defendeu parcialmente, reduzindo o dano.`;
-  } else if (attacker === "enemy" && !isCrit && !wasDefended) {
 
-  const special = getEnemyAttackDescription(defenderName);
+    else { // inimigo normal
 
-  narration = special
-    ? `${special} e causou ${damage} de dano`
-    : `${defenderName} atacou e causou ${damage} de dano em ${player.name}.`;
+      if (wasDefended) {
+        narration = `${attackerName} atacou, mas ${defenderName} defendeu parcialmente, reduzindo o dano.`;
+      } else {
+        const special = getEnemyAttackDescription(attackerName, defenderName);
+        narration = special
+          ? `${special} e causou ${damage} de dano.`
+          : `${attackerName} atacou ${defenderName}, causando ${damage} de dano.`;
+      }
+    }
 
-}
-
+  }
 
   if (narration) log(narration);
 }
@@ -5093,12 +5175,12 @@ function spendRage(amount) {
 /* ===== AÇÕES DO JOGADOR ===== */
 function attack() {
 
-  const enemy = getSelectedEnemy();
-if (!enemy) return;
+const target = selectedTarget;
+if (!target) return;
 
   if (!processStatuses(player, "player")) {
-    if (enemy.hp > 0 && player.hp > 0)
-      setTimeout(enemyAction, 800);
+    if (target.hp > 0 && player.hp > 0)
+      setTimeout(companionsTurn, 800);
     return;
   }
 
@@ -5108,7 +5190,7 @@ if (!enemy) return;
   const blindMiss = hasStatus(player, "blinded") ? 0.35 : 0;
   if (Math.random() < blindMiss) {
     log(`${player.name} tentou atacar, mas estava cego e errou!`);
-    if (enemy.hp > 0) setTimeout(enemyAction, 800);
+    if (target.hp > 0) setTimeout(companionsTurn, 800);
     return;
   }
 
@@ -5156,18 +5238,18 @@ if (!enemy) return;
   let damage = isCrit ? baseDamage * 2 : baseDamage;
 
   // ===== GELO =====
-  if (hasStatus(enemy, "frozen")) {
+  if (hasStatus(target, "frozen")) {
     damage *= 2;
-    clearStatus(enemy, "frozen");
+    clearStatus(target, "frozen");
 
-    log(`❄️ O gelo que envolvia ${enemy.name} se quebra com o impacto!`);
+    log(`❄️ O gelo que envolvia ${target.name} se quebra com o impacto!`);
 
     // sinergia
-    applyStatus(enemy, "bleeding", 3, 8);
+    applyStatus(target, "bleeding", 3, 8);
   }
 
   // ===== APLICA DANO =====
-  enemy.hp = Math.max(0, enemy.hp - damage);
+  target.hp = Math.max(0, target.hp - damage);
 
   if (player.isWerewolf && damage > 0) {
     gainRage(Math.floor(damage * 0.25));
@@ -5186,8 +5268,8 @@ if (!enemy) return;
 }
 
   narrateAttack(
-    "player",
-    enemy.name,
+    player,
+    target,
     damage,
     isCrit,
     false,
@@ -5197,10 +5279,10 @@ if (!enemy) return;
   updateBars();
 
   // ===== FIM DE COMBATE =====
-if (enemy.hp <= 0) {
+if (target.hp <= 0) {
 
-  log(`${enemy.name} foi derrotado!`);
-  gainXP(enemy.xp||0);
+  log(`${target.name} foi derrotado!`);
+  gainXP(target.xp||0);
 enemiesInBattle.splice(selectedEnemyIndex, 1);
 
 if (enemiesInBattle.length === 0) {
@@ -5226,7 +5308,7 @@ updateEnemyHUD();
 }
 
 
-  setTimeout(enemyAction, 800);
+  setTimeout(companionsTurn, 800);
 }
 
 function calculateWeaponDamage(attacker, defender, skill, weapon) {
@@ -5367,13 +5449,16 @@ function getMagicScaling(player, skill) {
 
 function getTargets(user, skill, isEnemy) {
 
-  switch(skill.target){
+  const allies = [player, ...companions].filter(a => a && a.hp > 0);
+  const enemies = enemiesInBattle.filter(e => e && e.hp > 0);
+
+  switch (skill.target) {
 
     case "all_enemies":
-      return isEnemy ? Battle.allies : enemiesInBattle;
+      return isEnemy ? allies : enemies;
 
     case "all_allies":
-      return isEnemy ? enemiesInBattle : Battle.allies;
+      return isEnemy ? enemies : allies;
 
     case "self":
       return [user];
@@ -5387,8 +5472,8 @@ function getTargets(user, skill, isEnemy) {
 }
 
 function weaponSkill(skillKey) {
-  const enemy = getSelectedEnemy();
-if (!enemy) return;
+const target = selectedTarget;
+if (!target) return;
 
   if (!processStatuses(player, "player")) {
     if (enemy.hp > 0) setTimeout(enemyAction, 900);
@@ -5514,13 +5599,13 @@ if (skill.consumeAllRage) {
     if (isCrit) damage *= 2;
   } else {
     ({ damage, isCrit } =
-      calculateWeaponDamage(player, enemy, skill, weapon));
+      calculateWeaponDamage(player, target, skill, weapon));
   };
 
-  damage = applyDamage(enemy, damage, skill.type);
+  damage = applyDamage(target, damage, skill.type);
 
   ({ damage, isCrit } =
-  calculateWeaponDamage(player, enemy, skill, weapon));
+  calculateWeaponDamage(player, target, skill, weapon));
 
 if (skill.consumeAllRage) {
 
@@ -5529,7 +5614,7 @@ if (skill.consumeAllRage) {
 
   damage += Math.floor(strengthScaling + rageScaling);
 
-  log(`🐺 Você libera ${rageConsumed} de Fúria em um ataque devastador!`);
+  log(`Você libera ${rageConsumed} de Fúria em um ataque devastador!`);
 }
   const targets = getTargets(player, skill, false);
 
@@ -5551,7 +5636,7 @@ targets.forEach(target => {
 
   if (skill.applySilence && damage > 0) {
   applyStatus(
-    enemy,
+    target,
     "silence",
     skill.silenceDuration || 2
   );
@@ -5559,8 +5644,8 @@ targets.forEach(target => {
 }
 
   narrateAttack(
-    "player",
-    enemy.name,
+    player,
+    target,
     damage,
     isCrit,
     false,
@@ -5590,8 +5675,8 @@ targets.forEach(target => {
      MALDIÇÃO
      ========================= */
   if (skill.applyCurse) {
-    applyStatus(enemy, "curse", 3);
-    log(`🕯️ ${enemy.name} foi amaldiçoado.`);
+    applyStatus(target, "curse", 3);
+    log(`🕯️ ${target.name} foi amaldiçoado.`);
   }
 
   /* =========================
@@ -5599,8 +5684,8 @@ targets.forEach(target => {
     ========================= */
 
     if (skill.applyBleed) {
-      applyStatus(enemy, "bleeding", 3, 8);
-      log(`🩸 ${enemy.name} está sangrando.`);
+      applyStatus(target, "bleeding", 3, 8);
+      log(`🩸 ${target.name} está sangrando.`);
     }
 
   /* =========================
@@ -5608,8 +5693,8 @@ targets.forEach(target => {
     ========================= */
 
     if (skill.applyStun){
-      applyStatus(enemy, "confused", 2);
-      log(`💫 ${enemy.name} está atordoado`);
+      applyStatus(target, "confused", 2);
+      log(`💫 ${target.name} está atordoado`);
     }
 
   /* =========================
@@ -5617,8 +5702,8 @@ targets.forEach(target => {
     ========================= */
 
     if(skill.applyPoison){
-      applyStatus(enemy, "poisoning", 3, 9);
-      log(`🧪 ${enemy.name} está envenenado.`)
+      applyStatus(target, "poisoning", 3, 9);
+      log(`🧪 ${target.name} está envenenado.`)
     }
 
   /* =========================
@@ -5626,8 +5711,8 @@ targets.forEach(target => {
     ========================= */
     
     if(skill.applyBurn){
-      applyStatus(enemy, "burning", 3, Math.max(2, Math.round(enemy.maxHp * 0.03)));
-      log(`🔥 ${enemy.name} está queimando.`)
+      applyStatus(target, "burning", 3, Math.max(2, Math.round(target.maxHp * 0.03)));
+      log(`🔥 ${target.name} está queimando.`)
     }
 
   /* =========================
@@ -5694,8 +5779,8 @@ function updateMagicUI() {
 }
 
 function castSpellFromText() {
-  const enemy = getSelectedEnemy();
-if (!enemy) return;
+const target = selectedTarget;
+if (!target) return;
 
   const input = document.getElementById("spell-input");
   if (!input) return;
@@ -5707,7 +5792,7 @@ if (!enemy) return;
 
   if (!skillKey || !skills[skillKey]) {
     log("O encantamento falha. Nada acontece.");
-    setTimeout(enemyAction, 900);
+    setTimeout(companionsTurn, 800);
     return;
   }
 
@@ -5716,13 +5801,13 @@ if (!enemy) return;
   // ===== SILÊNCIO =====
   if (hasStatus(player, "silence")) {
     log("Você está silenciado e não consegue conjurar magias.");
-    setTimeout(enemyAction, 900);
+    setTimeout(companionsTurn, 800);
     return;
   }
 
 
   if (!processStatuses(player, "player")) {
-    if (enemy.hp > 0) setTimeout(enemyAction, 900);
+    if (enemy.hp > 0) setTimeout(companionsTurn, 800);
     return;
   }
 
@@ -5732,14 +5817,14 @@ if (!enemy) return;
   // magia acima do nível do personagem
   if (cost > player.maxMana) {
     log("Esse encantamento é de um nível superior ao seu.");
-    setTimeout(enemyAction, 900);
+    setTimeout(companionsTurn, 800);
     return;
   }
 
   // mana insuficiente
   if (cost > player.mana) {
     log("Mana insuficiente.");
-    setTimeout(enemyAction, 900);
+    setTimeout(companionsTurn, 800);
     return;
   }
 
@@ -5769,7 +5854,7 @@ if (!enemy) return;
     );
 
     updateBars();
-    setTimeout(enemyAction, 900);
+    setTimeout(companionsTurn, 800);
     return;
   }
 
@@ -5784,19 +5869,19 @@ let damage = Math.floor(
 const isCrit = Math.random() < skill.critChance;
 if (isCrit) damage *= 2;
 
-damage = applyDamage(enemy, damage, skill.type);
-enemy.hp = Math.max(0, enemy.hp - damage);
+damage = applyDamage(target, damage, skill.type);
+target.hp = Math.max(0, target.hp - damage);
 
 
 narrateAttack(
-  "player",
-  enemy.name,
+  player,
+  target,
   damage,
   isCrit,
   false,
   skill.type,
   skill.name,
-  enemy
+  target
 );
 
 /* =========================
@@ -5815,20 +5900,20 @@ if (skill.lifesteal && damage > 0) {
    MALDIÇÃO
    ========================= */
 if (skill.applyCurse) {
-  applyStatus(enemy, "curse", 3);
-  log(`🕯️ ${enemy.name} foi amaldiçoado.`);
+  applyStatus(target, "curse", 3);
+  log(`🕯️ ${target.name} foi amaldiçoado.`);
 }
 
 updateBars();
 
-if (enemy.hp > 0) {
-  setTimeout(enemyAction, 900);
+if (target.hp > 0) {
+  setTimeout(companionsTurn, 800);
 }
 
-if (enemy.hp <= 0) {
+if (target.hp <= 0) {
 
-  log(`${enemy.name} foi derrotado!`);
-gainXP(enemy.xp||0);
+  log(`${target.name} foi derrotado!`);
+gainXP(target.xp||0);
   enemiesInBattle.splice(selectedEnemyIndex, 1);
 
   if (enemiesInBattle.length === 0) {
@@ -5860,40 +5945,42 @@ if (spellInput) {
 
 
 /* ========================= DESCRIÇÕES DE ATAQUES DOS INIMIGOS ========================= */
-function getEnemyAttackDescription(enemyName) {
+function getEnemyAttackDescription(enemyName, defenderName) {
   switch (enemyName) {
+
     case "João José":
       return [
-        "João José ataca seu rosto com força!",
-        "João José desfere um chute certeiro em suas costelas!",
-        "João José dá um soco rápido em seu abdômen!",
-        "Ele avança com precisão e te acerta um golpe potente!",
-        "João José te golpeia com a frieza de um soldado treinado!"
+        `João José ataca o rosto de ${defenderName} com força!`,
+        `João José desfere um chute certeiro nas costelas de ${defenderName}!`,
+        `João José dá um soco rápido no abdômen de ${defenderName}!`,
+        `Ele avança com precisão e acerta ${defenderName} com um golpe potente!`,
+        `João José golpeia ${defenderName} com a frieza de um soldado treinado!`
       ][Math.floor(Math.random() * 5)];
 
     case "Drone de Captura":
       return [
-        "O Drone dispara lasers elétricos em sua direção!",
-        "O Drone trava sua mira e atira uma rajada energética!",
-        "O Drone vibra no ar e lança uma descarga contra você!"
+        `O Drone dispara lasers elétricos contra ${defenderName}!`,
+        `O Drone trava sua mira e atira uma rajada energética em ${defenderName}!`,
+        `O Drone vibra no ar e lança uma descarga contra ${defenderName}!`
       ][Math.floor(Math.random() * 3)];
 
-      case "Rudo":
-        return [
-          "Rudo avança em disparada e te acerta em cheio com sua espada!",
-          "Rudo pula e te acerta um soco no rosto!",
-          "Rudo joga a espada em você e a pega no ar",
-          "Rudo desfere uma sequência de golpes"
-        ][Math.floor(Math.random() * 4)];
+    case "Rudo":
+      return [
+        `Rudo avança em disparada e acerta ${defenderName} em cheio com sua espada!`,
+        `Rudo pula e acerta um soco no rosto de ${defenderName}!`,
+        `Rudo joga a espada contra ${defenderName} e a pega no ar!`,
+        `Rudo desfere uma sequência de golpes contra ${defenderName}!`
+      ][Math.floor(Math.random() * 4)];
 
-      case "Crhistine":
-         return [
-          "Crhistine avança com sangue nos olhos!",
-          "Crhistine ataca com determinação!",
-          "Crhistine disfere uma sequência de golpes com sua espada"
-         ][Math.floor(Math.random() * 3)];
+    case "Crhistine":
+      return [
+        `Crhistine avança com sangue nos olhos contra ${defenderName}!`,
+        `Crhistine ataca ${defenderName} com determinação!`,
+        `Crhistine desfere uma sequência de golpes com sua espada em ${defenderName}!`
+      ][Math.floor(Math.random() * 3)];
+
     default:
-      return `${enemyName} ataca impiedosamente!`;
+      return `${enemyName} ataca ${defenderName} impiedosamente!`;
   }
 }
 
@@ -5919,8 +6006,6 @@ function useSkill(user, target, skillKey, isEnemy = false) {
   } else {
     let heal = Math.floor(user.attack * skill.power);
     user.hp = Math.min(user.maxHp, user.hp + heal);
-
-    log(`✨ ${user.name} usa ${skill.name} e se cura (${heal})`);
   }
 
   updateBars();
@@ -5952,15 +6037,14 @@ function useSkill(user, target, skillKey, isEnemy = false) {
     gainRage(Math.floor(base * 0.4));
   }
 
-  narrateAttack(
-  isEnemy ? "enemy" : "player",
-  isEnemy ? user.name : target.name,
+narrateAttack(
+  user,
+  target,
   base,
   isCrit,
   false,
   skill.type,
-  skill.name,
-  target
+  skill.name
 );
 
   // lifesteal
@@ -6024,27 +6108,10 @@ if (skill.applySilence && base > 0) {
       log(`🧪 ${target.name} está envenenado.`);
     }
     else{
-      log(
-        `${user.name} usa ${skill.name} causando ${base} de dano!` +
-        (isCrit ? " 💥 CRÍTICO!" : "")
-      );
     };
 
   // ===== VERIFICA DERROTA =====
-if (target.hp <= 0) {
-  target.hp = 0;
-  updateBars();
-
-  if (target === player) {
-    log(`☠️ ${player.name} foi derrotado...`);
-    endBattle(false);
-  } else {
-    log(`${target.name} foi derrotado!`);
-    endBattle(true);
-  }
-
-  return;
-}
+if (checkBattleEnd()) return;
 
   updateBars();
 }
@@ -6067,9 +6134,12 @@ function enemyAction() {
     const skillKey =
       enemy.skills[Math.floor(Math.random() * enemy.skills.length)];
 
-    useSkill(enemy, player, skillKey, true);
+    const target = getRandomAllyTarget();
+    if (!target) return;
+
+    useSkill(enemy, target, skillKey, true);
   } else {
-    enemyBasicAttack();
+    enemyBasicAttack(enemy);
   }
   currentEnemyIndex++;
 
@@ -6094,9 +6164,19 @@ if (currentEnemyIndex >= enemiesInBattle.length) {
 
 }
 
+function getRandomAllyTarget() {
+  const livingAllies = alliesInBattle.filter(a => a.hp > 0);
+  if (livingAllies.length === 0) return null;
+
+  return livingAllies[Math.floor(Math.random() * livingAllies.length)];
+}
+
 function enemyBasicAttack() {
   const enemy = enemiesInBattle[currentEnemyIndex];
   if (!enemy) return;
+
+  const target = getRandomAllyTarget();
+  if (!target) return;
 
   const blindMiss = hasStatus(enemy, "blinded") ? 0.25 : 0;
   const missChance = 0.1 + blindMiss;
@@ -6117,37 +6197,133 @@ function enemyBasicAttack() {
   let base = Math.floor(Math.random() * attackPower) + 6;
   let damage = isCrit ? base * 2 : base;
 
-// 👉 BLOQUEIO COM ESCUDO
-const sub = player.equippedSubWeapon;
+// BLOQUEIO COM ESCUDO
+const sub = target.equippedSubWeapon;
 
   if (sub && shields[sub.name]) {
     const shield = shields[sub.name];
 
     if (Math.random() < shield.blockChance) {
       damage = Math.floor(damage * 0.4); // 60% redução
-      log("🛡️ Escudo bloqueou grande parte do dano!");
+      log("Escudo bloqueou grande parte do dano!");
     }
   }
 
-  // 👉 DEFENDER NORMAL
-  if (player.defending) {
+  // DEFENDER NORMAL
+  if (target.defending) {
     damage = Math.floor(damage / 2);
-    player.defending = false;
+    target.defending = false;
   }
 
 
-  player.hp = Math.max(0, player.hp - damage);
+  target.hp = Math.max(0, target.hp - damage);
 
-  narrateAttack("enemy", enemy.name, damage, isCrit, false);
+  narrateAttack(enemy, target, damage, isCrit, false);
 
-  if (player.hp <= 0) {
-    endBattle(false);
-    return;
-  }
+  if (checkBattleEnd()) return;
 
   updateBars();
 }
 
+function companionAction(companion) {
+
+  if (!processStatuses(companion, "ally")) return;
+
+  const livingEnemies = enemiesInBattle.filter(e => e.hp > 0);
+  if (livingEnemies.length === 0) return;
+
+  const target = livingEnemies[Math.floor(Math.random() * livingEnemies.length)];
+
+  // 40% chance de usar skill
+  const canUseSkill =
+    companion.skills &&
+    companion.skills.length > 0 &&
+    Math.random() < 0.4;
+
+  if (canUseSkill) {
+
+    const skillKey =
+      companion.skills[
+        Math.floor(Math.random() * companion.skills.length)
+      ];
+
+    const skill = skills[skillKey];
+
+if (skill.heal) {
+  const allyToHeal = alliesInBattle
+    .filter(a => a.hp > 0 && a.hp < a.maxHp)
+    .sort((a,b) => a.hp - b.hp)[0];
+
+  useSkill(companion, allyToHeal || companion, skillKey, false);
+} else {
+  useSkill(companion, target, skillKey, false);
+}
+
+  } else {
+
+    companionBasicAttack(companion, target);
+
+  }
+
+  checkBattleEnd();
+  updateBars();
+}
+
+let currentCompanionTurn = 0;
+
+function companionsTurn() {
+  const livingCompanions = player.companions.filter(c => c.hp > 0);
+
+  if (livingCompanions.length === 0) {
+    setTimeout(enemyAction, 800);
+    return;
+  }
+
+  if (currentCompanionTurn >= livingCompanions.length) {
+    currentCompanionTurn = 0;
+    setTimeout(enemyAction, 800);
+    return;
+  }
+
+  const companion = livingCompanions[currentCompanionTurn];
+
+  companionAction(companion)
+
+  currentCompanionTurn++;
+
+  checkBattleEnd();
+  setTimeout(companionsTurn, 800);
+}
+
+function companionBasicAttack(companion, target) {
+
+  if (!target) return;
+
+  const critChance = 0.15;
+  const isCrit = Math.random() < critChance;
+
+  let base =
+    Math.floor(Math.random() * companion.attack) +
+    Math.floor(companion.attack * 0.5);
+
+  if (isCrit) base *= 2;
+
+  base = applyDamage(target, base, "fisic");
+
+  target.hp = Math.max(0, target.hp - base);
+
+  log(
+    `${companion.name} ataca ${target.name} causando ${base} de dano` +
+    (isCrit ? " 💥 CRÍTICO!" : "")
+  );
+
+    if (enemiesInBattle.length === 0) {
+    endBattle(true);
+    return;
+  }
+
+  checkBattleEnd();
+}
 
 /* ========== CONTROLE DE TURNOS ========== */
 function playerTurn(action) {
