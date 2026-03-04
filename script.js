@@ -1041,7 +1041,6 @@ function equipShield(id) {
     if (player.equippedWeapon?.twoHand) {
     equipWeapon("Mãos vazias");
   }
-  // 👉 REMOVE BÔNUS DO ESCUDO ANTIGO
   if (
     player.equippedSubWeapon &&
     shields[player.equippedSubWeapon.name]
@@ -1052,10 +1051,10 @@ function equipShield(id) {
     player.defense -= oldShield.defenseBonus;
   }
 
-  // 👉 APLICA BÔNUS DO NOVO
+
   player.defense += newShield.defenseBonus;
 
-  // 👉 EQUIPA DE VERDADE
+
   player.equippedSubWeapon = {
     name: newShield.name,
     type: "shield"
@@ -4632,6 +4631,17 @@ const enemies = {
 /* ALIADOS */
 const companionsDatabase = {
 
+  mira: {
+    name: "Mira",
+    maxHp: 150,
+    hp: 150,
+    attack: 12,
+    defense: 8,
+    dex: 10,
+    skills: ["apunhlada", "estocada_precisa"],
+    description: "Sua rival da guilda"
+  },
+
   elena: {
     name: "Elena",
     maxHp: 120,
@@ -4691,7 +4701,7 @@ function bindSkillTooltip(btn, skill) {
 
   /* ===== MOBILE (TOQUE LONGO) ===== */
   btn.addEventListener("touchstart", e => {
-    e.preventDefault(); // 👈 MUITO IMPORTANTE
+    e.preventDefault(); 
     tooltipTimeout = setTimeout(() => {
       const touch = e.touches[0];
       showSkillTooltip(skill, touch.clientX, touch.clientY);
@@ -5595,29 +5605,43 @@ if (skill.consumeAllRage) {
   /* =========================
      CURA PURA
      ========================= */
-  if (skill.heal) {
-    const scaling = getMagicScaling(player, skill);
+if (skill.heal) {
 
-    let healAmount = Math.floor(
-      (skill.power * weapon.baseDamage) + scaling
-    );
+  const allAllies = [player, ...alliesInBattle];
 
-    const isCrit = Math.random() < (skill.critChance || 0);
-    if (isCrit) healAmount *= 2;
+  let target;
 
-    const before = player.hp;
-    player.hp = Math.min(player.maxHp, player.hp + healAmount);
-
-    log(
-      `${player.name} usa ${skill.name} e recupera ${
-        player.hp - before
-      } de vida.`
-    );
-
-    updateBars();
-    setTimeout(enemyAction, 900);
-    return;
+  // Se o alvo selecionado for aliado, cura ele
+  if (selectedTarget && allAllies.includes(selectedTarget)) {
+    target = selectedTarget;
+  } else {
+    // Se for inimigo ou null, cura o player
+    target = player;
   }
+
+  const scaling = getMagicScaling(player, skill);
+
+  let healAmount = Math.floor(
+    (skill.power * weapon.baseDamage) + scaling
+  );
+
+  const isCrit = Math.random() < (skill.critChance || 0);
+  if (isCrit) healAmount *= 2;
+
+  const before = target.hp;
+
+  target.hp = Math.min(target.maxHp, target.hp + healAmount);
+
+  log(
+    `${player.name} usa ${skill.name} em ${target.name} e recupera ${
+      target.hp - before
+    } de vida.`
+  );
+
+  updateBars();
+  setTimeout(enemyAction, 900);
+  return;
+}
 
   /* =========================
      DANO
@@ -5820,6 +5844,8 @@ function castSpellFromText() {
   return;
   }
 
+  const weapon = player.equippedWeapon;
+
   const target = selectedTarget;
   if (!target) return;
 
@@ -5877,27 +5903,43 @@ function castSpellFromText() {
   /* =========================
      MAGIA DE CURA
      ========================= */
-  if (skill.heal) {
-    let healAmount = Math.floor(
-      (cost * skill.power) + scaling
-    );
+if (skill.heal) {
 
-    const isCrit = Math.random() < (skill.critChance || 0);
-    if (isCrit) healAmount *= 2;
+  const allAllies = [player, ...alliesInBattle];
 
-    const before = player.hp;
-    player.hp = Math.min(player.maxHp, player.hp + healAmount);
+  let target;
 
-    log(
-      `${player.name} conjura ${skill.name} e recupera ${
-        player.hp - before
-      } de vida.`
-    );
-
-    updateBars();
-    setTimeout(companionsTurn, 800);
-    return;
+  // Se o alvo selecionado for aliado, cura ele
+  if (selectedTarget && allAllies.includes(selectedTarget)) {
+    target = selectedTarget;
+  } else {
+    // Se for inimigo ou null, cura o player
+    target = player;
   }
+
+  const scaling = getMagicScaling(player, skill);
+
+  let healAmount = Math.floor(
+    (skill.power * weapon.baseDamage) + scaling
+  );
+
+  const isCrit = Math.random() < (skill.critChance || 0);
+  if (isCrit) healAmount *= 2;
+
+  const before = target.hp;
+
+  target.hp = Math.min(target.maxHp, target.hp + healAmount);
+
+  log(
+    `${player.name} usa ${skill.name} em ${target.name} e recupera ${
+      target.hp - before
+    } de vida.`
+  );
+
+  updateBars();
+  setTimeout(enemyAction, 900);
+  return;
+}
 
 /* =========================
    MAGIA DE DANO 
