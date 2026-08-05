@@ -524,14 +524,11 @@ body {
 #friends-list p{
   margin: 8px 0;
 }
-#sidebar-button{
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
-  padding: 6px 10px;
-  color: white;
-  cursor: pointer;
+
+#sidebar-relaction{
+  display: flex;
 }
+
 /* ÁREA PRINCIPAL */
 #game {
   max-width: 900px;
