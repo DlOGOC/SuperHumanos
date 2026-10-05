@@ -1647,6 +1647,8 @@ const skills = {
     areaHeal: true
   },
 
+/* ===== VAMPIRE ===== */
+
   forma_vampirica:{
     name: "Forma Vampírica",
     type: "dark",
@@ -1668,7 +1670,7 @@ const skills = {
     description: "Drena o sangue do inimigo, curando a si e saciando a fome."
 },
 
-/* ===== LOBISOMEN ===== */
+/* ===== WAREWOLF ===== */
 
   frenesi_bestial: {
     name: "Frenesi Bestial",
