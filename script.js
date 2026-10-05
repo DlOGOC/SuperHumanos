@@ -3981,7 +3981,7 @@ function getMagicScaling(player, skill) {
 
 function getTargets(user, skill, isEnemy) {
 
-  const allies = [player, ...companions].filter(a => a && a.hp > 0);
+  const allies = [player, ...(player.companions || [])].filter(a => a && a.hp > 0);
   const enemies = enemiesInBattle.filter(e => e && e.hp > 0);
 
   switch (skill.target) {
@@ -4278,10 +4278,10 @@ targets.forEach(target => {
 
   updateBars();
 
-if (enemy.hp <= 0) {
+if (target.hp <= 0) {
 
-  log(`${enemy.name} foi derrotado!`);
-gainXP(enemy.xp||0);
+  log(`${target.name} foi derrotado!`);
+gainXP(target.xp||0);
   enemiesInBattle.splice(selectedEnemyIndex, 1);
 
   if (enemiesInBattle.length === 0) {
