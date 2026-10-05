@@ -3963,7 +3963,7 @@ function showWeaponSkills() {
 function getMagicScaling(player, skill) {
   switch (skill.type) {
     case "holy":
-    case "divine":
+    case "eletric":
       return player.faith * 2;
 
     case "dark":
@@ -3972,7 +3972,6 @@ function getMagicScaling(player, skill) {
     // elementais / arcanas
     case "fire":
     case "ice":
-    case "eletric":
     case "arcane":
     default:
       return player.intelligence * 2;
