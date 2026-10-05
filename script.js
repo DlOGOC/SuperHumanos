@@ -908,7 +908,8 @@ const weapons = {
     type: "magic",
     baseDamage: 6,
     skills: ["bola_de_fogo"],
-    slot: "both"
+    slot: "both",
+    twoHand: true
   },
 
   "Espada dentada": {
@@ -3282,7 +3283,6 @@ currentEnemyIndex = 0;
 
 selectedEnemyIndex = 0;
 
-selectedTarget = enemiesInBattle[0]; // padrão começa em inimigo
 
 if (Array.isArray(enemyName)) {
 
@@ -3301,6 +3301,8 @@ if (Array.isArray(enemyName)) {
   }
 
 }
+
+selectedTarget = enemiesInBattle[0];
 
   document.getElementById("story-screen").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
