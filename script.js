@@ -2849,7 +2849,34 @@ function continueBackStory(){
 
 }
 
+function continueBackStory2(){
+  const story = `Em uma de minhas patrulhas, vi um homem invadir a loja do alfaiate da vila, o sangue subiu em minha cabeça e corri atrás dele, afinal, minha mãe naquele dia ainda estava lá mesmo sendo tarde da noite para fazerem uma grande encomenda para o lorde da região, entrei na loja alguns segundos após o invasor e o vi atacar o lojista, naturalmente o impedi sem nenhuma vítima ou prejuízo à loja, o criminoso era um homem pobre de uma vila vizinha, eu já o tinha visto algumas vezes aqui vendendo algumas quiquilharias.
+  
+  O prendi com facilidade e o levei para o quartel, dei meu depoimento junto com minha mãe e o senhor Morry, o alfaiate e então o homem foi preso, o desespero em seu rosto me assombrou por alguns dias, afinal, por que um homem que sempre levou uma vida honesta teria feito isso?
+   
+  Dias depois, um boato circulava em todos os lugares, uma facção rebelde queria causar prejuízos para o lorde daquelas terras, com este rumor, o caso do invasor na alfaiataria voltou, o homem foi interrogado novamente até que sua sentença foi divulgada, pena de morte por traição à coroa, talvez tenha sido por isso que aquele homem estivesse tão desesperado. 
+  
+  Todos foram convocados para assistir, eu como parte da segurança e a pessoa quem o capturou, fui designada para o vigiar até a data da execução, não me lembro muito bem de tudo que ele me disse, mas tudo aquilo ficou em minha mente por dias, ele não era um revolucionário, muito pelo contrário, apenas precisava do dinheiro que o ofereceram, salvaria sua família da pobreza, e agora que o único provedor daquela casa havia sido preso, nada impediria que aquelas pessoas morressem de fome. 
+  
+  Meu passado veio em minha mente: se fosse a minha mãe naquela situação, eu teria feito algo parecido?`;
 
+  changeScene(story,
+    () => {criarBotaoHistoria("Sim", "backStrory2Yes");
+      criarBotaoHistoria("Não", "backStory2No")
+    }, 320, 
+    "powerText",
+    "powerChoices",
+    "continueBackStory2"
+  );
+};
+
+function backStrory2Yes(){
+  const story = ``;
+};
+
+function backStory2No(){
+  const story = ``;
+};
 
 /* ========== COMBATE ========== */
 
