@@ -905,11 +905,41 @@ const weapons = {
 
   "Cajado simples": {
     name: "Cajado simples",
-    type: "magic",
+    type: "staff",
     baseDamage: 6,
+    magicBonus: 10,
+    magicTypes: ["fire", "ice", "arcane"],
     skills: ["bola_de_fogo"],
     slot: "both",
     twoHand: true
+  },
+
+  "Varinha de gelo": {
+    name: "Varinha de gelo",
+    type: "wand",
+    baseDamage: 6,
+    magicBonus: 10,
+    magicTypes: ["ice"],
+    skills: ["raio_de_gelo"],
+    slot: "sub",
+  },
+
+  "Turíbulo de ferro": {
+    name: "Turíbulo de ferro",
+    type: "censer",
+    baseDamage: 6,
+    magicBonus: 10,
+    magicTypes: ["holy", "eletric", "dark"],
+    slot: "sub"
+  },
+
+  "Orbe Obscuro": {
+    name: "Orbe Obscuro",
+    type: "orb",
+    baseDamage: 6,
+    magicBonus: 10,
+    magicTypes: ["dark"],
+    slot: "sub"
   },
 
   "Espada dentada": {
@@ -3963,20 +3993,51 @@ function showWeaponSkills() {
 
 
 function getMagicScaling(player, skill) {
+
+  let scaling = 0;
+  
   switch (skill.type) {
-    case "holy":
-    case "eletric":
-      return player.faith * 2;
-
-    case "dark":
-      return Math.floor((player.intelligence + player.faith) / 2) * 2;
-
-    // elementais / arcanas
     case "fire":
     case "ice":
-    case "arcane":
+      scaling = player.intelligence * 1.5;
+      break;
+
+    case "eletric":
+    case "holy":
+      scaling = player.faith * 1.5;
+      break;
+
+    case "dark":
+      scaling = Math.floor(player.faith * 0.5 + player.intelligence * 0.5);
+      break;
+
+      case "arcane":
+        scaling = player.mind*1.5;
+        break;
+        
     default:
-      return player.intelligence * 2;
+      scaling = 0;
+  }
+}
+
+function getMagicWeaponBonus(weapon, skillType){
+  
+  if(!weapon?.magicTypes?.includes(skillType)){
+    return 0;
+  } 
+  const bonus = weapon.magicBonus || 0;
+
+  switch(weapon.type){
+    case "staff":
+      return Math.floor(bonus * 1.5);
+    case "wand":
+      return bonus;
+    case "censer":
+      return bonus
+    case "orb":
+      return bonus;
+    default:
+      return 0;
   }
 }
 
