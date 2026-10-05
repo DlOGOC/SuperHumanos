@@ -4018,6 +4018,8 @@ function getMagicScaling(player, skill) {
     default:
       scaling = 0;
   }
+
+  return scaling;
 }
 
 function getMagicWeaponBonus(weapon, skillType){
@@ -4074,13 +4076,13 @@ function weaponSkill(skillKey) {
   if (!target) return;
 
   if (!processStatuses(player, "player")) {
-    if (enemy.hp > 0) setTimeout(enemyAction, 900);
+    if (target.hp > 0) setTimeout(enemyAction, 900);
     return;
   }
 
   updateMagicUI();
 
-  const weapon = player.equippedWeapon;
+  const weapon = player?.equippedWeapon || 0;
   if (!weapon) {
     log("Você está desarmado.");
     return;
@@ -4173,6 +4175,12 @@ if (skill.heal) {
 
   const scaling = getMagicScaling(player, skill);
 
+  console.log({
+  power: skill.power,
+  weaponBaseDamage: weapon?.baseDamage,
+  scaling: scaling
+});
+
   let healAmount = Math.floor(
     (skill.power * weapon.baseDamage) + scaling
   );
@@ -4190,8 +4198,9 @@ if (skill.heal) {
     } de vida.`
   );
 
-  updateBars();
   setTimeout(enemyAction, 900);
+  updateBars();
+
   return;
 }
 
@@ -4361,7 +4370,7 @@ gainXP(target.xp||0);
 
 function defend() {
   if (!processStatuses(player, "player")) {
-    if (enemy.hp > 0) setTimeout(enemyAction, 900);
+    if (target.hp > 0) setTimeout(enemyAction, 900);
     return;
   }
 
@@ -4396,7 +4405,7 @@ function castSpellFromText() {
   return;
   }
 
-  const weapon = player.equippedWeapon;
+  const weapon = player?.equippedWeapon || 0;
 
   const target = selectedTarget;
   if (!target) return;
