@@ -858,6 +858,12 @@ function closeBook() {
     .classList.add("hidden");
 }
 
+const keyItems = {
+  mysterious_note: {
+    name: "Bilhete com símbolo misterioso",
+    description: "Um bilhete que achei no chão, com um síbolo estranho."
+  }
+};
 const shields = {
   "Escudo de madeira": {
     name: "Escudo de madeira",
@@ -1169,7 +1175,7 @@ document.getElementById("inv-weapons").innerHTML = html;
 
     sHtml += `
       <div class="inv-item">
-        🛡 ${shield.name}
+        ${shield.name}
 
         <button onclick="equipShield('${id}')">
           ${isSub ? "Equipado" : "Equipar"}
@@ -1193,7 +1199,7 @@ document.getElementById("inv-weapons").innerHTML = html;
 
     aDiv.innerHTML += `
       <div class="inv-item">
-        🧥 ${armor.name}
+         ${armor.name}
         <button onclick="equipArmor('${id}')">
           ${isEquipped ? "Usando" : "Equipar"}
         </button>
@@ -1205,15 +1211,22 @@ document.getElementById("inv-weapons").innerHTML = html;
   // ===== KEY ITEMS =====
   kDiv.innerHTML = "";
 
-  player.inventory.keyItems.forEach(item => {
-    kDiv.innerHTML += `
-      <div>🔑 ${item.name || item}</div>
-    `;
+  player.inventory.keyItems.forEach(id => {
+
+    const item = keyItems[id];
+    if (!item) return;
+
+    const div = document.createElement("div");
+    div.className = "key-tem";
+    div.textContent = item.name;
+    div.title = item.description;
+
+    kDiv.appendChild(div);
   });
 
 
 // ===== LIVROS =====
-bDiv.innerHTML = "<h5>Livros</h5>";
+bDiv.innerHTML = "";
 
 player.inventory.books.forEach(id => {
 
@@ -1222,7 +1235,7 @@ player.inventory.books.forEach(id => {
 
   bDiv.innerHTML += `
     <div class="inv-item">
-      📘 ${book.title}
+       ${book.title}
 
       <button onclick="readBook('${id}')">
         Ler
@@ -1260,6 +1273,30 @@ document.addEventListener("keydown", e => {
   }
 });
 
+function giveKeyItem(id) {
+  if (!keyItems[id]) return;
+  if(player.inventory.keyItems.includes(id)) return;
+
+  player.inventory.keyItems.push(id);
+
+  renderInventory();
+}
+
+function hasKeyItem(id) {
+  return player.inventory.keyItems.includes(id);
+}
+
+function removeKeyItem(id) {
+  const index = player.inventory.keyItems.indexOf(id);
+  if (index !== -1) {
+    player.inventory.keyItems.splice(index, 1);
+  }
+
+  player.inventory.keyItems.splice(index, 1);
+  renderInventory();
+
+  return true;
+}
 function giveArmor(id) {
   if (!ARMORS[id]) return;
 
@@ -1267,7 +1304,6 @@ function giveArmor(id) {
     player.inventory.armors.push(id);
   }
 
-  saveGame();
   renderInventory();
 }
 
@@ -1278,7 +1314,6 @@ function giveWeapon(name) {
     player.inventory.weapons.push(name);
   }
 
-  saveGame();
   renderInventory();
 }
 
@@ -1289,7 +1324,6 @@ function giveShield(id) {
     player.inventory.shields.push(id);
   }
 
-  saveGame();
   renderInventory();
 }
 /* ===== SKILLS DO JOGADOR =====*/
@@ -2891,11 +2925,12 @@ function continueBackStory2(){
   
   Todos foram convocados para assistir, eu como parte da segurança e a pessoa quem o capturou, fui designada para o vigiar até a data da execução, não me lembro muito bem de tudo que ele me disse, mas tudo aquilo ficou em minha mente por dias, ele não era um revolucionário, muito pelo contrário, apenas precisava do dinheiro que o ofereceram, salvaria sua família da pobreza, e agora que o único provedor daquela casa havia sido preso, nada impediria que aquelas pessoas morressem de fome. 
   
-  Meu passado veio em minha mente: se fosse a minha mãe naquela situação, eu teria feito algo parecido?`;
+  Fui atingida por uma sensação de culpa, afinal, eu poderia ter feito algo para impedir que aquele homem fosse condenado à morte, mas não havia nada que eu pudesse fazer, afinal, a lei era a lei.
+  
+  Em seus últimos momentos, ele me olhou com um olhar de desprezo e culpa, naquele momento eu não consegui ouvir o que ele disse, mas eu sabia que me amaldiçoava e antes que seu corpo fosse suspenso pela corda, mesmo sua voz saindo como um sussurro, eu consegui ouvir quase como se ela ecoasse: "Os revolucionários vão vir até você... assim como vieram até mim-"`;
 
   changeScene(story,
-    () => {criarBotaoHistoria("Sim", "backStrory2Yes");
-      criarBotaoHistoria("Não", "backStory2No")
+    () => {criarBotaoHistoria("Continuar", "backStrory3");
     }, 320, 
     "powerText",
     "powerChoices",
@@ -2903,13 +2938,43 @@ function continueBackStory2(){
   );
 };
 
-function backStrory2Yes(){
-  const story = ``;
+function backStrory3(){
+  const story = `Alguns dias se passaram, nada aconteceu, mas era difícil ignorar a sensação de ser observada, seja nos dias de ronda ou nos dias de folga, até aquele dia, eu encontrei um pequeno papel com um símbolo estranho que eu já havia visto algumas vezes, nunca soube seu signifcado mas ainda sim era algo que nunca chamou minha atenção, então fui investigar o local.`;
+
+  giveKeyItem("mysterious_note");
+
+  changeScene(story,
+    () => {criarBotaoHistoria("Continuar", "backStorySuspicionBuidingInvestigation");
+    }, 320, 
+    "powerText",
+    "powerChoices",
+    "backStrory3"
+  );
 };
 
-function backStory2No(){
-  const story = ``;
-};
+function backStorySuspicionBuidingInvestigation(){
+  const story = `Cheguei a uma das vielas da cidade, um local escuro e apertado, que possuia o mesmo símbolo que eu havia visto no papel.`;
+
+  changeScene(story,
+    () => {criarBotaoHistoria("Checar o símbolo", "backStorySuspiciousSymbolInvestigation"),
+      criarBotaoHistoria("Investigar a porta", "backStorySuspiciousDoorInvestigation")
+    }, 320, 
+    "powerText",
+    "powerChoices",
+    "backStorySuspicionBuidingInvestigation"
+  );
+}
+
+function backStorySuspiciousSymbolInvestigation(){
+  const story = `Um grande símbolo marcado na parede, com uma cor vermelha vibrante no formato de um círculo, com uma estrela de 5 pontas no centro, e um pequeno círculo no centro da estrela, com uma linha atravessando o círculo.`;
+  changeScene(story,
+    () => {criarBotaoHistoria("Continuar", "backStorySuspicionBuidingInvestigation");
+    }, 320, 
+    "powerText",
+    "powerChoices",
+    "backStorySuspiciousSymbolInvestigation"
+  );
+}
 
 /* ========== COMBATE ========== */
 
@@ -4174,12 +4239,6 @@ if (skill.heal) {
   }
 
   const scaling = getMagicScaling(player, skill);
-
-  console.log({
-  power: skill.power,
-  weaponBaseDamage: weapon?.baseDamage,
-  scaling: scaling
-});
 
   let healAmount = Math.floor(
     (skill.power * weapon.baseDamage) + scaling
