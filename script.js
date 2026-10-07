@@ -860,9 +860,22 @@ function closeBook() {
 
 const keyItems = {
   mysterious_note: {
-    name: "Bilhete com símbolo misterioso",
+    name: "📃 Bilhete com símbolo misterioso",
     description: "Um bilhete que achei no chão, com um síbolo estranho."
-  }
+  },
+  scroll:{
+    name: "📜",
+    description: "Um pergaminho com escrita antiga."
+  },
+  key:{
+    name: "🗝️",
+    description: "Uma chave antiga, com um formato peculiar."
+  },
+  idenfication_card:{
+    name: "🪪 Carteira de Identificação",
+    description: "Uma carteira de identificação com foto e dados pessoais.📘📒📓📗📙🪪"
+  },
+
 };
 const shields = {
   "Escudo de madeira": {
@@ -1219,6 +1232,7 @@ document.getElementById("inv-weapons").innerHTML = html;
     const div = document.createElement("div");
     div.className = "key-tem";
     div.textContent = item.name;
+    //PC
     div.title = item.description;
 
     kDiv.appendChild(div);
@@ -1244,6 +1258,25 @@ player.inventory.books.forEach(id => {
   `;
 });
 
+}
+
+function showItemTooltip(item) {
+  const tooltip = document.getElementById("item-tooltip");
+
+  tooltip.innerHTML = `
+    <strong>${item.name}</strong>
+    <p>${item.description}</p>
+  `;
+
+  tooltip.style.display = "block";
+  setTimeout(() => {
+    tooltip.style.display = "none";
+  }, 3000);
+}
+
+function hideItemTooltip() {
+  const tooltip = document.getElementById("item-tooltip");
+  tooltip.style.display = "none";
 }
 
 document.getElementById("btn-inventory")

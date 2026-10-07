@@ -528,7 +528,18 @@ body {
 #sidebar-relaction{
   display: flex;
 }
-
+#item-tooltip {
+  position: absolute;
+  background: rgba(20, 20, 20, 0.95);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+}
 /* ÁREA PRINCIPAL */
 #game {
   max-width: 900px;
