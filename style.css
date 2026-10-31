@@ -191,6 +191,7 @@ body {
 .log-defense { color: #66ff99; }
 .log-miss { color: #bbb; }
 .log-bleed { color: #ff4444; }
+.log-necromancy { color: pink; }
 
 /* SIDEBAR */
 #sidebar {
@@ -540,7 +541,7 @@ body {
   pointer-events: none;
   box-shadow: 0 0 10px rgba(0,0,0,0.6);
 }
-/* ÁREA PRINCIPAL */
+/* ÁREA PRNCIPAL */
 #game {
   max-width: 900px;
   margin: 0 auto;
@@ -800,6 +801,11 @@ button:hover { background: rgba(255,255,255,0.12); }
 .log-poison {
   color: #016d01;
   border-left-color: #586e31;
+}
+
+.log-necromancy {
+  color: pink;
+  border-left-color: #4c1d95;
 }
 
 .enemy-target-btn {

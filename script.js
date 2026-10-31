@@ -1777,6 +1777,17 @@ const skills = {
     critChance: 0.1,
     consumeAllRage: true,
     description: "Consome toda a fúria e causa um golpe extremamente poderoso."
+},
+
+/* ===== NECROMANCER ===== */
+  invocar_esqueleto: {
+    name: "Invocar Esqueleto",
+    type: "necromancy",
+    power: 0,
+    critChance: 0.0,
+    manaCost: 20,
+    conjure: "esqueleto",
+    description: "Invoca um esqueleto que possui uma parte do seu poder para lutar ao seu lado."
 }
 
 };
@@ -2904,17 +2915,7 @@ function intro() {
 
   window.scrollTo(0, 0);
 
-  const story = `Eu sempre tive uma vida difícil, nossa família era bem pobre e não era fácil sobreviver, mas ainda eramos felizes. 
-  
-   Até um dia que um homem vestindo roupas estranhas chegou, e mesmo que eu fosse criança, eu ainda lembro que meus pais ficaram estranhos, já não eramos mais uma família feliz mas ainda estávamos juntos... mesmo que esse sentimento não durasse tanto.
-   
-   As coisas mudaram quando eu fiz 10 anos, meu pai abandonou a casa, e o que já era difícil ficou ainda mais, minha mãe não conseguia sustentar eu e ela... quem dirá o bebê que meu pai deixou de presente em seu ventre antes de sumir.
-    
-   Quando Beattrice nasceu, tudo desmoronou, eu já tinha certa idade então entendia que a atenção de minha mãe seria direcionada para a criança que nascera agora, mas o que eu não imaginava era que eu seria tida como culpada por tudo que aconteceu. Até hoje tenho as marcas...
-   
-   Os anos se passaram e eu fiz os meus 16 anos, Beattrice tinha 6, e mais uma vez, aquele homem com roupas estranhas apareceu, eu não consigo me lembrar exatamente como eram suas roupas, minha memória está embaçada em toda a minha infância e adolescência, mas ainda consigo lembrar do desespero de ver aquele homem novamente levar algo precioso de mim, minha irmã foi levada nesse dia e com isso, minha mãe mudou completamente. O que era raro, começou a acontecer frequentemente, foram os 2 anos mais sofridos de todos, mas eu sabia que aquilo não era a minha mãe, aquele monstro já não era mais aquela que cuidava de mim.
-   
-   Finalmente quando aquele homem voltou, eu lembro de algo que ele disse: "A Torre salvará a todos, na Torre você vai poder recuperar tudo". Esse foi o último dia que vi tanto a minha mãe quando aquele homem.`;
+  const story = `Era um dia como qualquer outro em Nazarim, eu estavaem casa, como sempre, ajudando minha mãe com seu trabalho de costura, quando ouvii uma batida na pora, uma que nunca havia ouvido antes, mas que era de algum conhecido, pois o clima em casa que era leve e familiar, logo foi substituído por um clima pes. Me levzantei para ir abrir a porta, mas minha mãe me segurou`;
 
   changeScene(
     story,
@@ -2930,11 +2931,7 @@ function intro() {
 }
 
 function continueBackStory(){
-  const story = `Mas a vida não é algo que deixa você aproveitar por muito tempo, alguns anos depois, uma onda de praga se alastrou por Armenzian, eu e minha mãe nos afastamos de nossos empregos, nossa vida com alguns luxos básicos em troca da nossa vida como um todo, achamos que era uma troca justa. 
-  
-  Conseguimos sobreviver a praga sem problemas, mas demoramos a conseguir emprego novamente, a fome já não deixava mais com que pudéssemos escolher muito. Então qualquer coisa que achassemos, seria o trabalho perfeito. 
-  
-  Nunca me arrependi tanto na minha vida, eu consegui emprego primeiro, trabalhava fazendo patrulhas a noite, algo perigoso, mas que recentemente abriu vaga pois um criminoso assassinou o meu antecessor, mas isso não me importava, pois até que o salário era bom. Minha mãe conseguiu emprego algumas semanas depois, ela seria assistente do alfaiate da nossa vila, conseguimos nos virar, mas como sempre, quando nos acostumamos com a vida boa, algo ruim aconteceu.`;
+  const story = ``;
 
   changeScene(
   story,
@@ -2950,17 +2947,7 @@ function continueBackStory(){
 }
 
 function continueBackStory2(){
-  const story = `Em uma de minhas patrulhas, vi um homem invadir a loja do alfaiate da vila, o sangue subiu em minha cabeça e corri atrás dele, afinal, minha mãe naquele dia ainda estava lá mesmo sendo tarde da noite para fazerem uma grande encomenda para o lorde da região, entrei na loja alguns segundos após o invasor e o vi atacar o lojista, naturalmente o impedi sem nenhuma vítima ou prejuízo à loja, o criminoso era um homem pobre de uma vila vizinha, eu já o tinha visto algumas vezes aqui vendendo algumas quiquilharias.
-  
-  O prendi com facilidade e o levei para o quartel, dei meu depoimento junto com minha mãe e o senhor Morry, o alfaiate e então o homem foi preso, o desespero em seu rosto me assombrou por alguns dias, afinal, por que um homem que sempre levou uma vida honesta teria feito isso?
-   
-  Dias depois, um boato circulava em todos os lugares, uma facção rebelde queria causar prejuízos para o lorde daquelas terras, com este rumor, o caso do invasor na alfaiataria voltou, o homem foi interrogado novamente até que sua sentença foi divulgada, pena de morte por traição à coroa, talvez tenha sido por isso que aquele homem estivesse tão desesperado. 
-  
-  Todos foram convocados para assistir, eu como parte da segurança e a pessoa quem o capturou, fui designada para o vigiar até a data da execução, não me lembro muito bem de tudo que ele me disse, mas tudo aquilo ficou em minha mente por dias, ele não era um revolucionário, muito pelo contrário, apenas precisava do dinheiro que o ofereceram, salvaria sua família da pobreza, e agora que o único provedor daquela casa havia sido preso, nada impediria que aquelas pessoas morressem de fome. 
-  
-  Fui atingida por uma sensação de culpa, afinal, eu poderia ter feito algo para impedir que aquele homem fosse condenado à morte, mas não havia nada que eu pudesse fazer, afinal, a lei era a lei.
-  
-  Em seus últimos momentos, ele me olhou com um olhar de desprezo e culpa, naquele momento eu não consegui ouvir o que ele disse, mas eu sabia que me amaldiçoava e antes que seu corpo fosse suspenso pela corda, mesmo sua voz saindo como um sussurro, eu consegui ouvir quase como se ela ecoasse: "Os revolucionários vão vir até você... assim como vieram até mim-"`;
+  const story = ``;
 
   changeScene(story,
     () => {criarBotaoHistoria("Continuar", "backStrory3");
@@ -2972,7 +2959,7 @@ function continueBackStory2(){
 };
 
 function backStrory3(){
-  const story = `Alguns dias se passaram, nada aconteceu, mas era difícil ignorar a sensação de ser observada, seja nos dias de ronda ou nos dias de folga, até aquele dia, eu encontrei um pequeno papel com um símbolo estranho que eu já havia visto algumas vezes, nunca soube seu signifcado mas ainda sim era algo que nunca chamou minha atenção, então fui investigar o local.`;
+  const story = ``;
 
   giveKeyItem("mysterious_note");
 
@@ -2985,29 +2972,7 @@ function backStrory3(){
   );
 };
 
-function backStorySuspicionBuidingInvestigation(){
-  const story = `Cheguei a uma das vielas da cidade, um local escuro e apertado, que possuia o mesmo símbolo que eu havia visto no papel.`;
 
-  changeScene(story,
-    () => {criarBotaoHistoria("Checar o símbolo", "backStorySuspiciousSymbolInvestigation"),
-      criarBotaoHistoria("Investigar a porta", "backStorySuspiciousDoorInvestigation")
-    }, 320, 
-    "powerText",
-    "powerChoices",
-    "backStorySuspicionBuidingInvestigation"
-  );
-}
-
-function backStorySuspiciousSymbolInvestigation(){
-  const story = `Um grande símbolo marcado na parede, com uma cor vermelha vibrante no formato de um círculo, com uma estrela de 5 pontas no centro, e um pequeno círculo no centro da estrela, com uma linha atravessando o círculo.`;
-  changeScene(story,
-    () => {criarBotaoHistoria("Continuar", "backStorySuspicionBuidingInvestigation");
-    }, 320, 
-    "powerText",
-    "powerChoices",
-    "backStorySuspiciousSymbolInvestigation"
-  );
-}
 
 /* ========== COMBATE ========== */
 
@@ -3283,8 +3248,27 @@ const companionsDatabase = {
     dex: 9,
     skills: ["corte_forte"],
     description: "Um espadachim impulsivo."
+  },
+
+  esqueleto: {
+    name: "Esqueleto",
+    maxHp: (playerAttribute() * 0.8),
+    hp: (playerAttribute() * 0.8),
+    attack: playerAttribute(),
+    defense: playerAttribute(),
+    dex: playerAttribute(),
+    skills: ["corte_forte"],
+    description: "Um esqueleto reanimado."
   }
 
+};
+
+function playerAttribute() {
+  const fisic = player.strength || 0;
+  const magic = player.intelligence || 0;
+
+  if (fisic > magic) return fisic;
+  return magic;
 };
 
 let tooltipTimeout = null;
@@ -4255,6 +4239,23 @@ if (skill.consumeAllRage) {
   }
 
   /* =========================
+      NECROMANCIA 
+    ========================= */
+    if (skill.type === "necromancy") {
+      const summon = skill.conjure;
+      const rise = createCompanion(companionsDatabase[summon]);
+      const name = rise.name;
+
+      player.companions.push(rise);
+      alliesInBattle.push(rise);
+      renderAlliesStatus();
+      updateBars();
+      log(`💀 ${player.name} invoca ${name} para lutar ao seu lado!`);
+      setTimeout(enemyAction, 900);
+      return;
+    }
+
+  /* =========================
      CURA PURA
      ========================= */
 if (skill.heal) {
@@ -5107,7 +5108,7 @@ function log(msg) {
   p.innerText = msg;
 
   // Define uma classe CSS com base no tipo da mensagem
-  if (/💀|☠️/i.test(msg)) p.classList.add("log-death");
+  if (/☠️/i.test(msg)) p.classList.add("log-death");
   else if (/🔥|queim|Pirocinese|fogo|ignis|chamas|brasas/i.test(msg)) p.classList.add("log-fire");
   else if (/❄️|gelo|Criogenese|frio|congel|nevasca/i.test(msg)) p.classList.add("log-ice");
   else if (/🌀|Telecinese|impacto/i.test(msg)) p.classList.add("log-tele");
@@ -5122,6 +5123,7 @@ function log(msg) {
   else if (/errou|falhou|confuso/i.test(msg)) p.classList.add("log-miss");
   else if (/sangra|sangramento/i.test(msg)) p.classList.add("log-bleed");
   else if (/🧪|envenena/i.test(msg)) p.classList.add("log-poison");
+  else if (/💀|invoca/i.test(msg)) p.classList.add("log-necromancy");
   else p.classList.add("log-normal");
 
   if (/crítico|critico/i.test(msg)) {
