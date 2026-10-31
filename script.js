@@ -984,7 +984,8 @@ const weapons = {
     type: "distance",
     baseDamage: 15,
     skills: ["flecha_envenenada", "flecha_perfurante"],
-    slot: "main"
+    slot: "main",
+    twoHand: true
   },
 
   "Clava do clérigo": {
@@ -1010,7 +1011,7 @@ const weapons = {
 const ARMORS = {
   base: {
     id: "base",
-    name: "Armadura Básica",
+    name: "Trapos",
     defense: 2
   },
 
@@ -2040,6 +2041,7 @@ function motherStatus(){
 /* ===== RELAÇÕES DO JOGADOR ===== */
 
 let friendships = {
+  "Arranca Dedos": {know: false, value: 0, description: "Tem esperança que você se torne uma ótima pirata."},
   "Leandro": { know: false, value: 0, description: ""},
   "João José": { know: false, value: 0, description: ""},
   "Rudo":{ know: false, value: 0, description: "Está esperançoso com seu treinamento."},
@@ -2915,7 +2917,9 @@ function intro() {
 
   window.scrollTo(0, 0);
 
-  const story = `Era um dia como qualquer outro em Nazarim, eu estavaem casa, como sempre, ajudando minha mãe com seu trabalho de costura, quando ouvii uma batida na pora, uma que nunca havia ouvido antes, mas que era de algum conhecido, pois o clima em casa que era leve e familiar, logo foi substituído por um clima pes. Me levzantei para ir abrir a porta, mas minha mãe me segurou`;
+  let story = `A Torre, um local misterioso que chama pessoas que julga serem dignas, prometendo riquezas e poder. Seu local é desconhecido e ninguém que a alcançou jamais foi visto por seus conhecidos. Relatos de pessoas simplesmente sumindo já não causam mais preocupação ou caos, afinal, a Torre não permite recusa ao seu chamado e tão pouco admite atrasos. 
+   
+  Com o tempo, pessoas começaram a mudar; algumas temem que podem ser as proximas a serem chamadas, outras, clamam por seu chamado. Não importa a idade, todos estão a mercê da vontade da Torre.`;
 
   changeScene(
     story,
@@ -2931,7 +2935,9 @@ function intro() {
 }
 
 function continueBackStory(){
-  const story = ``;
+  let story = `Eu sou uma das pessoas que clama por seu chamado; Afinal, toda a minha família foi levado pela Torre, meu pai foi o primeiro, logo após meu nascimento ele desapareceu. Minha irmã mais velha foi a próxima, no meu aniversário de 3 anos, ela também sumiu. 
+  
+  Minha mãe e eu vivemos juntas por anos, tentando sobreviver em um mundo que não é nem um pouco gentil com pessoas pobres como nós. Quando concluí 13 anos, ela foi levada, bem na minha frente, pelo menos dela eu consegui me despedir.`;
 
   changeScene(
   story,
@@ -2947,32 +2953,246 @@ function continueBackStory(){
 }
 
 function continueBackStory2(){
-  const story = ``;
+  let story = `Eu precisei me virar para sobreviver, afinal, ninguém queria dar emprego para uma criança orfã.`;
 
   changeScene(story,
-    () => {criarBotaoHistoria("Continuar", "backStrory3");
+    () => {criarBotaoHistoria("Mendigar", "beggarBackStory"), 
+      criarBotaoHistoria("Ir para um orfanato", "orfanBackStory"),
+      criarBotaoHistoria("Pedir abrigo para a igreja", "clerigBackstory"),
+      criarBotaoHistoria("Pedir refúgio na academia mágica", "mageBackStory");
     }, 320, 
     "powerText",
     "powerChoices",
     "continueBackStory2"
   );
 };
-
-function backStrory3(){
-  const story = ``;
-
-  giveKeyItem("mysterious_note");
+// === PIRATE === //
+function beggarBackStory(){
+  let story = `Para conseguir ter algo para comer, eu decidi começar a mendigar nas ruas, sempre me mantendo em ruas movimentadas para não correr mais risco que o necessário, as pessoas raramente me davam algo, mas as poucas que deixavam algo me olhavam com um semblante de pena que me envergonhava até os ossos. 
+  
+  Mendigos não eram tão difíceis de se achar, afinal, qualquer um pode ser chamado pela Torre, e não é tão raro que o motivo da vida de alguém seja levado e a pessoa perca o rumo.
+  
+  Em um dia que a cidade estava mais movimentada que o normal, eu consegui uma quantidade boa de dinheiro, que se eu economizasse direito, eu conseguiria comer uma refeição por dia durante aquela semana toda, se em um momento de descuido um desconhecido pegasse minha bolsa e saísse correndo.`;
 
   changeScene(story,
-    () => {criarBotaoHistoria("Continuar", "backStorySuspicionBuidingInvestigation");
+    () => {criarBotaoHistoria("Perseguir", "beggarBackStoryCathTheThief"),
+      criarBotaoHistoria("Aceitar", "beggarBackStory2");
     }, 320, 
     "powerText",
     "powerChoices",
-    "backStrory3"
+    "beggarBackStory"
   );
 };
 
+function beggarBackStoryCathTheThief(){
+  let story = `Indignada, saí correndo atrás do ladrão, meu corpo pequeno e desnutrido odiando o esforço extra, mas não podia deixar que ele levasse todo o meu dinheiro. Eu conheço todas as ruas e vielas dessa cidade e nunca vi ninguém parecido com esse homem antes, então tenho a vantagem do terreno. 
+  
+  Enquanto corria desajeitado - não deve estar acostumado com isso - deixou algo cair dos seus bolsos, a luz do Sol refletia em sua lâmina; uma adaga.`;
 
+  changeScene(story,
+    () => {criarBotaoHistoria("Pegar", "beggarBackStoryCathTheKnife"),
+      criarBotaoHistoria("Ignorar", "beggarBackStoryCathTheThief2");
+    }, 320,
+    "powerText",
+    "powerChoices",
+    "beggarBackStoryCathTheThief"
+  );
+};
+
+function beggarBackStoryCathTheKnife(){
+  giveWeapon("Adaga");
+  equipWeapon("Adaga");
+  let story = `Sem parar de correr me curvo um pouco e pego a adaga a segurando com força pelo cabo, gritando para que o homem pare e me devolva a bolsa.`;
+
+  changeScene(story, 
+    () => {criarBotaoHistoria("Continuar", "beggarBackStoryCathTheThief2")},
+    320,
+    "powerText",
+    "powerChoices",
+    "beggarStoryCathTheKnife"
+  );
+};
+
+function beggarBackStoryCathTheThief2(){
+  let story = `Continuo a perseguição, o cansaço fazendo ambos correm mais lento, mas uma dobra errada e tudo acaba, um beco sem saída, o muro muito mais alto do que uma pessoa poderia escalar rápido assim. Consigo ver o momento em que ele desiste de fugir de mim, ele apalpa sua cintura procurando algo mas não encontra, seu olhar não vacila e ele arma a guarda.`;
+  
+  if(player.equippedWeapon.name === "Adaga"){
+    changeScene(story,
+    () => {criarBotaoHistoria("Puxar a adaga", "fightThief")},
+    320,
+    "powerText",
+    "powerChoices",
+    "beggarBackStoryTheThief2"
+    );
+  }else{
+    changeScene(story,
+      () => {criarBotaoHistoria("Se preparar para a briga", "fightThief")},
+      320,
+      "powerText",
+      "powerChoices",
+      "beggarBackStoryTheThief2"
+    );
+  };
+};
+
+function fightThief(){
+      startBattle("Ladrão", (won) => {
+    if (won) {
+      winThief();
+    } else {
+      loseThief();
+    }
+  });
+};
+
+function winThief(){
+  if(player.equippedWeapon === "Adaga"){
+    winThiefKnife();
+  }
+  let story = `Machucado, o ladão cai no chão e caio sobre ele, todo meu corpo dolorido. 
+  - Devolve a minha bolsa! - me forço a dizer, a voz fraca devido ao cansaço.
+  
+  Aparentando estar fazendo muito esforço, seja por estar cansado ou pela humilhação de perder para uma garota de 13 anos - talvez os dois -, o homem me entrega minha bolsa.
+  
+  Me esforço para me levantar, e quando me viro, um homem grande estava na saída do beco, observando tudo em silêncio, quando o percebo, o cheiro de fumaça e fumo tortura minhas narinas, sua túnica vermelha e calças azuis não chamam muito atenção, muito menos suas botas de couro sujo, afinal, qualquer um nessa cidade poderia ter isso, o que me faz tremer é o tapa olho, e a grande espada em sua cintura. Um Pirata.
+  
+  - Jhonas, que vergonha... Roubando de mendigos para pagar a sua dívida? - ele olha para mim, e da um sorriso, quase tranquilizador - E roubando da garota que eu ia trazer para a tripulação? Você não aprende mesmo, né?!
+  
+  Alguns segundos de silêncio se passam, e o pirata olha para mim novamente:
+  
+  - E então, o que me diz? Você quer fazer parte da minha tripulação? Não vai precisar mais mendigar se estiver comigo, o Arranca Dedos, tu não vai se preocupar com o que comer!`;
+  meetCharacter("Arranca Dedos");
+  changeFriendship("Arranca Dedos", 5);
+
+  changeScene(story, 
+    () =>{criarBotaoHistoria("Continuar", "pirate")},
+    320,
+    "powerText",
+    "powerChoices",
+    "winThief"
+  );
+};
+
+function winThiefKnife(){
+  let story = `Ferido - muito mais que eu - o homem cai no chão e pulo em cima dele, a adaga em seu pescoço:
+  
+  - ME DEVOLVE! - exijo, as mãos tremulas de raiva e cansaço.
+  
+  Usando talvez suas últimas forças, o ladrão me joga para trás com força e caio no chão e ele se levanta novamente, mas não dou tempo para que ele se recupere e me jogo para cima dele novamente, gritando. Novamente ele está no chão, a adaga tão pressionada em seu pescoço que uma fina linha de sangue começa a escorrer da área de contato.
+  
+  - Se eu te devolver, o Arranca Dedos me pega e vai fazer comigo algo muito pior que você, não vou sair de mãos abanando, garota - ele cospe a última palavra.`;
+
+  changeScene(story,
+    () => {criarBotaoHistoria("Matar (essa ação terá consequências)", "meetFingerKiller1"),
+      criarBotaoHistoria("Desistir (essa ação terá consequências)", "meetFingerKiller")
+    },320,
+    "powerText",
+    "powerChoices",
+    "winThiefKnife"
+  );
+};
+
+function meetFingerKiller1(){
+  meetCharacter("Arranca Dedos");
+  changeFriendship("Arranca Dedos", 10);
+  
+  let story = `- O que temos aqui? - congelo ao ouvir a voz grossa logo atrás de mim, olho em direção ao som e vejo um homem grande e quase o mesmo medo que se cria em mim, se cria no homem a baixo de mim, que começa a gaguejar e se aproveitando da minha distração, me joga para o lado e se levanta e vai correndo até o homem, suas roupas simples, uma túnica vermelha gasta, calças azuis e botas de couro sujas passariam despercebidas por qualquer um, se não fosse o tapa olho e a grande espada em sua cintura.
+  
+  Quando o ladrão se aproxima do homem, ele se ajoelha:
+
+  - P-por favor senhor Arranca Dedos, e-eu já tenho o dinheiro, mas aquela pedinte estava tentando me roubar! - ele aponta para mim, que ainda estou no chão e percebo o que ele está tentando fazer e me levanto para protestar, mas antes que eu consiga fazer qualquer coisa, a mão do pirata já está na espada suja de sangue do pescoço do assaltante.
+
+  - Eu te avisei Jhonas, ninguém faz o Arranca Dedos de idiota - ele olha para mim e congelo - Eu vi o que você ia fazer, garota; crianças não precisam sujar as mãos com coisas de adulto.
+
+  Como se não fosse nada, ele limpa a sua espada, se abaixa e apanha a sacola com as minhas moedas do corpo do homem que se chamava Jhonas e caminha lentamente em minha direção e me entrega a bolsa, que por algum motivo divino consigo vencer o horror e pegar, antes que eu consiga fugir, o pirata fala:
+
+  - Como deve imaginar, meu eu sou o famoso Arranca Dedos, o lendário pirata. E você, garota, não importa quem era antes, você agora faz parte da minha tripulação. Não se preocupe pequena, você estará em boas mãos - ele me oferece um sorriso que seria gentil se seu rosto ainda não estivesse sujo com o sangue daquele homem.`;
+
+  changeScene(story,
+    () =>{criarBotaoHistoria("Continuar", "pirate")},
+    320,
+    "powerText",
+    "powerChoices",
+    "meetFingerKiller1"
+  );
+};
+
+function meetFingerKiller(){
+  meetCharacter("Arranca Dedos");
+  changeFriendship("Arranca Dedos", 2);
+  let story = `Vendo minha exitação, o ladrão me empurra novamente para o chão e volta a correr, levando minha bolsas de moedas, lágrimas começam a irromper dos meus olhos e começo a pensar em uma forma de como sobreviver sem dinheiro algum, mas um som molhado e rápido me faz voltar a realidade, quando olho para frente, vejo apenas vermelho, tem sangue pra todo lado, o homem que havia me roubado está jogado no chão e seu assassino, um homem grande com uma túnica mais vermelha do que nunca e uma calça preta, que também se banha do vermelho, botas de couro sujas que o homem usa para pisar por cima do cadáver e vir até mim, mas meu medo se multiplica quando olho para sua mão, uma espada grande banhada em sangue, fecho os olhos com força e sinto uma mão - que facilmente conseguiria pegar minha cabeça - tocar meus ombros:
+  
+  - Tá tudo bem agora, garotinha - ele estende a mão para mim, me entregando minha bolsinha que tem umas manchas a mais que antes - venha comigo, eu, o Arranca Dedos, o lendário pirata que comanda os mares não vou deixar que algo aconteça com você.`;
+
+  changeScene(story,
+    () => {criarBotaoHistoria("Continuar", "pirate")},
+    320,
+    "powerText",
+    "powerChoices",
+    "meetFingerKiller"
+  );
+};
+
+function loseThief(){
+  meetCharacter("Arranca Dedos");
+
+  if(player.equippedWeapon.name === "Adaga"){
+    loseThiefKnife();
+  }
+
+  let story = `Um soco no meio do meu rosto me faz cair no chão, derrotada. Lágrimas escorrem livremente por meu rosto, a dor em meu corpo é o de menos, aquela bolsa era tudo o que eu tinha e um estranho está levando para sempre; me forço a ver ele saindo do beco, minhas esperanças de ter uma vida melhor sendo roubadas junto com o dinheiro.
+  
+  Vejo o exato momento em que o ladrão tromba com um homem grande, não consigo o ver direito, meu olho dominante inchado, mas consigo ver o exato momento em que o assaltante entrega a bolsa para aquele outro homem e aponta para mim, não consigo ouvir o que estão dizendo, minha consciência se esvaindo, mas não sem antes ver aquele gigante puxar algo da sua cintura e cortar o pescoço do assaltante, seu corpo caindo como um saco. 
+  
+  O assassino vem correndo até mim, parece estar preocupado e se ajoelha próximo de mim:
+  
+  - Pronto, pequena, eu estou aqui e vou te ajudar, ok? Com o grande pirata Arranca Dedos, ninguém precisa se preocupar com ladrões - consigo ver seu sorriso antes de desmaiar completamente.`
+
+  changeScene(story, 
+    () => {criarBotaoHistoria("Continue", "pirate")},
+    320,
+    "powerText",
+    "powerChoices",
+    "loseThief"
+  );
+};
+
+function loseThiefKnife(){
+  let story = `Um soco forte no meu rosto me desequilibra e o homem se aproveita disso para me derrubar e roubar a adaga de minha mão e logo sinto o metal frio pressionando meu pescoço, fico desesperada, mas estranhamente também calma - talvez se tudo acabasse ali seria melhor do que ter que lutar para viver todos os dias.
+  
+  - CRIANÇA ESTÚPDA! IDIOTA! VOCÊ QUER MORRER, BRINCANDO COM UMA COISA DESSAS? TUDO ISSO POR ESSA BOLSA IDIOTA? - a lâmina pressiona mais em meu pescoço, e sinto um líquido quente escorrer do contato - você podia ter me matado com isso, e eu, vou com certeza te matar com isso!
+  
+  Tudo fica vermelho quando a lâmina atravessa o pescoço, não o meu. O dele. Seu corpo cai sobre mim e logo é jogado, como se não pesasse nada, ou fosse só algo incoveninete. Um homem grande aparece em meu campo de visão.
+  
+  - Graças aos Deuses, você está viva ainda! - talvez minha expressão não representasse a calma que eu sentia dentro de mim, afinal, o rosto do homem se contorce com uma fúria que nunca vi ninguém expressar antes - Você vai ficar bem, menina, o lendário pirata Arranca Dedos te resgatou - ele acaricia meu rosto e limpa a mão em sua calça, sinto todo meu corpo coberto com um sangue que não me pertence, e antes que minha consciência se vá de uma vez, um soriso gentil vindo daquele homem.`;
+
+  changeScene(story, 
+    () => {criarBotaoHistoria("Continue", "pirate")},
+    320,
+    "powerText",
+    "powerChoices",
+    "loseThiefKnife"
+  );
+};
+
+function pirate(){
+  let story = "Fim temporário da rota do pirata."
+
+  changeScene(story, 
+    () => {criarBotaoHistoria("Fim", "pirate")},
+    320,
+    "powerText",
+    "powerChoices",
+    "pirate"
+  );
+};
+// === NOBLE === //
+
+// === CLERIC === //
+
+// === MAGE === //
+
+// === ADVENTURER === //
 
 /* ========== COMBATE ========== */
 
@@ -3102,15 +3322,16 @@ const enemies = {
     description: "Um drone enviado pelo governo para caçar supers.",
   },
 
-  joaoJose: {
-    name: "João José",
-    maxHp: 120,
-    hp: 120,
-    attack: 14,
-    defense: 10,
+  thief: {
+    name: "Ladrão",
+    maxHp: 50,
+    hp: 50,
+    attack: 10,
+    defense: 5,
     powerType: "Físico",
     status: {},
-    description: "Um homem comum, mas com treinamento militar. Seus golpes são precisos e frios.",
+    description: "O homem que roubou todas as minhas economias, preciso pegar de volta, não importa como",
+    xp: 100,
   },
 
   rudo: {
@@ -3258,6 +3479,7 @@ const companionsDatabase = {
     defense: playerAttribute(),
     dex: playerAttribute(),
     skills: ["corte_forte"],
+    turns: 3,
     description: "Um esqueleto reanimado."
   }
 
@@ -5052,9 +5274,13 @@ function companionsTurn() {
 
   const companion = livingCompanions[currentCompanionTurn];
 
-  companionAction(companion)
-
-  currentCompanionTurn++;
+  // companionAction(companion)
+  // if(companion.turns === 0){
+    
+  // }else if(companion.turns){
+  //   companion.turns--
+  // }
+  currentCompanionTurn++
 
   checkBattleEnd();
   setTimeout(companionsTurn, 800);
