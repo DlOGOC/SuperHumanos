@@ -2127,6 +2127,9 @@ function clearStatus(entity, name) {
    PROCESSAMENTO DE STATUS
    =========================== */
 function processStatuses(entity, who) {
+
+  const hpBefore = entity.hp;
+
   if (!entity.status) entity.status = {};
 
   /* ===== MALDIÇÃO (DOT) ===== */
@@ -2186,6 +2189,11 @@ function processStatuses(entity, who) {
 
     if(entity.status.poisoning.turns <= 0) clearStatus(entity, "poisoning");
   }
+
+  if (entity.hp <= 0){
+    if (who ==="enemy") checkBattleEnd();
+    return false;
+  };
 
   /* ===== PARALISIA (PERDE TURNO) ===== */
   if (hasStatus(entity, "paralizado")) {
@@ -2690,6 +2698,12 @@ function changeScene(
     saveGame();
   }
 
+  const powerScreen = document.getElementById("power-screen");
+
+if (elementId === "powerText" && powerScreen) {
+  powerScreen.style.display = "block";
+}
+
   window.scrollTo(0, 0);
   
   clearButtons(buttonsContainerId);
@@ -3046,8 +3060,9 @@ function fightThief(){
 };
 
 function winThief(){
-  if(player.equippedWeapon === "Adaga"){
+  if(player.equippedWeapon.name === "Adaga"){
     winThiefKnife();
+    return;
   }
   let story = `Machucado, o ladão cai no chão e caio sobre ele, todo meu corpo dolorido. 
   - Devolve a minha bolsa! - me forço a dizer, a voz fraca devido ao cansaço.
@@ -3284,8 +3299,7 @@ function endBattle(result) {
 
   BattleManager.active = false;
 
-  document.getElementById("battle-screen").style.display = "none";
-  document.getElementById("story-screen").style.display = "block";
+
 
   const callback = BattleManager.onEnd;
 
@@ -3295,6 +3309,9 @@ function endBattle(result) {
   if (typeof callback === "function") {
     callback(result);
   }
+
+  document.getElementById("battle-screen").style.display = "none";
+  document.getElementById("story-screen").style.display = "block";
 }
 
 /* =========================
@@ -5126,6 +5143,8 @@ function enemyAction() {
   } else {
     enemyBasicAttack(enemy);
   }
+
+  if (checkBattleEnd()) return;
 
   currentEnemyIndex++;
 
