@@ -2998,6 +2998,38 @@ function beggarBackStory(){
   );
 };
 
+function beggarBackStory2(){
+  let story = `Quando notei, o homem já estava longe, e o que uma criança desnutrida como eu poderia fazer algo? Então apenas continuei sentada no chão frio, lágrimas impossíveis de segurar se derramando. Eu as vezes acho impressionante como algumas coisas passam invisíveis, conseguia ouvir homens falando que pregam pelo bem de todos, que se importam com o próximo... nenhum destes homens ouviram meus gritos naquele dia?
+  
+  Continuei lá, na esperança de conseguir algumas moedas para conseguir pelo menos comer naquele dia. Mas algo que não esperava aconteceu.`;
+
+  changeScene(story, 
+    () => {criarBotaoHistoria("Continuar", "beggarBackStory3")},
+    320,
+    "powerText",
+    "powerChoices",
+    "beggarBackStory2"
+  );
+};
+
+function beggarBackStory3(){
+  let story = `- Garotinhas como você não devem chorar assim - antes que conseguisse ver o dono daquela voz, ouvi um barulho familiar, moedas tintilando e quando levantei a cabeça o suficiente, lá estava ela, minha bolsa, mais cheia do que nunca. Algumas manchas vermelhas que antes não estavam lá me chamaram a atenção por um segundo, mas logo foram esquecidas.
+  
+  - Peguei aquele homem que roubou você, não sabia se ele tinha gasto alguma coisa, então coloquei um pouco mais na sua bolsinha - ele continuou dizendo, respirou fundo e seguiu - Escuta, a vida nas ruas não é nem um pouco fácil, eu posso te ajudar a sair dessa, você deve ter ouvido o meu nome por aí, eu sou o lendário pirata Arranca Dedos, tenho espaço para alguém pequeno como você na minha tripulação. A vida nos mares também não será nada fácil, mas prometo que fome, você nunca mais vai passar.
+  
+  Eu não sei dizer, mas algo naquele sorriso me trazia um pouco de tranquilidade, mesmo seu tamanho que era quase 3 de mim não me intimidara, pelo contrário, suas roupas - uma túnica de um vermelho desbotado pelo Sol, uma calça azul que chegava até suas canelas e botas de couro gastas - traziam um aspecto de um lorde de pequenas terras. 
+  
+  Não pensei duas vezes antes de segurar sua mão estendida.`;
+
+  changeScene(story, 
+    () => {criarBotaoHistoria("Continuar", "pirate")},
+    320,
+    "powerText",
+    "powerChoices",
+    "beggarBackStory3"
+  );
+};
+
 function beggarBackStoryCathTheThief(){
   let story = `Indignada, saí correndo atrás do ladrão, meu corpo pequeno e desnutrido odiando o esforço extra, mas não podia deixar que ele levasse todo o meu dinheiro. Eu conheço todas as ruas e vielas dessa cidade e nunca vi ninguém parecido com esse homem antes, então tenho a vantagem do terreno. 
   
