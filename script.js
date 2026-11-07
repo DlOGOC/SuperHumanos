@@ -1470,7 +1470,13 @@ const skills = {
     description: "Uma grande explosão de fogo que atinge todos os inimigos"
   },
 
-
+  incendiar: {
+    name: "Incendiar arma",
+    type:"weaponBuff",
+    manaCost: 15,
+    buff: "fire",
+    description: "Imbuí sua arma principal com chamas"
+  },
 
   /* ===== ICE ===== */
   congelar: {
@@ -1529,6 +1535,14 @@ const skills = {
     description: "Energia elétrica instável explode no alvo"
   },
 
+  eletrizar: {
+    name: "Eletrizar arma",
+    type: "weaponBuff",
+    manaCost: 15,
+    buff: "eletric",
+    description: "Imbuí o poder dos raios na arma principal"
+  },
+
   /* ===== ARCANE ===== */
   pulso_arcano: {
     name: "Raio Arcano",
@@ -1575,6 +1589,14 @@ const skills = {
     applySilence: true,
     silenceDuration: 2,
     description: "Bloqueia a conjuração do inimigo por alguns turnos"
+  },
+
+  arcanizar: {
+    name: "Arcanizar arma",
+    type: "weaponBuff",
+    manaCost: 15,
+    buff: "arcane",
+    description: "Imbuí sua arma principal com o poder do arcano"
   },
 
   /* ===== DISTANCE ===== */
@@ -1669,6 +1691,14 @@ const skills = {
     description: "O julgamento final da luz divina"
   },
 
+  consagrar: {
+    name: "Consagrar Arma",
+    type: "weaponBuff",
+    manaCost: 15,
+    buff: "holy",
+    description: "Imbuí sua arma principal com o poder divino"
+  },
+
   /* ===== DARK ===== */
   golpe_vampirico: {
     name: "Golpe Vampírico",
@@ -1744,6 +1774,14 @@ const skills = {
     power: 0.8,
     heal: true,
     areaHeal: true
+  },
+
+  macular: {
+    name: "Macular Arma",
+    type: "weaponBuff",
+    manaCost: 15,
+    buff: "dark",
+    description: "Macula sua arma principal com a energia das trevas"
   },
 
 /* ===== VAMPIRE ===== */
@@ -2229,6 +2267,31 @@ function processStatuses(entity, who) {
 
     if (entity.status.fear.turns <= 0) clearStatus(entity, "fear");
   }
+
+  if(hasStatus(entity, "fire")){
+    entity.status.fire.turns--;
+    if(entity.status.fire.turns <= 0) clearStatus(entity, "fire");
+  }
+
+  if(hasStatus(entity, "eletric")){
+    entity.status.eletric.turns--;
+    if(entity.status.eletric.turns <= 0) clearStatus(entity, "eletric");
+  } 
+
+  if(hasStatus(entity, "holy")){
+    entity.status.holy.turns--;
+    if(entity.status.holy.turns <= 0) clearStatus(entity, "holy");
+  }
+
+  if(hasStatus(entity, "dark")){
+    entity.status.dark.turns--;
+    if(entity.status.dark.turns <= 0) clearStatus(entity, "dark");
+  }  
+
+  if(hasStatus(entity, "arcane")){
+    entity.status.arcane.turns--;
+    if(entity.status.arcane.turns <= 0) clearStatus(entity, "arcane");
+  }  
 
   return entity.hp > 0;
 }
@@ -4194,7 +4257,48 @@ function attack() {
   }
 
   // ===== APLICA DANO =====
-  target.hp = Math.max(0, target.hp - damage);
+  const weaponBuffs = [
+    "fire", "eletric", "holy",
+    "arcane", "dark"
+  ];
+
+  const activeBuff = weaponBuffs.find(
+    type => hasStatus(player, type)
+  );
+
+  let elementalDamage = 0;
+
+  if(activeBuff){
+    const buff = player.status[activeBuff];
+
+    //calcula o bônus elemental
+    elementalDamage = Math.floor(
+      damage * (buff.value ?? 0.3)
+    );
+
+    //verifica imunidade
+
+    if(target.damageImmunities?.includes(activeBuff)){
+      elementalDamage = 0;
+    }
+    //verifica resistência ou fraqueza
+    else if(target.resistances?.[activeBuff] !==undefined){
+      elementalDamage = Math.floor(
+        elementalDamage * 
+        target.resistences[activeBuff]
+      );
+    }
+
+    if(elementalDamage > 0){
+      log(`O encantamento causa mais ${elementalDamage} de dano elemental!`);
+    }
+  }
+
+  // =====  APLICA O DANO TOTAL =====
+
+  const totalDamage = damage + elementalDamage;
+  
+  target.hp = Math.max(0, target.hp - totalDamage);
 
   if (player.isWerewolf && damage > 0) {
     gainRage(Math.floor(damage * 0.25));
@@ -4215,7 +4319,7 @@ function attack() {
   narrateAttack(
     player,
     target,
-    damage,
+    totalDamage,
     isCrit,
     false,
     weapon.type
@@ -4297,7 +4401,7 @@ const skillTypeColors = {
 };
 
 function applySkillColor(btn, skill) {
-  const color = skillTypeColors[skill.type];
+  const color = skillTypeColors[skill.buff] || skillTypeColors[skill.type];
 
   if (color) {
     btn.style.backgroundColor = color;
@@ -4569,6 +4673,44 @@ if (skill.consumeAllRage) {
       setTimeout(enemyAction, 900);
       return;
     }
+
+  /* =========================
+     BUFF DE ARMA 
+     ========================= */
+
+     if(skill.type === "weaponBuff"){
+      const weapon = player.equippedSubWeapon;
+
+      if(!weapon || weapon.type !== "wand" || weapon.type !== "orb" || weapon.type != "censer" ||weapon.name === "Mãos vazias"){
+        log("Você não está usando uma arma secundária válida.");
+        player.mana += skill.manaCost;
+        setTimeout(enemyAction, 900);
+        return;
+      };
+      switch (skill.buff){
+        case "fire": applyStatus(player, "fire", 3);
+        log("Sua arma agora transbordando com a magia do fogo.");
+          break;
+        case "eletric": applyStatus(player, "eletric", 3);
+        log("Sua arma agora está imbuída com a força dos raios.");
+          break;
+        case "holy": applyStatus(player, "holy", 3);
+        log("Em sua arma agora flui o poder divino.")
+          break;
+        case "arcane": applyStatus(player, "arcane", 3);
+        log("Sua arma foi imbuída com a essência do arcano.");
+          break;
+        case "dark": applyStatus(player, "dark", 3);
+        log("Sua arma foi imbuída com o poder das trevas e clama por violência.");
+          break;
+        default: applyStatus(player, "arcane", 3);
+          break;
+      };
+      updateBars();
+      updateStatusIcons();
+      setTimeout(enemyAction, 900);
+      return;
+     };
 
   /* =========================
      CURA PURA
