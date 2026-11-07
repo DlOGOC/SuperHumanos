@@ -3617,6 +3617,7 @@ function checkBattleEnd() {
   if (!alliesAlive) {
     removeSummons(true);
     endBattle(false);
+    clearPlayerBattleStatuses();
     return true;
   }
 
@@ -3624,6 +3625,7 @@ function checkBattleEnd() {
   if (!enemiesAlive) {
     removeSummons(true);
     endBattle(true);
+    clearPlayerBattleStatuses();
     return true;
   }
 
@@ -5405,6 +5407,27 @@ function companionsTurn() {
   }
 
   setTimeout(companionsTurn, 800);
+};
+
+function clearPlayerBattleStatuses(){
+  const statusesToRemove = [
+    "burning",
+    "forzen",
+    "bleeding",
+    "confused",
+    "paralizado",
+    "curse",
+    "silence",
+    "poisoning",
+    "fear"
+  ];
+
+  statusesToRemove.forEach(status =>{
+    clearStatus(player, status);
+  });
+
+  updateMagicUI();
+  updateStatusIcons();
 };
 
 function removeSummons(removeAll = false) {
