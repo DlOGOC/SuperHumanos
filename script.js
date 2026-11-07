@@ -3600,6 +3600,9 @@ function bindSkillTooltip(btn, skill) {
 
 function checkBattleEnd() {
 
+  // Remove invocações que morreram
+  const removedSummons = removeSummons();
+
   // Remove inimigos mortos
   enemiesInBattle = enemiesInBattle.filter(e => e.hp > 0);
 
@@ -3610,21 +3613,30 @@ function checkBattleEnd() {
   const alliesAlive = alliesInBattle.some(a => a.hp > 0);
   const enemiesAlive = enemiesInBattle.length > 0;
 
+  // DERROTA
   if (!alliesAlive) {
+    removeSummons(true);
     endBattle(false);
     return true;
   }
 
+  // VITÓRIA
   if (!enemiesAlive) {
+    removeSummons(true);
     endBattle(true);
     return true;
   }
 
+  if (removedSummons) {
+    renderAlliesStatus();
+    updateBars();
+  }
+
   renderEnemyTargets();
   updateEnemyHUD();
-  return false;
-}
 
+  return false;
+};
 
 function startBattle(enemyName, onEndCallback) {
   if (typeof onEndCallback !== "function") {
@@ -3817,6 +3829,7 @@ function updateStatusIcons() {
 
   playerStatusEl.innerHTML = makeStatusIcons(player);
   enemyStatusEl.innerHTML  = makeStatusIcons(enemy);
+
 }
 
 function makeStatusIcons(entity) {
@@ -3831,26 +3844,39 @@ function makeStatusIcons(entity) {
     paralizado: "⚡",
     curse: "☠️",
     silence: "🤐",
-    poisoning: "🧪"
+    poisoning: "🧪",
+    summoned: "💀"
   };
 
   const descMap = {
     burning: "Queimando — perde HP a cada turno.",
-    frozen: "Congelado — ataque para causar muito dano.",
+    frozen: "Congelado — vulnerável a ataques.",
     bleeding: "Sangramento — sofre dano contínuo.",
     confused: "Confuso — chance de perder o turno.",
     blinded: "Cego — ataques têm chance de errar.",
-    paralizado: "Paralizado — perde um turno.",
+    paralizado: "Paralisado — perde um turno.",
     curse: "Maldição — ataque e defesa reduzidos.",
     silence: "Silêncio — não pode conjurar magias.",
-    poisoning: "Envenenamento — sofre dano contínuo."
+    poisoning: "Envenenamento — sofre dano contínuo.",
+    summoned: "Invocado — criatura temporária."
   };
 
   return Object.keys(entity.status)
     .filter(s => entity.status[s].turns > 0)
     .map(s => {
+
       const emoji = emojiMap[s] || "?";
-      const desc = descMap[s] || s;
+      let desc = descMap[s] || s;
+
+      // Duração da invocação
+      if (s === "summoned") {
+        const turns = entity.status.summoned.turns;
+
+        desc += turns === 1
+          ? ` Desaparecerá em ${turns} rodada.`
+          : ` Desaparecerá em ${turns} rodadas.`;
+      }
+
       return `<span class="status-icon" data-tip="${desc}">${emoji}</span>`;
     })
     .join("");
@@ -4517,6 +4543,21 @@ if (skill.consumeAllRage) {
       const rise = createCompanion(companionsDatabase[summon]);
       const name = rise.name;
 
+      if (!rise) return;
+
+      if(player.companions.length >=4){
+        log("Você não tem espaço para invocar outra criatura");
+        return;
+      };
+      
+      rise.isSummon = true;
+
+      applyStatus(
+        rise,
+        "summoned",
+        skill.duration || 3
+      );
+
       player.companions.push(rise);
       alliesInBattle.push(rise);
       renderAlliesStatus();
@@ -4722,15 +4763,41 @@ gainXP(target.xp||0);
   if (enemiesInBattle.length === 0) {
     endBattle(true);
     return;
-  }
+  };
 
   currentEnemyIndex = 0;
-}else {
-  setTimeout(enemyAction, 900);
-}
 
+  }else {
+    setTimeout(enemyAction, 900);
+  };
 
-}
+};
+
+function tickSummons(){
+  const summons = player.companions.filter(c => c.isSummon);
+
+  summons.forEach(summon => {
+    if(!hasStatus(summon, "summoned")){
+      return;
+    };
+
+    summon.status.summoned.turns--;
+
+    const remaing = summon.status.summoned.turns;
+
+    if(remaing <= 0){
+      log(`${summon.name} deseapareceu! Seu tempo neste mundo acabou.`);
+
+      player.companions = player.companions.filter(c => c !== summon);
+
+      alliesInBattle = alliesInBattle.filter(c => c !== summon);
+    };
+  });
+
+  renderAlliesStatus();
+  updateBars();
+
+};
 
 function defend() {
   if (!processStatuses(player, "player")) {
@@ -5184,6 +5251,8 @@ function enemyAction() {
 
     currentEnemyIndex = 0;
 
+    tickSummons();
+
     if (player.vampireClaws?.active) {
       player.vampireClaws.turns--;
       if (player.vampireClaws.turns <= 0) {
@@ -5313,6 +5382,7 @@ function companionsTurn() {
   const livingCompanions = player.companions.filter(c => c.hp > 0);
 
   if (livingCompanions.length === 0) {
+    currentCompanionTurn = 0;
     setTimeout(enemyAction, 800);
     return;
   }
@@ -5325,16 +5395,52 @@ function companionsTurn() {
 
   const companion = livingCompanions[currentCompanionTurn];
 
-  // companionAction(companion)
-  // if(companion.turns === 0){
-    
-  // }else if(companion.turns){
-  //   companion.turns--
-  // }
-  currentCompanionTurn++
+  currentCompanionTurn++;
 
-  checkBattleEnd();
+  companionAction(companion);
+
+  if (checkBattleEnd()) {
+    currentCompanionTurn = 0;
+    return;
+  }
+
   setTimeout(companionsTurn, 800);
+};
+
+function removeSummons(removeAll = false) {
+  const summons = [
+    ...(player.companions || []),
+    ...(alliesInBattle || [])
+  ];
+
+  const toRemove = summons.filter((ally, index) =>
+    ally.isSummon &&
+    (removeAll || ally.hp <= 0)
+  );
+
+  const removed = [...new Set(toRemove)];
+
+  if (removed.length === 0) return false;
+
+  removed.forEach(summon => {
+    if (summon.hp <= 0) {
+      log(`💀 ${summon.name} foi destruído!`);
+    }
+  });
+
+  player.companions = player.companions.filter(
+    ally => !removed.includes(ally)
+  );
+
+  alliesInBattle = alliesInBattle.filter(
+    ally => !removed.includes(ally)
+  );
+
+  if (removed.includes(selectedTarget)) {
+    selectedTarget = player;
+  }
+
+  return true;
 }
 
 function companionBasicAttack(companion, target) {
