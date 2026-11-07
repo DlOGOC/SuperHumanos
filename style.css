@@ -191,7 +191,7 @@ body {
 .log-defense { color: #66ff99; }
 .log-miss { color: #bbb; }
 .log-bleed { color: #ff4444; }
-.log-necromancy { color: pink; }
+.log-necromancy { color: #f8bbc5; }
 
 /* SIDEBAR */
 #sidebar {

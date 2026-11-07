@@ -4292,7 +4292,8 @@ const skillTypeColors = {
   holy:         "#f5e960", // dourado
   dark:         "#2c2c2c", // preto
   vampire:      "#6e1d14", // vinho
-  werewolf:     "#d88d2b"  // laranja
+  werewolf:     "#d88d2b",  // laranja
+  necromancy:   "#f8bbc5"  // rosa
 };
 
 function applySkillColor(btn, skill) {
